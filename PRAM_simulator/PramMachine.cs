@@ -34,10 +34,11 @@ namespace PRAM_simulator
         public string? ExecutionErrorMessage { get; private set; }
 
         public int? ExecutionErrorLineIndex { get; private set; }
+        public bool IsErrored { get; private set; }
 
-        public bool IsHalted {get; private set;}
+        public bool IsHalted { get; private set; }
 
-        public InstructionPointer MPIP { get; private set; } //MasterProcessorInstructionPointer
+        public InstructionPointer MPIP { get; private set; } 
 
         public PramMachine()
         {
@@ -47,6 +48,7 @@ namespace PRAM_simulator
             Compiler = new CodeCompiler();
             InstructionRegex = new InstructionRegex();
             MPIP = new InstructionPointer(0);
+            IsErrored = false;
 
 
             MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory);
@@ -74,27 +76,35 @@ namespace PRAM_simulator
             int ErrorLineIndex;
             MasterCodeMemory = Compiler.Compile(code, InstructionRegex, out ErrorMessage, out ErrorLineIndex);
 
-            if (MasterCodeMemory == null)
+            if (MasterCodeMemory == null) //Compilation failed
             {
                 this.CompilationErrorMessage = ErrorMessage;
                 this.CompilationErrorLineIndex = ErrorLineIndex;
             }
-            else
+            else //Compilation successful
             {
                 this.CompilationErrorMessage = null;
                 this.CompilationErrorLineIndex = null;
+
+                MPIP.Value = 0;
+                IsHalted = false;
+                //SharedMemory = new SharedMemory();
+                //InputMemory = new IOMemory();
+                //OutputMemory = new IOMemory();
             }
         }
 
         public bool ExecuteNextInstruction()
         {
+            //Check if compiled
             if (MasterCodeMemory == null)
             {
                 ExecutionErrorMessage = "Code is not compiled";
                 return false;
             }
 
-            if (MPIP.Value >= MasterCodeMemory.Instructions.Count)
+            //Check if reached the end of code
+            if (MPIP.Value >= MasterCodeMemory.Instructions.Count || IsHalted)
             {
                 IsHalted = true;
                 ExecutionErrorMessage = "Machine has halted";
@@ -104,6 +114,12 @@ namespace PRAM_simulator
 
             try
             {
+                //DEBUG: Check for internal inconsistencies regarding the MPIP
+                if (MPIP.Value != MasterCodeMemory.Instructions[MPIP.Value].VirtualInstructionIndex)
+                {
+                    throw new Exception("Debug error: MPIP is not equal to the virtual instruction index. Bug in code.");
+                }
+
                 MasterCodeMemory.Instructions[MPIP.Value++].Execute(MasterGateway);
             }
             catch (LocalException e)
@@ -112,7 +128,7 @@ namespace PRAM_simulator
                 IsHalted = true;
                 return false;
             }
-            
+
 
             return true;
         }
@@ -120,6 +136,7 @@ namespace PRAM_simulator
         public void Restart()
         {
             MPIP.Value = 0;
+            IsHalted = false;
         }
 
         public void Clear()
@@ -130,6 +147,11 @@ namespace PRAM_simulator
             OutputMemory = new IOMemory();
             MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory);
             MasterCodeMemory = null;
+        }
+
+        public void ClearMemory()
+        {
+            SharedMemory.Clear();
         }
 
     }

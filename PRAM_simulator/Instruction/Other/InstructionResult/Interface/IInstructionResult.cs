@@ -16,6 +16,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
         Mod
     }
 
+    //For instruction "AssignResult", where AssignResult is only "S2 := " and the rest is all possible <RESULT>
     //An interface for instruction result, that is for example S2 := <RESULT>
     internal interface IInstructionResult
     {

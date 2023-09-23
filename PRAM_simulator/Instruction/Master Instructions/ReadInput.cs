@@ -19,20 +19,23 @@ namespace PRAM_lib.Instruction.Master_Instructions
             private set => _readIndex = value;
         }
         public int VirtualInstructionIndex { get; set; }
+        public int CodeInstructionIndex { get; set; }
 
-        public ReadInput(int sharedMemoryIndex, int virtualInstructionIndex)
+        public ReadInput(int sharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             SharedMemoryIndex = sharedMemoryIndex;
             Sequential = false;
             VirtualInstructionIndex = virtualInstructionIndex;
+            CodeInstructionIndex = codeInstructionIndex;
         }
 
-        public ReadInput(int sharedMemoryIndex, int inputIndex, int virtualInstructionIndex)
+        public ReadInput(int sharedMemoryIndex, int inputIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             SharedMemoryIndex = sharedMemoryIndex;
             InputMemoryIndex = inputIndex;
             Sequential = true;
             VirtualInstructionIndex = virtualInstructionIndex;
+            CodeInstructionIndex = codeInstructionIndex;
         }
 
         public void Execute(Gateway gateway)

@@ -50,7 +50,8 @@
                     <Label x:Name="LabelMasterProcessorInstructionPointer" Content="IP Counter" HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top"/>
                     <Button x:Name="ButtonNextExecution" Content="Next" HorizontalAlignment="Left" Margin="271,314,0,0" VerticalAlignment="Top" Width="86" Click="ButtonNextExecution_Click"  Height="23"/>
                     <Button x:Name="ButtonReset" Content="Reset" HorizontalAlignment="Left" Margin="271,286,0,0" VerticalAlignment="Top" Width="86" Click="ButtonReset_Click"  Height="23"/>
-                    <Button x:Name="ButtonClear" Content="Clear" HorizontalAlignment="Left" Margin="271,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
+                    <Button x:Name="ButtonClear" Content="Clear all" HorizontalAlignment="Left" Margin="271,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
+                    <Button x:Name="ButtonClearMemory" Content="Clear memory" HorizontalAlignment="Left" Margin="271,259,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClearMemory_Click"  Height="23"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">

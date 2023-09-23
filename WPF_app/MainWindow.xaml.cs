@@ -119,5 +119,10 @@ namespace WPF_app
         {
             //RichTextBoxCode.PreviewKeyDown += RichTextBox_PreviewKeyDown;
         }
+
+        private void ButtonClearMemory_Click(object sender, RoutedEventArgs e)
+        {
+            DataResources.pram.ClearMemory();
+        }
     }
 }

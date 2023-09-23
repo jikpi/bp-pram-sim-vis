@@ -12,11 +12,13 @@ namespace PRAM_lib.Instruction.Master_Instructions
     {
         public int SharedMemoryIndex { get; set; }
         public int VirtualInstructionIndex { get; set; }
+        public int CodeInstructionIndex { get; set; }
 
-        public WriteOutput(int sharedMemoryIndex, int virtualInstructionIndex)
+        public WriteOutput(int sharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             SharedMemoryIndex = sharedMemoryIndex;
             VirtualInstructionIndex = virtualInstructionIndex;
+            CodeInstructionIndex = codeInstructionIndex;
         }
 
         public void Execute(Gateway gateway)

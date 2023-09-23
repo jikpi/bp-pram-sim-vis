@@ -36,5 +36,7 @@ namespace PRAM_lib.Memory.Interface
 
             Cells[address].Value = value;
         }
+
+        public void Clear();
     }
 }

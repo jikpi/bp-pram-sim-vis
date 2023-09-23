@@ -41,5 +41,10 @@ namespace PRAM_lib.Memory
 
             Cells[address].Value = value;
         }
+
+        public void Clear()
+        {
+            Cells.Clear();
+        }
     }
 }

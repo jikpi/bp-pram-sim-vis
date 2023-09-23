@@ -18,7 +18,7 @@ namespace PRAM_lib.Instruction.Other
         public Regex ResultIs_Cell2Constant { get; set; }
         public Regex ResultIs_CellPointer { get; set; }
         public Regex ResultIs_Constant { get; set; }
-
+        public Regex WritePointer { get; set; }
 
         public InstructionRegex()
         {
@@ -31,6 +31,9 @@ namespace PRAM_lib.Instruction.Other
             ResultIs_Cell2Constant = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //3 groups
             ResultIs_CellPointer = new Regex(@"^\[S(\d+)\]\s*$"); //1 group
             ResultIs_Constant = new Regex(@"^(\d+|-\d+)\s*$"); //1 group
+
+            WritePointer = new Regex(@"^\[S(\d+)\] := S(\d+)\s*$"); //2 groups
+
 
 
         }

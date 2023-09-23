@@ -45,7 +45,7 @@ namespace PRAM_lib.Code.Compiler
             Match match;
 
             //ResultIs_Cell
-            if(regex.ResultIs_Cell.IsMatch(inputText))
+            if (regex.ResultIs_Cell.IsMatch(inputText))
             {
                 match = regex.ResultIs_Cell.Match(inputText);
 
@@ -124,14 +124,14 @@ namespace PRAM_lib.Code.Compiler
 
                     string sharedMemoryAddress = match.Groups[1].Value;
                     string selectedReadMemoryAddress = match.Groups[2].Value;
-                    
+
                     if (selectedReadMemoryAddress == "")
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), virtulLineIndex++));
+                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), virtulLineIndex++, lineIndex));
                     }
                     else
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), int.Parse(selectedReadMemoryAddress)));
+                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), int.Parse(selectedReadMemoryAddress), lineIndex));
                     }
                     continue;
                 }
@@ -143,7 +143,7 @@ namespace PRAM_lib.Code.Compiler
 
                     string sharedMemoryAddress = match.Groups[1].Value;
 
-                    newCodeMemory.Instructions.Add(new WriteOutput(int.Parse(sharedMemoryAddress), virtulLineIndex++));
+                    newCodeMemory.Instructions.Add(new WriteOutput(int.Parse(sharedMemoryAddress), virtulLineIndex++, lineIndex));
 
                     continue;
                 }
@@ -156,8 +156,30 @@ namespace PRAM_lib.Code.Compiler
                     string sharedMemoryResultAddress = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
 
-                    newCodeMemory.Instructions.Add(new AssignResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), virtulLineIndex++));
-                    //NOTE: No checks for infinity loops right now
+                    try
+                    {
+                        newCodeMemory.Instructions.Add(new AssignResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
+                        //NOTE: No checks for infinity loops right now
+                    }
+                    catch (LocalException e)
+                    {
+                        ErrorMessage = e.Message;
+                        ErrorLineIndex = lineIndex;
+                        return null;
+                    }
+
+                    continue;
+                }
+
+                //WritePointer
+                if (regex.WritePointer.IsMatch(s))
+                {
+                    match = regex.WritePointer.Match(s);
+
+                    string leftPointingIndex = match.Groups[1].Value;
+                    string rightValueIndex = match.Groups[2].Value;
+
+                    newCodeMemory.Instructions.Add(new WritePointer(int.Parse(leftPointingIndex), int.Parse(rightValueIndex), virtulLineIndex++, lineIndex));
 
                     continue;
                 }

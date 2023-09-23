@@ -66,6 +66,9 @@ namespace PRAM_lib.Memory
             throw new Exception("Cannot write to specific address in IO memory");
         }
 
-
+        public void Clear()
+        {
+            Cells.Clear();
+        }
     }
 }
