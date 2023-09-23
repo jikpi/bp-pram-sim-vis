@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PRAM_lib", "PRAM_simulator\PRAM_lib.csproj", "{7B82D692-BA44-4C48-9C8A-E4D9550CC5C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_app", "WPF_app\WPF_app.csproj", "{782BC1BE-FE58-4196-8C7F-B068EA3C8054}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B82D692-BA44-4C48-9C8A-E4D9550CC5C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B82D692-BA44-4C48-9C8A-E4D9550CC5C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B82D692-BA44-4C48-9C8A-E4D9550CC5C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B82D692-BA44-4C48-9C8A-E4D9550CC5C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{782BC1BE-FE58-4196-8C7F-B068EA3C8054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{782BC1BE-FE58-4196-8C7F-B068EA3C8054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{782BC1BE-FE58-4196-8C7F-B068EA3C8054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{782BC1BE-FE58-4196-8C7F-B068EA3C8054}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84E46FDD-71E4-4CE1-9947-E1BF98112F83}
+	EndGlobalSection
+EndGlobal

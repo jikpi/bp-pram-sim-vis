@@ -1,0 +1,67 @@
+﻿<Window x:Class="WPF_app.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_app"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="492" Width="832">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Main">
+                <Grid Background="#FFE5E5E5" Margin="0,0,1,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="207*"/>
+                        <RowDefinition Height="17*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="749"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Input" HorizontalAlignment="Left" Margin="15,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
+                    <DataGrid x:Name="DataGridInput" Margin="12,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
+                    <RichTextBox x:Name="RichTextBoxCode" Margin="105,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="159" FontSize="14">
+                        <RichTextBox.Resources>
+                            <Style TargetType="Paragraph">
+                                <Setter Property="LineHeight" Value="3"/>
+                            </Style>
+                        </RichTextBox.Resources>
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="S0 := READ()"/>
+                                <InlineUIContainer>
+                                    <Menu FontSize="14"/>
+                                </InlineUIContainer>
+                            </Paragraph>
+                            <Paragraph>
+                                <Run Text="S1 := READ()"/>
+                                <InlineUIContainer>
+                                    <Menu FontSize="14"/>
+                                </InlineUIContainer>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+                    <Label Content="Code" HorizontalAlignment="Left" Margin="105,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
+                    <Label Content="Shared memory" HorizontalAlignment="Left" Margin="545,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
+                    <DataGrid x:Name="DataGridSharedMemory" Margin="566,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
+                    <Label Content="Output" HorizontalAlignment="Left" Margin="701,10,0,0" VerticalAlignment="Top" Height="26" Width="48"/>
+                    <DataGrid x:Name="DataGridOutput" Margin="705,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
+                    <Button x:Name="ButtonCompile" Content="Compile" HorizontalAlignment="Left" Margin="271,368,0,0" VerticalAlignment="Top" Width="86" Click="ButtonCompile_Click" Height="23"/>
+                    <Label x:Name="LabelMasterProcessorInstructionPointer" Content="IP Counter" HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top"/>
+                    <Button x:Name="ButtonNextExecution" Content="Next" HorizontalAlignment="Left" Margin="271,314,0,0" VerticalAlignment="Top" Width="86" Click="ButtonNextExecution_Click"  Height="23"/>
+                    <Button x:Name="ButtonReset" Content="Reset" HorizontalAlignment="Left" Margin="271,286,0,0" VerticalAlignment="Top" Width="86" Click="ButtonReset_Click"  Height="23"/>
+                    <Button x:Name="ButtonClear" Content="Clear" HorizontalAlignment="Left" Margin="271,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="31*"/>
+                        <ColumnDefinition Width="763*"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
