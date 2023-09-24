@@ -2,14 +2,16 @@
 using PRAM_lib.Code.Compiler;
 using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Jumps;
 using PRAM_lib.Instruction.Other;
 using PRAM_lib.Memory;
 using PRAM_lib.Processor;
+using PRAM_lib.Processor.Interface;
 using System.Collections.ObjectModel;
 
 namespace PRAM_simulator
 {
-    public class PramMachine
+    public class PramMachine : IProcessor
     {
         internal SharedMemory SharedMemory { get; private set; }
 
@@ -18,6 +20,8 @@ namespace PRAM_simulator
         internal IOMemory OutputMemory { get; private set; }
 
         private CodeMemory? MasterCodeMemory { get; set; }
+
+        private JumpMemory JumpMemory { get; set; }
 
         internal Gateway MasterGateway { get; private set; }
 
@@ -38,7 +42,7 @@ namespace PRAM_simulator
 
         public bool IsHalted { get; private set; }
 
-        public InstructionPointer MPIP { get; private set; } 
+        public InstructionPointer MPIP { get; private set; }
 
         public PramMachine()
         {
@@ -49,9 +53,12 @@ namespace PRAM_simulator
             InstructionRegex = new InstructionRegex();
             MPIP = new InstructionPointer(0);
             IsErrored = false;
+            IsHalted = false;
+            this.JumpMemory = new JumpMemory();
 
 
-            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory);
+
+            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
         public ObservableCollection<MemoryCell> GetInputMemory()
@@ -74,7 +81,8 @@ namespace PRAM_simulator
         {
             string ErrorMessage;
             int ErrorLineIndex;
-            MasterCodeMemory = Compiler.Compile(code, InstructionRegex, out ErrorMessage, out ErrorLineIndex);
+
+            MasterCodeMemory = Compiler.Compile(code, InstructionRegex, out JumpMemory newJumpMemory, out ErrorMessage, out ErrorLineIndex);
 
             if (MasterCodeMemory == null) //Compilation failed
             {
@@ -85,6 +93,11 @@ namespace PRAM_simulator
             {
                 this.CompilationErrorMessage = null;
                 this.CompilationErrorLineIndex = null;
+
+                //Set the new jump memory
+                //Note: Standardise this gateway
+                this.JumpMemory = newJumpMemory;
+                MasterGateway.jumpMemory = JumpMemory;
 
                 MPIP.Value = 0;
                 IsHalted = false;
@@ -120,7 +133,8 @@ namespace PRAM_simulator
                     throw new Exception("Debug error: MPIP is not equal to the virtual instruction index. Bug in code.");
                 }
 
-                MasterCodeMemory.Instructions[MPIP.Value++].Execute(MasterGateway);
+                MasterCodeMemory.Instructions[MPIP.Value].Execute(MasterGateway);
+                MPIP.Value++;
             }
             catch (LocalException e)
             {
@@ -137,15 +151,19 @@ namespace PRAM_simulator
         {
             MPIP.Value = 0;
             IsHalted = false;
+            InputMemory.ResetMemoryPointer();
+            OutputMemory.ResetMemoryPointer();
         }
 
+        //NOTE: WARNING: Not future proof
         public void Clear()
         {
             MPIP.Value = 0;
             SharedMemory = new SharedMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
-            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory);
+            JumpMemory.Clear();
+            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
             MasterCodeMemory = null;
         }
 

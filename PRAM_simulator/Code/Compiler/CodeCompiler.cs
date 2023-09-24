@@ -98,18 +98,19 @@ namespace PRAM_lib.Code.Compiler
                 return new ResultIs_Constant(constantValue);
             }
 
-            throw new LocalException($"Error: Cannot assign to cell, as result is not recognized. \"{inputText}\" is not recognized.");
+            throw new LocalException($"Error: Cannot assign to cell, as the resulting operation is not recognized: \"{inputText}\"");
         }
 
-        //Will return null if compilation fails, and will return the error message and the line index of the error
-        public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out string ErrorMessage, out int ErrorLineIndex)
+        //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
+        public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out string ErrorMessage, out int ErrorLineIndex)
         {
             CodeMemory.CodeMemory newCodeMemory = new CodeMemory.CodeMemory();
+            jumpMemory = new Jumps.JumpMemory();
 
             List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
             StringBuilder potentialErrorMessage = new StringBuilder();
             int lineIndex = -1;
-            //An index for instructions, for example flags don't count as instructions
+            //An index for instructions, for example jump labels don't count as instructions
             int virtulLineIndex = 0;
 
             Match? match;
@@ -177,12 +178,39 @@ namespace PRAM_lib.Code.Compiler
                     match = regex.WritePointer.Match(s);
 
                     string leftPointingIndex = match.Groups[1].Value;
-                    string rightValueIndex = match.Groups[2].Value;
+                    string resultIs_any = match.Groups[2].Value;
 
-                    newCodeMemory.Instructions.Add(new WritePointer(int.Parse(leftPointingIndex), int.Parse(rightValueIndex), virtulLineIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new WritePointer(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
 
                     continue;
                 }
+
+                //JumpToInstruction
+                if (regex.JumpToInstruction.IsMatch(s))
+                {
+                    match = regex.JumpToInstruction.Match(s);
+
+                    string jumpName = match.Groups[1].Value;
+
+                    jumpMemory.AddJumpLabel(jumpName);
+
+                    newCodeMemory.Instructions.Add(new JumpTo(jumpName, virtulLineIndex++, lineIndex));
+
+                    continue;
+                }
+
+                //JumpToLabel
+                if (regex.JumpToLabel.IsMatch(s))
+                {
+                    match = regex.JumpToLabel.Match(s);
+
+                    string jumpName = match.Groups[1].Value;
+
+                    jumpMemory.SetJump(jumpName, virtulLineIndex); //Does not increment the virtual line index, because not an instruction
+
+                    continue;
+                }
+
 
 
                 //Error

@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,15 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a InstructionResult
     internal class WritePointer : IInstruction
     {
         public int VirtualInstructionIndex { get; set; }
         public int CodeInstructionIndex { get; set; }
         public int LeftPointingSharedMemoryIndex { get; set; }
-        public int RightValueSharedMemoryIndex { get; set; }
+        public IInstructionResult RightValueSharedMemoryIndex { get; set; }
 
-        public WritePointer(int leftPointingSharedMemoryIndex, int rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public WritePointer(int leftPointingSharedMemoryIndex, IInstructionResult rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             LeftPointingSharedMemoryIndex = leftPointingSharedMemoryIndex;
             RightValueSharedMemoryIndex = rightValueSharedMemoryIndex;
@@ -26,8 +28,8 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public void Execute(Gateway gateway)
         {
             int pointed = gateway.SharedMemory.Read(LeftPointingSharedMemoryIndex).Value;
-            int value = gateway.SharedMemory.Read(pointed).Value;
-            gateway.SharedMemory.Write(RightValueSharedMemoryIndex, value);
+            int value = RightValueSharedMemoryIndex.GetResult(gateway);
+            gateway.SharedMemory.Write(pointed, value);
         }
 
 

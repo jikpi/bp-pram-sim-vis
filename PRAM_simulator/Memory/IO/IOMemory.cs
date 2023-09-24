@@ -16,6 +16,7 @@ namespace PRAM_lib.Memory
         public IOMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
+            MemoryPointer = 0;
         }
 
         public MemoryCell Read(int address)
@@ -69,6 +70,11 @@ namespace PRAM_lib.Memory
         public void Clear()
         {
             Cells.Clear();
+        }
+
+        public void ResetMemoryPointer()
+        {
+            MemoryPointer = 0;
         }
     }
 }

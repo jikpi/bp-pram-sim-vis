@@ -19,6 +19,8 @@ namespace PRAM_lib.Instruction.Other
         public Regex ResultIs_CellPointer { get; set; }
         public Regex ResultIs_Constant { get; set; }
         public Regex WritePointer { get; set; }
+        public Regex JumpToInstruction { get; set; }
+        public Regex JumpToLabel { get; set; } //Not a real instruction
 
         public InstructionRegex()
         {
@@ -26,13 +28,21 @@ namespace PRAM_lib.Instruction.Other
             WriteOutput = new Regex(@"^WRITE\((\d+)\)\s*$"); //1 group
 
             AssignResult = new Regex(@"^S(\d+) := (.*)\s*$"); //2 groups
+            WritePointer = new Regex(@"^\[S(\d+)\] := (.*)\s*$"); //2 groups
+            //Results for the two above
             ResultIs_Cell = new Regex(@"^S(\d+)\s*$"); //1 group
             ResultIs_Cell2Cell = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) S(\d+)\s*$"); //3 groups
             ResultIs_Cell2Constant = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //3 groups
             ResultIs_CellPointer = new Regex(@"^\[S(\d+)\]\s*$"); //1 group
             ResultIs_Constant = new Regex(@"^(\d+|-\d+)\s*$"); //1 group
 
-            WritePointer = new Regex(@"^\[S(\d+)\] := S(\d+)\s*$"); //2 groups
+            JumpToInstruction = new Regex(@"^goto :([^ :]*)\s*$"); //1 group //WARNING: this accepts ":    " or ":"
+            JumpToLabel = new Regex(@"^:([^ :]*)\s*$"); //1 group
+
+
+
+
+            
 
 
 
