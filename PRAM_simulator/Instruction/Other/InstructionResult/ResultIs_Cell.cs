@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
     //A class that represents a result of an instruction, that is: S2 := S3
-    internal class ResultIs_Cell : IInstructionResult
+    internal class ResultIs_Cell : ResultSubGroup
     {
         public int CellIndex { get; private set; }
         public ResultIs_Cell(int cellIndex)

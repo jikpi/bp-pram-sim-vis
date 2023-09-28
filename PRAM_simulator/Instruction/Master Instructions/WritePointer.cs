@@ -15,9 +15,9 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public int VirtualInstructionIndex { get; set; }
         public int CodeInstructionIndex { get; set; }
         public int LeftPointingSharedMemoryIndex { get; set; }
-        public IInstructionResult RightValueSharedMemoryIndex { get; set; }
+        public ResultSubGroup RightValueSharedMemoryIndex { get; set; }
 
-        public WritePointer(int leftPointingSharedMemoryIndex, IInstructionResult rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public WritePointer(int leftPointingSharedMemoryIndex, ResultSubGroup rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             LeftPointingSharedMemoryIndex = leftPointingSharedMemoryIndex;
             RightValueSharedMemoryIndex = rightValueSharedMemoryIndex;

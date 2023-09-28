@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
     //A constant result for an instruction, that is for example S2 := 5
-    internal class ResultIs_Constant : IInstructionResult
+    internal class ResultIs_Constant : ResultSubGroup
     {
         public int ConstantValue { get; private set; }
 

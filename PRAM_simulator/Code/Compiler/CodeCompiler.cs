@@ -40,7 +40,7 @@ namespace PRAM_lib.Code.Compiler
             }
         }
 
-        private IInstructionResult AssignResultResolver(InstructionRegex regex, string inputText)
+        private ResultSubGroup AssignResultResolver(InstructionRegex regex, string inputText)
         {
             Match match;
 
@@ -101,6 +101,55 @@ namespace PRAM_lib.Code.Compiler
             throw new LocalException($"Error: Cannot assign to cell, as the resulting operation is not recognized: \"{inputText}\"");
         }
 
+        private ComparisonSet DetermineComparisonSet(string[] groups)
+        {
+            ComparisonSet set = new ComparisonSet();
+
+            if (string.IsNullOrEmpty(groups[0]))
+            {
+                set.LeftValue = int.Parse(groups[1]);
+            }
+            else
+            {
+                set.LeftCell = int.Parse(groups[1]);
+            }
+
+            if (string.IsNullOrEmpty(groups[3]))
+            {
+                set.RightValue = int.Parse(groups[4]);
+            }
+            else
+            {
+                set.RightCell = int.Parse(groups[4]);
+            }
+
+            switch (groups[2])
+            {
+                case "==":
+                    set.ComparisonMethod = ComparisonMethod.Equal;
+                    break;
+                case "!=":
+                    set.ComparisonMethod = ComparisonMethod.NotEqual;
+                    break;
+                case "<":
+                    set.ComparisonMethod = ComparisonMethod.Less;
+                    break;
+                case "<=":
+                    set.ComparisonMethod = ComparisonMethod.LessOrEqual;
+                    break;
+                case ">":
+                    set.ComparisonMethod = ComparisonMethod.Greater;
+                    break;
+                case ">=":
+                    set.ComparisonMethod = ComparisonMethod.GreaterOrEqual;
+                    break;
+                default:
+                    throw new LocalException($"Error: Comparison method \"{groups[3]}\" is not recognized.");
+            }
+
+            return set;
+        }
+
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
         public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out string ErrorMessage, out int ErrorLineIndex)
         {
@@ -117,6 +166,12 @@ namespace PRAM_lib.Code.Compiler
             foreach (string s in strings)
             {
                 lineIndex++;
+
+                //Comment
+                if (regex.Comment.IsMatch(s))
+                {
+                    continue;
+                }
 
                 //ReadInput
                 if (regex.ReadInput.IsMatch(s))
@@ -207,6 +262,37 @@ namespace PRAM_lib.Code.Compiler
                     string jumpName = match.Groups[1].Value;
 
                     jumpMemory.SetJump(jumpName, virtulLineIndex); //Does not increment the virtual line index, because not an instruction
+
+                    continue;
+                }
+
+                //IfJumpTo
+                if (regex.IfJumpTo.IsMatch(s))
+                {
+                    match = regex.IfJumpTo.Match(s);
+
+                    string potentialLeftCell = match.Groups[1].Value; //A cell identifier or empty string, if it's a constant on the left
+                    string leftValue = match.Groups[2].Value; //Cell address or constant value
+                    string comparisonOperator = match.Groups[3].Value; //Comparison operator
+                    string potentialRightCell = match.Groups[4].Value; //A cell identifier or empty string, if it's a constant on the right
+                    string rightValue = match.Groups[5].Value; //Cell address or constant value
+
+                    ComparisonSet set = DetermineComparisonSet(new string[] { potentialLeftCell,
+                        leftValue,
+                        comparisonOperator,
+                        potentialRightCell,
+                        rightValue });
+
+                    try
+                    {
+                        newCodeMemory.Instructions.Add(new IfJumpTo(match.Groups[6].Value, virtulLineIndex++, lineIndex, set));
+                    }
+                    catch (LocalException e)
+                    {
+                        ErrorMessage = e.Message;
+                        ErrorLineIndex = lineIndex;
+                        return null;
+                    }
 
                     continue;
                 }

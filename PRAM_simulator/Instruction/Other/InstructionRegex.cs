@@ -1,15 +1,10 @@
-﻿using PRAM_lib.Instruction.Master_Instructions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace PRAM_lib.Instruction.Other
 {
     internal class InstructionRegex
     {
+        public Regex Comment { get; set; } //Not a real instruction
         public Regex ReadInput { get; set; }
         public Regex WriteOutput { get; set; }
         public Regex AssignResult { get; set; }
@@ -21,9 +16,12 @@ namespace PRAM_lib.Instruction.Other
         public Regex WritePointer { get; set; }
         public Regex JumpToInstruction { get; set; }
         public Regex JumpToLabel { get; set; } //Not a real instruction
+        public Regex IfJumpTo { get; set; }
 
         public InstructionRegex()
         {
+            Comment = new Regex(@"^#.*$"); //0 groups
+
             ReadInput = new Regex(@"^S(\d+) := READ\((\d+|)\)\s*$"); //2 groups
             WriteOutput = new Regex(@"^WRITE\((\d+)\)\s*$"); //1 group
 
@@ -36,13 +34,9 @@ namespace PRAM_lib.Instruction.Other
             ResultIs_CellPointer = new Regex(@"^\[S(\d+)\]\s*$"); //1 group
             ResultIs_Constant = new Regex(@"^(\d+|-\d+)\s*$"); //1 group
 
-            JumpToInstruction = new Regex(@"^goto :([^ :]*)\s*$"); //1 group //WARNING: this accepts ":    " or ":"
-            JumpToLabel = new Regex(@"^:([^ :]*)\s*$"); //1 group
-
-
-
-
-            
+            JumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$"); //1 group
+            JumpToLabel = new Regex(@"^:([0-z]*)\s*$"); //1 group
+            IfJumpTo = new Regex(@"^if \((S|)((?:-|)\d+) (==|!=|<|>|<=|>=) (S|)((?:-|)\d+)\) goto :([0-z]*)\s*$"); // 6 groups
 
 
 

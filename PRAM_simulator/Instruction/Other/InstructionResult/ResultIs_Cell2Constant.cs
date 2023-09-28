@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
     //A class that represents a result of an instruction, for example: S2 := S2 + 5
-    internal class ResultIs_Cell2Constant : IInstructionResult
+    internal class ResultIs_Cell2Constant : ResultSubGroup
     {
         public int CellIndex { get; private set; }
         public int ConstantValue { get; private set; }

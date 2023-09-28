@@ -5,7 +5,7 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
     //A class that represents a result of an instruction, that is for example S2 := S2 + S3
-    internal class ResultIs_Cell2Cell : IInstructionResult
+    internal class ResultIs_Cell2Cell : ResultSubGroup
     {
         public int LeftCellIndex { get; private set; }
         public int RightCellIndex { get; private set; }

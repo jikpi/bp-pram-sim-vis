@@ -13,10 +13,10 @@ namespace PRAM_lib.Instruction.Master_Instructions
     {
         public int VirtualInstructionIndex { get; set; }
         public int SharedMemoryIndex { get; set; }
-        public IInstructionResult Result { get; set; }
+        public ResultSubGroup Result { get; set; }
         public int CodeInstructionIndex { get; set; }
 
-        public AssignResult(int sharedMemoryIndex, IInstructionResult result, int virtualInstructionIndex, int codeInstructionIndex)
+        public AssignResult(int sharedMemoryIndex, ResultSubGroup result, int virtualInstructionIndex, int codeInstructionIndex)
         {
             SharedMemoryIndex = sharedMemoryIndex;
             Result = result;

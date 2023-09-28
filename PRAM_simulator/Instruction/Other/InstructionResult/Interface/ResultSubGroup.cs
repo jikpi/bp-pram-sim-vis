@@ -7,6 +7,15 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
 {
+    public enum ComparisonMethod
+    {
+        Equal,
+        NotEqual,
+        Less,
+        LessOrEqual,
+        Greater,
+        GreaterOrEqual
+    }
     public enum Operation
     {
         Add,
@@ -18,8 +27,13 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
 
     //For instruction "AssignResult", where AssignResult is only "S2 := " and the rest is all possible <RESULT>
     //An interface for instruction result, that is for example S2 := <RESULT>
-    internal interface IInstructionResult
+    internal interface ResultSubGroup
     {
         public int GetResult(Gateway gateway);
+    }
+
+    internal interface ComparisonSubGroup
+    {
+        public bool GetResult(Gateway gateway);
     }
 }
