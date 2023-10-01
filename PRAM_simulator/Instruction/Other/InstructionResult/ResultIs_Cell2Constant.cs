@@ -14,31 +14,47 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     {
         public int CellIndex { get; private set; }
         public int ConstantValue { get; private set; }
-
         public Operation operation { get; private set; }
-        public ResultIs_Cell2Constant(int cellIndex, int constantValue, Operation operation)
+        private bool IsLeftCell { get; set; }
+        public ResultIs_Cell2Constant(int cellIndex, int constantValue, Operation operation, bool isLeftCell = true)
         {
             CellIndex = cellIndex;
             ConstantValue = constantValue;
             this.operation = operation;
+            IsLeftCell = isLeftCell;
         }
         public int GetResult(Gateway gateway)
         {
-            int cellValue = gateway.SharedMemory.Read(CellIndex).Value;
+            int RightValue = 0;
+            int LeftValue = 0;
+
+            if(IsLeftCell) 
+            {
+                LeftValue = gateway.SharedMemory.Read(CellIndex).Value;
+                RightValue = ConstantValue;
+            }
+            else
+            {
+                LeftValue = ConstantValue;
+                RightValue = gateway.SharedMemory.Read(CellIndex).Value;
+
+            }
+            
+
             switch (operation)
             {
                 case Operation.Add:
-                    return cellValue + ConstantValue;
+                    return LeftValue + RightValue;
                 case Operation.Sub:
-                    return cellValue - ConstantValue;
+                    return LeftValue - RightValue;
                 case Operation.Mul:
-                    return cellValue * ConstantValue;
+                    return LeftValue * RightValue;
                 case Operation.Div:
-                    if(ConstantValue == 0)
+                    if(RightValue == 0)
                         throw new LocalException("Division by zero");
-                    return cellValue / ConstantValue;
+                    return LeftValue / RightValue;
                 case Operation.Mod:
-                    return cellValue % ConstantValue;
+                    return LeftValue % RightValue;
                 default:
                     throw new Exception("Unknown operation");
             }

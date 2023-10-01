@@ -78,6 +78,18 @@ namespace PRAM_lib.Code.Compiler
                 return new ResultIs_Cell2Constant(cellIndex, constantValue, DetermineOperation(operation));
             }
 
+            //ResultIs_Constant2Cell
+            if (regex.ResultIs_Constant2Cell.IsMatch(inputText))
+            {
+                match = regex.ResultIs_Constant2Cell.Match(inputText);
+
+                int constantValue = int.Parse(match.Groups[1].Value);
+                string operation = match.Groups[2].Value;
+                int cellIndex = int.Parse(match.Groups[3].Value);
+
+                return new ResultIs_Cell2Constant(cellIndex, constantValue, DetermineOperation(operation), false);
+            }
+
             //ResultIs_CellPointer
             if (regex.ResultIs_CellPointer.IsMatch(inputText))
             {
