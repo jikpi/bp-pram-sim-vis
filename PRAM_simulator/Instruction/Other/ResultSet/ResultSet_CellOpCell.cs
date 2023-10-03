@@ -5,13 +5,13 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
     //A class that represents a result of an instruction, that is for example S2 := S2 + S3
-    internal class ResultIs_Cell2Cell : ResultSubGroup
+    internal class ResultSet_CellOpCell : IResultSet
     {
         public int LeftCellIndex { get; private set; }
         public int RightCellIndex { get; private set; }
         public Operation Operation { get; private set; }
 
-        public ResultIs_Cell2Cell(int leftCellIndex, int rightCellIndex, Operation operation)
+        public ResultSet_CellOpCell(int leftCellIndex, int rightCellIndex, Operation operation)
         {
             LeftCellIndex = leftCellIndex;
             RightCellIndex = rightCellIndex;

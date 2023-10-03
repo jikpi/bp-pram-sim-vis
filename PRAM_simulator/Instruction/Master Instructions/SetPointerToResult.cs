@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 namespace PRAM_lib.Instruction.Master_Instructions
 {
     //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a InstructionResult
-    internal class WritePointer : IInstruction
+    internal class SetPointerToResult : IInstruction
     {
         public int VirtualInstructionIndex { get; set; }
         public int CodeInstructionIndex { get; set; }
         public int LeftPointingSharedMemoryIndex { get; set; }
-        public ResultSubGroup RightValueSharedMemoryIndex { get; set; }
+        public IResultSet RightValueSharedMemoryIndex { get; set; }
 
-        public WritePointer(int leftPointingSharedMemoryIndex, ResultSubGroup rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public SetPointerToResult(int leftPointingSharedMemoryIndex, IResultSet rightValueSharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
             LeftPointingSharedMemoryIndex = leftPointingSharedMemoryIndex;
             RightValueSharedMemoryIndex = rightValueSharedMemoryIndex;

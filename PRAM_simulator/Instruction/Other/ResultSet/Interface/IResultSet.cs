@@ -25,14 +25,14 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
         Mod
     }
 
-    //For instruction "AssignResult", where AssignResult is only "S2 := " and the rest is all possible <RESULT>
+    //For instruction "SetMemoryToResult", where SetMemoryToResult is only "S2 := " and the rest is all possible <RESULT>
     //An interface for instruction result, that is for example S2 := <RESULT>
-    internal interface ResultSubGroup
+    internal interface IResultSet
     {
         public int GetResult(Gateway gateway);
     }
 
-    internal interface ComparisonSubGroup
+    internal interface IComparisonSet
     {
         public bool GetResult(Gateway gateway);
     }

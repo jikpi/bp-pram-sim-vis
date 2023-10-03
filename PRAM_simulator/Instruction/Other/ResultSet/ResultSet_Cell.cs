@@ -8,19 +8,17 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A class that represents a result of an instruction, that is for example S2 := [S3]
-    internal class ResultIs_CellPointer : ResultSubGroup
+    //A class that represents a result of an instruction, that is: S2 := S3
+    internal class ResultSet_Cell : IResultSet
     {
         public int CellIndex { get; private set; }
-        public ResultIs_CellPointer(int cellIndex)
+        public ResultSet_Cell(int cellIndex)
         {
             CellIndex = cellIndex;
         }
-
         public int GetResult(Gateway gateway)
         {
-            int pointed = gateway.SharedMemory.Read(CellIndex).Value;
-            return gateway.SharedMemory.Read(pointed).Value;
+            return gateway.SharedMemory.Read(CellIndex).Value;
         }
     }
 }

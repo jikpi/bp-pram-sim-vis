@@ -40,79 +40,79 @@ namespace PRAM_lib.Code.Compiler
             }
         }
 
-        private ResultSubGroup AssignResultResolver(InstructionRegex regex, string inputText)
+        private IResultSet AssignResultResolver(InstructionRegex regex, string inputText)
         {
             Match match;
 
-            //ResultIs_Cell
-            if (regex.ResultIs_Cell.IsMatch(inputText))
+            //ResultSet_Cell
+            if (regex.ResultSet_Cell.IsMatch(inputText))
             {
-                match = regex.ResultIs_Cell.Match(inputText);
+                match = regex.ResultSet_Cell.Match(inputText);
 
                 int cellIndex = int.Parse(match.Groups[1].Value);
 
-                return new ResultIs_Cell(cellIndex);
+                return new ResultSet_Cell(cellIndex);
             }
 
-            //ResultIs_Cell2Cell
-            if (regex.ResultIs_Cell2Cell.IsMatch(inputText))
+            //ResultSet_CellOpCell
+            if (regex.ResultSet_CellOpCell.IsMatch(inputText))
             {
-                match = regex.ResultIs_Cell2Cell.Match(inputText);
+                match = regex.ResultSet_CellOpCell.Match(inputText);
 
                 int leftCellIndex = int.Parse(match.Groups[1].Value);
                 string operation = match.Groups[2].Value;
                 int rightCellIndex = int.Parse(match.Groups[3].Value);
 
-                return new ResultIs_Cell2Cell(leftCellIndex, rightCellIndex, DetermineOperation(operation));
+                return new ResultSet_CellOpCell(leftCellIndex, rightCellIndex, DetermineOperation(operation));
             }
 
-            //ResultIs_Cell2Constant
-            if (regex.ResultIs_Cell2Constant.IsMatch(inputText))
+            //ResultSet_CellOpConstant
+            if (regex.ResultSet_CellOpConstant.IsMatch(inputText))
             {
-                match = regex.ResultIs_Cell2Constant.Match(inputText);
+                match = regex.ResultSet_CellOpConstant.Match(inputText);
 
                 int cellIndex = int.Parse(match.Groups[1].Value);
                 string operation = match.Groups[2].Value;
                 int constantValue = int.Parse(match.Groups[3].Value);
 
-                return new ResultIs_Cell2Constant(cellIndex, constantValue, DetermineOperation(operation));
+                return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation));
             }
 
-            //ResultIs_Constant2Cell
-            if (regex.ResultIs_Constant2Cell.IsMatch(inputText))
+            if (regex.ResultSet_ConstantOpCell.IsMatch(inputText))
             {
-                match = regex.ResultIs_Constant2Cell.Match(inputText);
+                match = regex.ResultSet_ConstantOpCell.Match(inputText);
 
                 int constantValue = int.Parse(match.Groups[1].Value);
                 string operation = match.Groups[2].Value;
                 int cellIndex = int.Parse(match.Groups[3].Value);
 
-                return new ResultIs_Cell2Constant(cellIndex, constantValue, DetermineOperation(operation), false);
+                return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation), false);
             }
 
-            //ResultIs_CellPointer
-            if (regex.ResultIs_CellPointer.IsMatch(inputText))
+            //ResultSet_Pointer
+            if (regex.ResultSet_Pointer.IsMatch(inputText))
             {
-                match = regex.ResultIs_CellPointer.Match(inputText);
+                match = regex.ResultSet_Pointer.Match(inputText);
 
                 int cellIndex = int.Parse(match.Groups[1].Value);
 
-                return new ResultIs_CellPointer(cellIndex);
+                return new ResultSet_Pointer(cellIndex);
             }
 
-            //ResultIs_Constant
-            if (regex.ResultIs_Constant.IsMatch(inputText))
+            //ResultSet_Constant
+            if (regex.ResultSet_Constant.IsMatch(inputText))
             {
-                match = regex.ResultIs_Constant.Match(inputText);
+                match = regex.ResultSet_Constant.Match(inputText);
 
                 int constantValue = int.Parse(match.Groups[1].Value);
 
-                return new ResultIs_Constant(constantValue);
+                return new ResultSet_Constant(constantValue);
             }
 
             throw new LocalException($"Error: Cannot assign to cell, as the resulting operation is not recognized: \"{inputText}\"");
         }
 
+        //Parses 
         private ComparisonSet DetermineComparisonSet(string[] groups)
         {
             ComparisonSet set = new ComparisonSet();
@@ -216,17 +216,17 @@ namespace PRAM_lib.Code.Compiler
                     continue;
                 }
 
-                //AssignResult
-                if (regex.AssignResult.IsMatch(s))
+                //SetMemoryToResult
+                if (regex.SetMemoryToResult.IsMatch(s))
                 {
-                    match = regex.AssignResult.Match(s);
+                    match = regex.SetMemoryToResult.Match(s);
 
                     string sharedMemoryResultAddress = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new AssignResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
                         //NOTE: No checks for infinity loops right now
                     }
                     catch (LocalException e)
@@ -239,15 +239,15 @@ namespace PRAM_lib.Code.Compiler
                     continue;
                 }
 
-                //WritePointer
-                if (regex.WritePointer.IsMatch(s))
+                //SetPointerToResult
+                if (regex.SetPointerToResult.IsMatch(s))
                 {
-                    match = regex.WritePointer.Match(s);
+                    match = regex.SetPointerToResult.Match(s);
 
                     string leftPointingIndex = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
 
-                    newCodeMemory.Instructions.Add(new WritePointer(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
 
                     continue;
                 }
@@ -311,7 +311,7 @@ namespace PRAM_lib.Code.Compiler
 
 
 
-                //Error
+                //Instruction not recognized
                 ErrorMessage = $"Error: Instruction \"{s}\" is not recognized.";
                 ErrorLineIndex = lineIndex;
                 return null;

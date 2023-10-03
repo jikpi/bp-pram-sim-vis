@@ -4,7 +4,7 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
 
-    internal class ComparisonSet : ComparisonSubGroup
+    internal class ComparisonSet : IComparisonSet
     {
         internal int? LeftCell;
         internal int? RightCell;
