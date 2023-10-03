@@ -8,7 +8,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //POZNAMKA: IMPLEMENTACE READINPUT POUZE DO SHARED MEMORY
     internal class ReadInput : IInstruction
     {
-        public int SharedMemoryIndex { get; private set; }
+        public int MemoryIndex { get; private set; }
         public bool Sequential { get; private set; }
 
         private int _readIndex;
@@ -18,37 +18,37 @@ namespace PRAM_lib.Instruction.Master_Instructions
             get => Sequential ? _readIndex : throw new Exception("Debug error");
             private set => _readIndex = value;
         }
-        public int VirtualInstructionIndex { get; set; }
-        public int CodeInstructionIndex { get; set; }
+        public int InstructionPointerIndex { get; set; }
+        public int CodeInstructionLineIndex { get; set; }
 
         public ReadInput(int sharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            SharedMemoryIndex = sharedMemoryIndex;
+            MemoryIndex = sharedMemoryIndex;
             Sequential = false;
-            VirtualInstructionIndex = virtualInstructionIndex;
-            CodeInstructionIndex = codeInstructionIndex;
+            InstructionPointerIndex = virtualInstructionIndex;
+            CodeInstructionLineIndex = codeInstructionIndex;
         }
 
         public ReadInput(int sharedMemoryIndex, int inputIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            SharedMemoryIndex = sharedMemoryIndex;
+            MemoryIndex = sharedMemoryIndex;
             InputMemoryIndex = inputIndex;
             Sequential = true;
-            VirtualInstructionIndex = virtualInstructionIndex;
-            CodeInstructionIndex = codeInstructionIndex;
+            InstructionPointerIndex = virtualInstructionIndex;
+            CodeInstructionLineIndex = codeInstructionIndex;
         }
 
         public void Execute(Gateway gateway)
         {
             if (Sequential)
             {
-                //gateway.SharedMemory.Cells[InputIndex].Value = gateway.InputMemory.Read(ReadIndex).Value;
-                gateway.SharedMemory.Write(SharedMemoryIndex, gateway.InputMemory.Read(InputMemoryIndex).Value);
+                // Read from input memory at specified index, and write to shared memory at specified index
+                gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read(InputMemoryIndex).Value);
             }
             else
             {
-                //gateway.SharedMemory.Cells[InputIndex].Value = gateway.InputMemory.Read().Value;
-                gateway.SharedMemory.Write(SharedMemoryIndex, gateway.InputMemory.Read().Value);
+                // Read from input memory, and write to shared memory at specified index
+                gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read().Value);
             }
         }
     }

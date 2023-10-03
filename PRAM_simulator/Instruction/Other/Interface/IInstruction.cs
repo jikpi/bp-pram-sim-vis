@@ -11,7 +11,7 @@ namespace PRAM_lib.Instruction.Other.Interface
     internal interface IInstruction
     {
         public void Execute(Gateway gateway); //A method that executes an instruction
-        public int VirtualInstructionIndex { get; set; } //An index of an instruction in a code memory
-        public int CodeInstructionIndex { get; set; } //An index of the line in the code editor
+        public int InstructionPointerIndex { get; set; } //An index of an instruction in a code memory
+        public int CodeInstructionLineIndex { get; set; } //An index of the line in the code editor
     }
 }

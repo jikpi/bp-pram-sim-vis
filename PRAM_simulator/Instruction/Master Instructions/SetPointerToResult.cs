@@ -12,8 +12,8 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a InstructionResult
     internal class SetPointerToResult : IInstruction
     {
-        public int VirtualInstructionIndex { get; set; }
-        public int CodeInstructionIndex { get; set; }
+        public int InstructionPointerIndex { get; set; }
+        public int CodeInstructionLineIndex { get; set; }
         public int LeftPointingSharedMemoryIndex { get; set; }
         public IResultSet RightValueSharedMemoryIndex { get; set; }
 
@@ -21,13 +21,15 @@ namespace PRAM_lib.Instruction.Master_Instructions
         {
             LeftPointingSharedMemoryIndex = leftPointingSharedMemoryIndex;
             RightValueSharedMemoryIndex = rightValueSharedMemoryIndex;
-            VirtualInstructionIndex = virtualInstructionIndex;
-            CodeInstructionIndex = codeInstructionIndex;
+            InstructionPointerIndex = virtualInstructionIndex;
+            CodeInstructionLineIndex = codeInstructionIndex;
         }
 
         public void Execute(Gateway gateway)
         {
+            // Get value of the cell, that will be used as a pointer
             int pointed = gateway.SharedMemory.Read(LeftPointingSharedMemoryIndex).Value;
+            // TODO here
             int value = RightValueSharedMemoryIndex.GetResult(gateway);
             gateway.SharedMemory.Write(pointed, value);
         }

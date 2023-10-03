@@ -11,28 +11,30 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class IfJumpTo : IInstruction
     {
-        public int VirtualInstructionIndex { get; set; }
-        public int CodeInstructionIndex { get; set; }
         public string JumpToLabel { get; set; }
         public ComparisonSet comparisonSet { get; set; }
+        public int InstructionPointerIndex { get; set; }
+        public int CodeInstructionLineIndex { get; set; }
 
         public IfJumpTo(string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex, ComparisonSet comparisonSet)
         {
             JumpToLabel = jumpToLabelString;
-            VirtualInstructionIndex = virtualInstructionIndex;
-            CodeInstructionIndex = codeInstructionIndex;
+            InstructionPointerIndex = virtualInstructionIndex;
+            CodeInstructionLineIndex = codeInstructionIndex;
             this.comparisonSet = comparisonSet;
         }
 
         public void Execute(Gateway gateway)
         {
+            // Retrieve result from ComparisonSet
             if(!comparisonSet.GetResult(gateway))
             {
                 return;
             }
 
-            int virtualIndex = gateway.jumpMemory.GetJump(JumpToLabel);
-            gateway.InstructionPointer.Value = virtualIndex;
+            // Get index of instruction to jump to, and set instruction pointer to that index
+            int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
+            gateway.InstructionPointer.Value = InstructionPointerIndex;
         }
 
     }

@@ -128,7 +128,7 @@ namespace PRAM_simulator
             try
             {
                 //DEBUG: Check for internal inconsistencies regarding the MPIP
-                if (MPIP.Value != MasterCodeMemory.Instructions[MPIP.Value].VirtualInstructionIndex)
+                if (MPIP.Value != MasterCodeMemory.Instructions[MPIP.Value].InstructionPointerIndex)
                 {
                     throw new Exception("Debug error: MPIP is not equal to the virtual instruction index. Bug in code.");
                 }
