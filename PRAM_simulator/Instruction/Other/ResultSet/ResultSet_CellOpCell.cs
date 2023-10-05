@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
@@ -32,7 +33,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                     return left * right;
                 case Operation.Div:
                     if (right == 0)
-                        throw new LocalException("Division by zero");
+                        throw new LocalException(ExceptionMessages.DivisionByZero());
                     return left / right;
                 case Operation.Mod:
                     return left % right;

@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other;
 using PRAM_lib.Instruction.Other.InstructionResult;
@@ -36,7 +37,7 @@ namespace PRAM_lib.Code.Compiler
                 case "%":
                     return Operation.Mod;
                 default:
-                    throw new LocalException($"Error: Operation \"{operation}\" is not recognized.");
+                    throw new LocalException(ExceptionMessages.CompilerOperationNotRecognized(operation));
             }
         }
 
@@ -109,7 +110,7 @@ namespace PRAM_lib.Code.Compiler
                 return new ResultSet_Constant(constantValue);
             }
 
-            throw new LocalException($"Error: Cannot assign to cell, as the resulting operation is not recognized: \"{inputText}\"");
+            throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));
         }
 
         //Parses 
@@ -156,7 +157,7 @@ namespace PRAM_lib.Code.Compiler
                     set.ComparisonMethod = ComparisonMethod.GreaterOrEqual;
                     break;
                 default:
-                    throw new LocalException($"Error: Comparison method \"{groups[3]}\" is not recognized.");
+                    throw new LocalException(ExceptionMessages.CompilationComparisonNotRecognized(groups[3]));
             }
 
             return set;
@@ -312,7 +313,7 @@ namespace PRAM_lib.Code.Compiler
 
 
                 //Instruction not recognized
-                ErrorMessage = $"Error: Instruction \"{s}\" is not recognized.";
+                ErrorMessage = ExceptionMessages.CompilationInstructionNotRecognized(s);
                 ErrorLineIndex = lineIndex;
                 return null;
             }

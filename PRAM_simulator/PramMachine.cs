@@ -1,6 +1,7 @@
 ﻿using PRAM_lib.Code.CodeMemory;
 using PRAM_lib.Code.Compiler;
 using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Jumps;
 using PRAM_lib.Instruction.Other;
@@ -38,7 +39,7 @@ namespace PRAM_simulator
         public string? ExecutionErrorMessage { get; private set; }
 
         public int? ExecutionErrorLineIndex { get; private set; }
-        public bool IsErrored { get; private set; }
+        public bool IsCrashed { get; private set; }
 
         public bool IsHalted { get; private set; }
 
@@ -52,7 +53,7 @@ namespace PRAM_simulator
             Compiler = new CodeCompiler();
             InstructionRegex = new InstructionRegex();
             MPIP = new InstructionPointer(0);
-            IsErrored = false;
+            IsCrashed = false;
             IsHalted = false;
             this.JumpMemory = new JumpMemory();
 
@@ -107,12 +108,12 @@ namespace PRAM_simulator
             }
         }
 
-        public bool ExecuteNextInstruction()
+        private bool CheckIfCanContinue() 
         {
             //Check if compiled
             if (MasterCodeMemory == null)
             {
-                ExecutionErrorMessage = "Code is not compiled";
+                ExecutionErrorMessage = ExceptionMessages.NotCompiled();
                 return false;
             }
 
@@ -120,15 +121,31 @@ namespace PRAM_simulator
             if (MPIP.Value >= MasterCodeMemory.Instructions.Count || IsHalted)
             {
                 IsHalted = true;
-                ExecutionErrorMessage = "Machine has halted";
+                ExecutionErrorMessage = ExceptionMessages.HasHalted();
                 return false;
             }
 
+            //Check if crashed
+            if (IsCrashed)
+            {
+                ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ExecuteNextInstruction()
+        {
+            if (!CheckIfCanContinue())
+            {
+                return false;
+            }
 
             try
             {
                 //DEBUG: Check for internal inconsistencies regarding the MPIP
-                if (MPIP.Value != MasterCodeMemory.Instructions[MPIP.Value].InstructionPointerIndex)
+                if (MPIP.Value != MasterCodeMemory!.Instructions[MPIP.Value].InstructionPointerIndex)
                 {
                     throw new Exception("Debug error: MPIP is not equal to the virtual instruction index. Bug in code.");
                 }
@@ -139,7 +156,7 @@ namespace PRAM_simulator
             catch (LocalException e)
             {
                 ExecutionErrorMessage = e.Message;
-                IsHalted = true;
+                IsCrashed = true;
                 return false;
             }
 
@@ -151,6 +168,7 @@ namespace PRAM_simulator
         {
             MPIP.Value = 0;
             IsHalted = false;
+            IsCrashed = false;
             InputMemory.ResetMemoryPointer();
             OutputMemory.ResetMemoryPointer();
         }
@@ -158,7 +176,8 @@ namespace PRAM_simulator
         //NOTE: WARNING: Not future proof
         public void Clear()
         {
-            MPIP.Value = 0;
+            Restart();
+
             SharedMemory = new SharedMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();

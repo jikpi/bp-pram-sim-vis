@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Memory.Interface;
 using System;
 using System.Collections.Generic;
@@ -23,9 +24,9 @@ namespace PRAM_lib.Memory
         public void AddressSanityCheck(int memoryAddress)
         {
             if (memoryAddress < 0)
-                throw new LocalException($"Address cannot be negative. Tried to access address at {memoryAddress}");
+                throw new LocalException(ExceptionMessages.AddressIsNegative(memoryAddress));
             if (memoryAddress >= MaxCellSize)
-                throw new LocalException($"Address is too big. Tried to access {memoryAddress}, but max size is {MaxCellSize}");
+                throw new LocalException(ExceptionMessages.AddressIsTooBig(memoryAddress, MaxCellSize));
         }
 
         public MemoryCell Read(int address)

@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Memory.Interface;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace PRAM_lib.Memory
         {
             if(Cells.Count == 0)
             {
-                throw new LocalException("Cannot read from empty IO memory");
+                throw new LocalException(ExceptionMessages.IOInputIsEmpty());
             }
 
             if(MemoryPointer >= Cells.Count)

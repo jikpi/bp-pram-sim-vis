@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,10 +35,10 @@ namespace PRAM_lib.Code.Jumps
         public int GetJump (string jumpName)
         {
             if(!JumpMemoryDictionary.ContainsKey(jumpName))
-                throw new LocalException($"Error: Jump \"{jumpName}\" is not defined.");
+                throw new LocalException(ExceptionMessages.JumpNotDefined(jumpName));
 
             if (JumpMemoryDictionary[jumpName] == -2)
-                throw new LocalException($"Error: Jump \"{jumpName}\" is not set.");
+                throw new LocalException(ExceptionMessages.JumpNotSet(jumpName));
 
             return JumpMemoryDictionary[jumpName];
         }
