@@ -26,7 +26,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
 
         public void Execute(Gateway gateway)
         {
-            // Retrieve result from ComparisonSet
+            // Retrieve boolean result from ComparisonSet
             if(!comparisonSet.GetResult(gateway))
             {
                 return;

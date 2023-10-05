@@ -3,7 +3,10 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-
+    // A class that represents a "comparison set" between two values, whether cell or constant on either side, for example "(S0 == S1)".
+    // Is used in IfJumpTo instruction, to determine whether to jump or not.
+    // Determines whether the comparison is between a cell and a cell, value and a value, etc, by checking for null values, which
+    // combinations determine what is being compared.
     internal class ComparisonSet : IComparisonSet
     {
         internal int? LeftCell;
@@ -29,6 +32,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             int leftValue;
             int rightValue;
 
+            // Determine what is being compared, get the values, and compare them. Then return the result.
             if (LeftCell != null)
                 leftValue = gateway.SharedMemory.Read(LeftCell.Value).Value;
             else if (LeftValue != null)

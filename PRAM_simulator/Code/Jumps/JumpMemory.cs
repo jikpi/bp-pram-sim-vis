@@ -27,9 +27,9 @@ namespace PRAM_lib.Code.Jumps
         }
 
         //Flag like ":jump" on a certain VirtualIndex
-        public void SetJump (string jumpName, int jumpVirtualIndex)
+        public void SetJump (string jumpName, int instructionPointerIndex)
         {
-            JumpMemoryDictionary[jumpName] = jumpVirtualIndex - 1;
+            JumpMemoryDictionary[jumpName] = instructionPointerIndex - 1;
         }
 
         public int GetJump (string jumpName)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
-    //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a InstructionResult
+    //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a ResultSet
     internal class SetPointerToResult : IInstruction
     {
         public int InstructionPointerIndex { get; set; }
@@ -29,8 +29,9 @@ namespace PRAM_lib.Instruction.Master_Instructions
         {
             // Get value of the cell, that will be used as a pointer
             int pointed = gateway.SharedMemory.Read(LeftPointingSharedMemoryIndex).Value;
-            // TODO here
+            // Get the resulting value of ResultSet (<RESULT>)
             int value = RightValueSharedMemoryIndex.GetResult(gateway);
+            // Write the value to the pointed cell
             gateway.SharedMemory.Write(pointed, value);
         }
 

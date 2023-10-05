@@ -19,7 +19,9 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
 
         public int GetResult(Gateway gateway)
         {
+            // Get value of the cell, that will be used as a pointer
             int pointed = gateway.SharedMemory.Read(CellIndex).Value;
+            // Read the value from the pointed cell
             return gateway.SharedMemory.Read(pointed).Value;
         }
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A class that represents a result of an instruction, that is: S2 := S3
+    //A class that represents a result of an instruction, with a cell that is: S2 := S3
     internal class ResultSet_Cell : IResultSet
     {
         public int CellIndex { get; private set; }

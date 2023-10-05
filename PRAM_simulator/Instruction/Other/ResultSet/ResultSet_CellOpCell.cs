@@ -5,7 +5,7 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A class that represents a result of an instruction, that is for example S2 := S2 + S3
+    //A class that represents a result of an instruction, with a left cell, operator, and right cell, that is for example S2 := S2 + S3
     internal class ResultSet_CellOpCell : IResultSet
     {
         public int LeftCellIndex { get; private set; }
@@ -21,6 +21,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
 
         public int GetResult(Gateway gateway)
         {
+            // Get values of the cells, that will be used in the operation
             int left = gateway.SharedMemory.Read(LeftCellIndex).Value;
             int right = gateway.SharedMemory.Read(RightCellIndex).Value;
             switch (Operation)

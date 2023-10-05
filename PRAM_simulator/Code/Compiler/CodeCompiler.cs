@@ -171,9 +171,12 @@ namespace PRAM_lib.Code.Compiler
 
             List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
             StringBuilder potentialErrorMessage = new StringBuilder();
+            
+            // An index for lines, where even comments count as lines
             int lineIndex = -1;
-            //An index for instructions, for example jump labels don't count as instructions
-            int virtulLineIndex = 0;
+            //An index for instructions, for example comments or jump labels do not count as instructions.
+            //Used by compiler to set the values in instructions, and to set the jump memory.
+            int instructionPointerIndex = 0;
 
             Match? match;
             foreach (string s in strings)
@@ -196,7 +199,7 @@ namespace PRAM_lib.Code.Compiler
 
                     if (selectedReadMemoryAddress == "")
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), virtulLineIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), instructionPointerIndex++, lineIndex));
                     }
                     else
                     {
@@ -212,7 +215,7 @@ namespace PRAM_lib.Code.Compiler
 
                     string sharedMemoryAddress = match.Groups[1].Value;
 
-                    newCodeMemory.Instructions.Add(new WriteOutput(int.Parse(sharedMemoryAddress), virtulLineIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new WriteOutput(int.Parse(sharedMemoryAddress), instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -227,7 +230,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
                         //NOTE: No checks for infinity loops right now
                     }
                     catch (LocalException e)
@@ -248,7 +251,7 @@ namespace PRAM_lib.Code.Compiler
                     string leftPointingIndex = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
 
-                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), virtulLineIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -262,7 +265,7 @@ namespace PRAM_lib.Code.Compiler
 
                     jumpMemory.AddJumpLabel(jumpName);
 
-                    newCodeMemory.Instructions.Add(new JumpTo(jumpName, virtulLineIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new JumpTo(jumpName, instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -274,7 +277,7 @@ namespace PRAM_lib.Code.Compiler
 
                     string jumpName = match.Groups[1].Value;
 
-                    jumpMemory.SetJump(jumpName, virtulLineIndex); //Does not increment the virtual line index, because not an instruction
+                    jumpMemory.SetJump(jumpName, instructionPointerIndex); //Does not increment the virtual line index, because not an instruction
 
                     continue;
                 }
@@ -298,7 +301,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new IfJumpTo(match.Groups[6].Value, virtulLineIndex++, lineIndex, set));
+                        newCodeMemory.Instructions.Add(new IfJumpTo(match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
                     }
                     catch (LocalException e)
                     {

@@ -43,7 +43,8 @@ namespace PRAM_simulator
 
         public bool IsHalted { get; private set; }
 
-        public InstructionPointer MPIP { get; private set; }
+        //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
+        public InstructionPointer MPIP { get; private set; } 
 
         public PramMachine()
         {
