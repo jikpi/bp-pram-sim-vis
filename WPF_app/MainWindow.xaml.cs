@@ -1,19 +1,11 @@
-﻿using PRAM_lib.Processor;
-using PRAM_simulator;
-using System;
-using System.Collections.Generic;
+﻿using PRAM_simulator;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WPF_app.Resources;
 
 namespace WPF_app
@@ -30,9 +22,9 @@ namespace WPF_app
             InitializeComponent();
 
             InitializeProgram();
-            
 
-            
+
+
         }
 
         public void InitializeProgram()
@@ -60,6 +52,8 @@ namespace WPF_app
 
             //Output memory binding
             DataGridOutput.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.pram.GetOutputMemory() });
+
+            ResetCodeEditorColor();
         }
 
         private void ButtonCompile_Click(object sender, RoutedEventArgs e)
@@ -85,6 +79,7 @@ namespace WPF_app
         private void ButtonReset_Click(object sender, RoutedEventArgs e)
         {
             DataResources.pram.Restart();
+            ResetCodeEditorColor();
         }
         private void ButtonClear_Click(object sender, RoutedEventArgs e)
         {
@@ -92,11 +87,51 @@ namespace WPF_app
             RestartedMasterMemoryBindings();
         }
 
+        private void ResetCodeEditorColor()
+        {
+            foreach (Block block in RichTextBoxCode.Document.Blocks)
+            {
+                if (block is Paragraph paragraph)
+                {
+                    foreach (Inline inline in paragraph.Inlines)
+                    {
+                        if (inline is Run run)
+                        {
+                            run.Foreground = Brushes.Black;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SetCodeEditorLineIndexColor(int index)
+        {
+            if(index < 0)
+            {
+                return;
+            }
+
+            ResetCodeEditorColor();
+            if (RichTextBoxCode.Document.Blocks.Count > 0)
+            {
+                Paragraph paragraph = RichTextBoxCode.Document.Blocks.ElementAt(index) as Paragraph;
+
+                if (paragraph != null && paragraph.Inlines.Count > 0)
+                {
+                    (paragraph.Inlines.FirstInline as Run).Foreground = Brushes.Red;
+                }
+            }
+        }
+
         private void ButtonNextExecution_Click(object sender, RoutedEventArgs e)
         {
             bool result = DataResources.pram.ExecuteNextInstruction();
 
-            if(!result)
+            if (result)
+            {
+                SetCodeEditorLineIndexColor(DataResources.pram.GetCurrentCodeLineIndex());
+            }
+            else
             {
                 MessageBox.Show("Execution failed");
                 MessageBox.Show(DataResources.pram.ExecutionErrorMessage);

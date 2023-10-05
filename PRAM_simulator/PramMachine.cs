@@ -63,6 +63,16 @@ namespace PRAM_simulator
             MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
+        public int GetCurrentCodeLineIndex()
+        {
+            if(!CheckIfCanContinue())
+            {
+                return -1;
+            }
+
+            return MasterCodeMemory!.Instructions[MPIP.Value].CodeInstructionLineIndex;
+        }
+
         public ObservableCollection<MemoryCell> GetInputMemory()
         {
             return InputMemory.Cells;

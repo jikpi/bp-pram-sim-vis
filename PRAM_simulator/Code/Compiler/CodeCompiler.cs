@@ -169,7 +169,7 @@ namespace PRAM_lib.Code.Compiler
             CodeMemory.CodeMemory newCodeMemory = new CodeMemory.CodeMemory();
             jumpMemory = new Jumps.JumpMemory();
 
-            List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
             StringBuilder potentialErrorMessage = new StringBuilder();
             
             // An index for lines, where even comments count as lines
@@ -182,6 +182,12 @@ namespace PRAM_lib.Code.Compiler
             foreach (string s in strings)
             {
                 lineIndex++;
+
+                //Empty line
+                if(string.IsNullOrWhiteSpace(s))
+                {
+                    continue;
+                }
 
                 //Comment
                 if (regex.Comment.IsMatch(s))
