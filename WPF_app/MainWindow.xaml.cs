@@ -106,7 +106,7 @@ namespace WPF_app
 
         private void SetCodeEditorLineIndexColor(int index)
         {
-            if(index < 0)
+            if (index < 0)
             {
                 return;
             }
@@ -152,7 +152,40 @@ namespace WPF_app
 
         private void InitializeRichTextBox()
         {
-            //RichTextBoxCode.PreviewKeyDown += RichTextBox_PreviewKeyDown;
+            RichTextBoxCode.Document.Blocks.Clear();
+
+            string[] instructions = {
+                "S0 := READ()",
+                "S1 := READ()",
+                "S2 := S0 + S1",
+                "S3 := S0 - S1",
+                "S4 := S0 * S1",
+                "S5 := S0 / S1",
+                "S6 := S0 % S1",
+                "S7 := [S2]",
+                "S8 := S0 + 2",
+                "S9 := S0 - 2",
+                "S10 := S0 * 2",
+                "S11 := S0 / 2",
+                "S12 := S0 % 2",
+                "[S13] := 10",
+                ":test",
+                "S14 := S14 + 1",
+                "if (S0 == S1) goto :true",
+                "S5 := 0",
+                "goto :end",
+                ":true",
+                "S5 := 1",
+                "goto :end",
+                ":end",
+                "goto :test"
+            };
+
+            foreach (string instruction in instructions)
+            {
+                Paragraph paragraph = new Paragraph(new Run(instruction));
+                RichTextBoxCode.Document.Blocks.Add(paragraph);
+            }
         }
 
         private void ButtonClearMemory_Click(object sender, RoutedEventArgs e)
