@@ -30,11 +30,11 @@ namespace WPF_app
             InitializeRichTextBox();
 
             //Exposing property for bindings
-            exposedMachine = DataResources.pram;
+            exposedMachine = DataResources.PRAM;
 
             //Master processor instruction pointer binding
             Binding MPIPbinding = new Binding("Value");
-            MPIPbinding.Source = DataResources.pram.MPIP;
+            MPIPbinding.Source = DataResources.PRAM.MPIP;
             BindingOperations.SetBinding(LabelMasterProcessorInstructionPointer, Label.ContentProperty, MPIPbinding);
 
             RestartedMasterMemoryBindings();
@@ -43,13 +43,13 @@ namespace WPF_app
         public void RestartedMasterMemoryBindings()
         {
             //Input memory binding
-            DataGridInput.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.pram.GetInputMemory() });
+            DataGridInput.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.PRAM.GetInputMemory() });
 
             //Shared memory binding
-            DataGridSharedMemory.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.pram.GetSharedMemory() });
+            DataGridSharedMemory.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.PRAM.GetSharedMemory() });
 
             //Output memory binding
-            DataGridOutput.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.pram.GetOutputMemory() });
+            DataGridOutput.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = DataResources.PRAM.GetOutputMemory() });
 
             ResetCodeEditorColor();
         }
@@ -64,9 +64,9 @@ namespace WPF_app
             TextRange textRange = new TextRange(RichTextBoxCode.Document.ContentStart, RichTextBoxCode.Document.ContentEnd);
             string text = textRange.Text;
 
-            DataResources.pram.Compile(text);
+            DataResources.PRAM.Compile(text);
 
-            if (DataResources.pram.IsCompiled)
+            if (DataResources.PRAM.IsCompiled)
             {
                 MessageBox.Show("Compilation successful");
                 ResetCodeEditorColor();
@@ -74,10 +74,10 @@ namespace WPF_app
             else
             {
                 MessageBox.Show("Compilation failed");
-                MessageBox.Show(DataResources.pram.CompilationErrorMessage);
-                if (DataResources.pram.CompilationErrorLineIndex >= 0)
+                MessageBox.Show(DataResources.PRAM.CompilationErrorMessage);
+                if (DataResources.PRAM.CompilationErrorLineIndex >= 0)
                 {
-                    SetCodeEditorLineIndexColor((int)DataResources.pram.CompilationErrorLineIndex);
+                    SetCodeEditorLineIndexColor((int)DataResources.PRAM.CompilationErrorLineIndex);
                 }
             }
 
@@ -86,12 +86,12 @@ namespace WPF_app
 
         private void ButtonReset_Click(object sender, RoutedEventArgs e)
         {
-            DataResources.pram.Restart();
+            DataResources.PRAM.Restart();
             ResetCodeEditorColor();
         }
         private void ButtonClear_Click(object sender, RoutedEventArgs e)
         {
-            DataResources.pram.Clear();
+            DataResources.PRAM.Clear();
             RestartedMasterMemoryBindings();
         }
 
@@ -133,16 +133,16 @@ namespace WPF_app
 
         private void ButtonNextExecution_Click(object sender, RoutedEventArgs e)
         {
-            bool result = DataResources.pram.ExecuteNextInstruction();
+            bool result = DataResources.PRAM.ExecuteNextInstruction();
 
             if (result)
             {
-                SetCodeEditorLineIndexColor(DataResources.pram.GetCurrentCodeLineIndex());
+                SetCodeEditorLineIndexColor(DataResources.PRAM.GetCurrentCodeLineIndex());
             }
             else
             {
                 MessageBox.Show("Execution failed");
-                MessageBox.Show(DataResources.pram.ExecutionErrorMessage);
+                MessageBox.Show(DataResources.PRAM.ExecutionErrorMessage);
             }
         }
 
@@ -172,7 +172,7 @@ namespace WPF_app
 
         private void ButtonClearMemory_Click(object sender, RoutedEventArgs e)
         {
-            DataResources.pram.ClearMemory();
+            DataResources.PRAM.ClearMemory();
         }
     }
 }

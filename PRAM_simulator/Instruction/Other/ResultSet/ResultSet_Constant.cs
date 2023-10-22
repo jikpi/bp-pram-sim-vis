@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         {
             ConstantValue = constantValue;
         }
-        public int GetResult(MasterGateway gateway)
+        public virtual int GetResult(IGatewayAccessLocal gateway)
         {
             return ConstantValue;
         }

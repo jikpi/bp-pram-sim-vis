@@ -1,10 +1,10 @@
-﻿using PRAM_lib.Code.CodeMemory;
+﻿using PRAM_lib.Code;
+using PRAM_lib.Code.CodeMemory;
 using PRAM_lib.Code.Compiler;
 using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Jumps;
-using PRAM_lib.Instruction.Other;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
 using PRAM_lib.Processor.Interface;
@@ -48,6 +48,7 @@ namespace PRAM_lib.Machine
 
 
             MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway.ParallelDoLaunch += ParallelDo;
         }
 
         public int GetCurrentCodeLineIndex()
@@ -75,6 +76,11 @@ namespace PRAM_lib.Machine
             return SharedMemory.Cells;
         }
 
+        private void RefreshGateway()
+        {
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+        }
+
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
         public void Compile(string code)
         {
@@ -94,9 +100,8 @@ namespace PRAM_lib.Machine
                 CompilationErrorLineIndex = null;
 
                 //Set the new jump memory
-                //Note: Standardise this gateway
                 JumpMemory = newJumpMemory;
-                MasterGateway.jumpMemory = JumpMemory;
+                RefreshGateway();
 
                 MPIP.Value = 0;
                 IsHalted = false;
@@ -131,6 +136,11 @@ namespace PRAM_lib.Machine
             }
 
             return true;
+        }
+
+        public void ParallelDo(int count)
+        {
+            // #########################################
         }
 
         public bool ExecuteNextInstruction()
@@ -171,7 +181,6 @@ namespace PRAM_lib.Machine
             OutputMemory.ResetMemoryPointer();
         }
 
-        //NOTE: WARNING: Not future proof
         public void Clear()
         {
             Restart();
@@ -180,7 +189,9 @@ namespace PRAM_lib.Machine
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             JumpMemory.Clear();
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+
+            RefreshGateway();
+
             MasterCodeMemory = null;
         }
 

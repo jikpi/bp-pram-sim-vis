@@ -1,6 +1,7 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using System;
 using System.Collections.Generic;
@@ -24,20 +25,22 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             this.operation = operation;
             IsLeftCell = isLeftCell;
         }
-        public int GetResult(MasterGateway gateway)
+        public virtual int GetResult(IGatewayAccessLocal gateway)
         {
             int RightValue = 0;
             int LeftValue = 0;
 
             if(IsLeftCell) 
             {
-                LeftValue = gateway.SharedMemory.Read(CellIndex).Value;
+                //LeftValue = gateway.SharedMemory.Read(CellIndex).Value;
+                LeftValue = gateway.Read(CellIndex);
                 RightValue = ConstantValue;
             }
             else
             {
                 LeftValue = ConstantValue;
-                RightValue = gateway.SharedMemory.Read(CellIndex).Value;
+                //RightValue = gateway.SharedMemory.Read(CellIndex).Value;
+                RightValue = gateway.Read(CellIndex);
 
             }
             

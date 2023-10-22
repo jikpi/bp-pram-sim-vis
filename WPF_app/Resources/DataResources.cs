@@ -9,11 +9,11 @@ namespace WPF_app.Resources
 {
     public static class DataResources
     {
-        public static PramMachine pram { get; set; }
+        public static PramMachine PRAM { get; set; }
 
         static DataResources()
         {
-            pram = new PramMachine();
+            PRAM = new PramMachine();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
 using System.Collections.Generic;
@@ -21,11 +22,14 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(MasterGateway gateway)
+        public void Execute(IGatewayAccessLocal gateway)
         {
             // Get index for the InstructionPointer to jump to
-            int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
-            gateway.InstructionPointer.Value = InstructionPointerIndex;
+            //int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
+            int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
+
+            //gateway.InstructionPointer.Value = InstructionPointerIndex;
+            gateway.JumpTo(InstructionPointerIndex);
         }
     }
 }

@@ -18,9 +18,10 @@ namespace PRAM_lib.Processor
         public bool IsCrashed { get; private set; }
         public bool IsHalted { get; private set; }
         public InstrPointer IP { get; private set; }
+        public int ProcessorIndex { get; private set; }
 
 
-        public InParallelMachine()
+        public InParallelMachine(int processorIndex)
         {
             Memory = new SharedMemory();
             CodeMemory = new CodeMemory();
@@ -28,6 +29,7 @@ namespace PRAM_lib.Processor
             IP = new InstrPointer(0);
             IsCrashed = false;
             IsHalted = false;
+            ProcessorIndex = processorIndex;
 
             //Gateway = new Gateway(Memory, IP, JumpMemory);
         }

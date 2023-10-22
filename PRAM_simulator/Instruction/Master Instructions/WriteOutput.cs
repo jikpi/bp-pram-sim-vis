@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
@@ -22,10 +23,11 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(MasterGateway gateway)
+        public virtual void Execute(IGatewayAccessLocal gateway)
         {
             // Write to output memory from shared memory at specified index
-            gateway.OutputMemory.Write(Result.GetResult(gateway));
+            //gateway.OutputMemory.Write(Result.GetResult(gateway));
+            gateway.WriteOutput(Result.GetResult(gateway));
         }
 
     }

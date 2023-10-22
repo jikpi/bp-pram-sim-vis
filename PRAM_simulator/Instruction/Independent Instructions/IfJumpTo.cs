@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
@@ -24,7 +25,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             this.comparisonSet = comparisonSet;
         }
 
-        public void Execute(MasterGateway gateway)
+        public void Execute(IGatewayAccessLocal gateway)
         {
             // Retrieve boolean result from ComparisonSet
             if(!comparisonSet.GetResult(gateway))
@@ -33,8 +34,11 @@ namespace PRAM_lib.Instruction.Master_Instructions
             }
 
             // Get index of instruction to jump to, and set instruction pointer to that index
-            int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
-            gateway.InstructionPointer.Value = InstructionPointerIndex;
+            //int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
+            int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
+
+            //gateway.InstructionPointer.Value = InstructionPointerIndex;
+            gateway.JumpTo(InstructionPointerIndex);
         }
 
     }

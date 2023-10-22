@@ -1,9 +1,10 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Instruction.Master_Instructions;
-using PRAM_lib.Instruction.Other;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
+using PRAM_lib.Instruction.Parallel_Instructions;
+using PRAM_lib.Machine.ParallelMachineContainer;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -164,14 +165,15 @@ namespace PRAM_lib.Code.Compiler
         }
 
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out string ErrorMessage, out int ErrorLineIndex)
+        public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, bool parallel = false)
         {
             CodeMemory.CodeMemory newCodeMemory = new CodeMemory.CodeMemory();
             jumpMemory = new Jumps.JumpMemory();
+            parallelMachines = new List<ParallelMachineContainer>();
 
             List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
             StringBuilder potentialErrorMessage = new StringBuilder();
-            
+
             // An index for lines, where even comments count as lines
             int lineIndex = -1;
             //An index for instructions, for example comments or jump labels do not count as instructions.
@@ -179,26 +181,68 @@ namespace PRAM_lib.Code.Compiler
             int instructionPointerIndex = 0;
 
             Match? match;
-            foreach (string s in strings)
+            for (int i = 0; i < strings.Count; i++)
             {
                 lineIndex++;
 
+                //Parallel instructions beginning
+                if (strings[i].StartsWith("pardo"))
+                {
+                    if (parallel)
+                    {
+                        ErrorMessage = "Cannot start parallel processors inside a parallel processor";
+                        ReturnLineIndex = lineIndex;
+                        return null;
+                    }
+
+                    List<string> pardoStrings = strings.GetRange(i + 1, strings.Count - i - 1);
+                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, true);
+
+                    if (pardoCodeMemory == null)
+                    {
+                        ErrorMessage = pardoErrorMessage;
+                        ReturnLineIndex = pardoReturnLineIndex;
+                        return null;
+                    }
+
+                    int numberofprocessors = strings[i][strings[i].Length - 1] - '0';
+                    parallelMachines.Add(new ParallelMachineContainer(pardoCodeMemory, pardoJumpMemory, numberofprocessors));
+                }
+
+                //Parallel instructions ending
+                if (strings[i].StartsWith("endpardo"))
+                {
+                    if (!parallel)
+                    {
+                        ErrorMessage = "Cannot end parallel processors outside a parallel processor";
+                        ReturnLineIndex = lineIndex;
+                        return null;
+                    }
+                }
+
+                //Parallel instruction test:
+                if (strings[i].StartsWith("testparallel"))
+                {
+                    //newCodeMemory.Instructions.Add(new PSetMemoryToResult(instructionPointerIndex++, lineIndex));
+                    //todo HERE ################################################################################################
+                }
+
                 //Empty line
-                if(string.IsNullOrWhiteSpace(s))
+                if (string.IsNullOrWhiteSpace(strings[i]))
                 {
                     continue;
                 }
 
                 //Comment
-                if (regex.Comment.IsMatch(s))
+                if (regex.Comment.IsMatch(strings[i]))
                 {
                     continue;
                 }
 
                 //ReadInput
-                if (regex.ReadInput.IsMatch(s))
+                if (regex.ReadInput.IsMatch(strings[i]))
                 {
-                    match = regex.ReadInput.Match(s);
+                    match = regex.ReadInput.Match(strings[i]);
 
                     string sharedMemoryAddress = match.Groups[1].Value;
                     string selectedReadMemoryAddress = match.Groups[2].Value;
@@ -215,9 +259,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //WriteOutput
-                if (regex.WriteOutput.IsMatch(s))
+                if (regex.WriteOutput.IsMatch(strings[i]))
                 {
-                    match = regex.WriteOutput.Match(s);
+                    match = regex.WriteOutput.Match(strings[i]);
 
                     string resultIs_any = match.Groups[1].Value;
 
@@ -228,16 +272,16 @@ namespace PRAM_lib.Code.Compiler
                     catch (LocalException e)
                     {
                         ErrorMessage = e.Message;
-                        ErrorLineIndex = lineIndex;
+                        ReturnLineIndex = lineIndex;
                         return null;
                     }
                     continue;
                 }
 
                 //SetMemoryToResult
-                if (regex.SetMemoryToResult.IsMatch(s))
+                if (regex.SetMemoryToResult.IsMatch(strings[i]))
                 {
-                    match = regex.SetMemoryToResult.Match(s);
+                    match = regex.SetMemoryToResult.Match(strings[i]);
 
                     string sharedMemoryResultAddress = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
@@ -250,7 +294,7 @@ namespace PRAM_lib.Code.Compiler
                     catch (LocalException e)
                     {
                         ErrorMessage = e.Message;
-                        ErrorLineIndex = lineIndex;
+                        ReturnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -258,9 +302,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //SetPointerToResult
-                if (regex.SetPointerToResult.IsMatch(s))
+                if (regex.SetPointerToResult.IsMatch(strings[i]))
                 {
-                    match = regex.SetPointerToResult.Match(s);
+                    match = regex.SetPointerToResult.Match(strings[i]);
 
                     string leftPointingIndex = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
@@ -271,9 +315,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToInstruction
-                if (regex.JumpToInstruction.IsMatch(s))
+                if (regex.JumpToInstruction.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToInstruction.Match(s);
+                    match = regex.JumpToInstruction.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -285,9 +329,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToLabel
-                if (regex.JumpToLabel.IsMatch(s))
+                if (regex.JumpToLabel.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToLabel.Match(s);
+                    match = regex.JumpToLabel.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -297,9 +341,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //IfJumpTo
-                if (regex.IfJumpTo.IsMatch(s))
+                if (regex.IfJumpTo.IsMatch(strings[i]))
                 {
-                    match = regex.IfJumpTo.Match(s);
+                    match = regex.IfJumpTo.Match(strings[i]);
 
                     string potentialLeftCell = match.Groups[1].Value; //A cell identifier or empty string, if it's a constant on the left
                     string leftValue = match.Groups[2].Value; //Cell address or constant value
@@ -320,7 +364,7 @@ namespace PRAM_lib.Code.Compiler
                     catch (LocalException e)
                     {
                         ErrorMessage = e.Message;
-                        ErrorLineIndex = lineIndex;
+                        ReturnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -330,13 +374,13 @@ namespace PRAM_lib.Code.Compiler
 
 
                 //Instruction not recognized
-                ErrorMessage = ExceptionMessages.CompilationInstructionNotRecognized(s);
-                ErrorLineIndex = lineIndex;
+                ErrorMessage = ExceptionMessages.CompilationInstructionNotRecognized(strings[i]);
+                ReturnLineIndex = lineIndex;
                 return null;
             }
 
             ErrorMessage = string.Empty;
-            ErrorLineIndex = -1;
+            ReturnLineIndex = -1;
             return newCodeMemory;
         }
     }

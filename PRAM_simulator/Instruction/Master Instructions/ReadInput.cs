@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
@@ -6,6 +7,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //Instruction that reads from input, and writes to shared memory. Optionally, it can read from specified index in input.
 
     //POZNAMKA: IMPLEMENTACE READINPUT POUZE DO SHARED MEMORY
+    //TODO THIS IS A RESULT SET, REFACTOR AFTER PARALLELIZATION ARCHITECTURE IS DONE
     internal class ReadInput : IInstruction
     {
         public int MemoryIndex { get; private set; }
@@ -38,17 +40,21 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(MasterGateway gateway)
+        public void Execute(IGatewayAccessLocal gateway)
         {
             if (Sequential)
             {
                 // Read from input memory at specified index, and write to shared memory at specified index
-                gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read(InputMemoryIndex).Value);
+
+                //gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read(InputMemoryIndex).Value);
+                gateway.Write(MemoryIndex, gateway.Read(InputMemoryIndex));
             }
             else
             {
                 // Read from input memory, and write to shared memory at specified index
-                gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read().Value);
+
+                //gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read().Value);
+                gateway.Write(MemoryIndex, gateway.ReadInput());
             }
         }
     }

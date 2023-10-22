@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace PRAM_lib.Instruction.Other
+namespace PRAM_lib.Code
 {
     internal class InstructionRegex
     {

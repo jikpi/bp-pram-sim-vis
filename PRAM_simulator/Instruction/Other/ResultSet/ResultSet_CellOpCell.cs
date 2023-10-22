@@ -1,6 +1,7 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
@@ -19,11 +20,13 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             Operation = operation;
         }
 
-        public int GetResult(MasterGateway gateway)
+        public virtual int GetResult(IGatewayAccessLocal gateway)
         {
             // Get values of the cells, that will be used in the operation
-            int left = gateway.SharedMemory.Read(LeftCellIndex).Value;
-            int right = gateway.SharedMemory.Read(RightCellIndex).Value;
+            //int left = gateway.SharedMemory.Read(LeftCellIndex).Value;
+            int left = gateway.Read(LeftCellIndex);
+            //int right = gateway.SharedMemory.Read(RightCellIndex).Value;
+            int right = gateway.Read(RightCellIndex);
             switch (Operation)
             {
                 case Operation.Add:

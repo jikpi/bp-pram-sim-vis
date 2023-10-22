@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,12 +30,12 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
     //An interface for instruction result, that is for example S2 := <RESULT>
     internal interface IResultSet
     {
-        public int GetResult(MasterGateway gateway);
+        public int GetResult(IGatewayAccessLocal gateway);
     }
 
     // For instruction "ComparisonSet"
     internal interface IComparisonSet
     {
-        public bool GetResult(MasterGateway gateway);
+        public bool GetResult(IGatewayAccessLocal gateway);
     }
 }

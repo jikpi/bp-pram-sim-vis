@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
@@ -24,7 +25,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             ComparisonMethod = method;
         }
 
-        public bool GetResult(MasterGateway gateway)
+        public virtual bool GetResult(IGatewayAccessLocal gateway)
         {
             if (ComparisonMethod == null)
                 throw new Exception("Debug: ComparisonMethod is null");
@@ -34,14 +35,16 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
 
             // Determine what is being compared, get the values, and compare them. Then return the result.
             if (LeftCell != null)
-                leftValue = gateway.SharedMemory.Read(LeftCell.Value).Value;
+                //leftValue = gateway.SharedMemory.Read(LeftCell.Value).Value;
+                leftValue = gateway.Read(LeftCell.Value);
             else if (LeftValue != null)
                 leftValue = LeftValue.Value;
             else
                 throw new Exception("Debug: Left is none");
 
             if (RightCell != null)
-                rightValue = gateway.SharedMemory.Read(RightCell.Value).Value;
+                //rightValue = gateway.SharedMemory.Read(RightCell.Value).Value;
+                rightValue = gateway.Read(RightCell.Value);
             else if (RightValue != null)
                 rightValue = RightValue.Value;
             else
