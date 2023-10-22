@@ -29,12 +29,12 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
     //An interface for instruction result, that is for example S2 := <RESULT>
     internal interface IResultSet
     {
-        public int GetResult(Gateway gateway);
+        public int GetResult(MasterGateway gateway);
     }
 
     // For instruction "ComparisonSet"
     internal interface IComparisonSet
     {
-        public bool GetResult(Gateway gateway);
+        public bool GetResult(MasterGateway gateway);
     }
 }

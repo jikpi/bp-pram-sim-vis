@@ -24,7 +24,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             this.operation = operation;
             IsLeftCell = isLeftCell;
         }
-        public int GetResult(Gateway gateway)
+        public int GetResult(MasterGateway gateway)
         {
             int RightValue = 0;
             int LeftValue = 0;

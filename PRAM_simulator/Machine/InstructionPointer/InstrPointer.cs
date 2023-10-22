@@ -1,6 +1,6 @@
-﻿namespace PRAM_lib.Processor
+﻿namespace PRAM_lib.Machine.InstructionPointer
 {
-    public class InstructionPointer
+    public class InstrPointer
     {
         private int value;
 
@@ -24,7 +24,7 @@
             ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public InstructionPointer(int initialValue)
+        public InstrPointer(int initialValue)
         {
             value = initialValue;
         }

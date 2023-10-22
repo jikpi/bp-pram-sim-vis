@@ -25,7 +25,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(Gateway gateway)
+        public void Execute(MasterGateway gateway)
         {
             // Get value of the cell, that will be used as a pointer
             int pointed = gateway.SharedMemory.Read(LeftPointingSharedMemoryIndex).Value;

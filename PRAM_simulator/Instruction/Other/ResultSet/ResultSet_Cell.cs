@@ -16,7 +16,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         {
             CellIndex = cellIndex;
         }
-        public int GetResult(Gateway gateway)
+        public int GetResult(MasterGateway gateway)
         {
             return gateway.SharedMemory.Read(CellIndex).Value;
         }

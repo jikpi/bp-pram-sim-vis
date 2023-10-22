@@ -18,7 +18,7 @@ namespace PRAM_lib.Memory
         public SharedMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
-            MaxCellSize = 1000000;
+            MaxCellSize = 2_147_000_000;
         }
 
         public void AddressSanityCheck(int memoryAddress)

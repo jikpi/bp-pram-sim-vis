@@ -17,7 +17,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         {
             ConstantValue = constantValue;
         }
-        public int GetResult(Gateway gateway)
+        public int GetResult(MasterGateway gateway)
         {
             return ConstantValue;
         }

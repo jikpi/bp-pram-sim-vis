@@ -1,4 +1,4 @@
-﻿using PRAM_simulator;
+﻿using PRAM_lib.Machine;
 using System;
 using System.Linq;
 using System.Windows;

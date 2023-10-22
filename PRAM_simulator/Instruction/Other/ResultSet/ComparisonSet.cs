@@ -24,7 +24,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             ComparisonMethod = method;
         }
 
-        public bool GetResult(Gateway gateway)
+        public bool GetResult(MasterGateway gateway)
         {
             if (ComparisonMethod == null)
                 throw new Exception("Debug: ComparisonMethod is null");

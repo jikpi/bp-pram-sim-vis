@@ -21,7 +21,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(Gateway gateway)
+        public void Execute(MasterGateway gateway)
         {
             // Get index for the InstructionPointer to jump to
             int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);

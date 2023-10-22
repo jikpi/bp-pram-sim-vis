@@ -5,46 +5,33 @@ using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Jumps;
 using PRAM_lib.Instruction.Other;
+using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
-using PRAM_lib.Processor;
 using PRAM_lib.Processor.Interface;
 using System.Collections.ObjectModel;
 
-namespace PRAM_simulator
+namespace PRAM_lib.Machine
 {
     public class PramMachine : IProcessor
     {
         internal SharedMemory SharedMemory { get; private set; }
-
         internal IOMemory InputMemory { get; private set; }
-
         internal IOMemory OutputMemory { get; private set; }
-
         private CodeMemory? MasterCodeMemory { get; set; }
-
         private JumpMemory JumpMemory { get; set; }
-
-        internal Gateway MasterGateway { get; private set; }
-
+        internal MasterGateway MasterGateway { get; private set; }
         private CodeCompiler Compiler { get; set; }
-
         private InstructionRegex InstructionRegex { get; set; }
-
         public bool IsCompiled => MasterCodeMemory != null;
-
         public string? CompilationErrorMessage { get; private set; }
-
         public int? CompilationErrorLineIndex { get; private set; }
-
         public string? ExecutionErrorMessage { get; private set; }
-
         public int? ExecutionErrorLineIndex { get; private set; }
         public bool IsCrashed { get; private set; }
-
         public bool IsHalted { get; private set; }
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
-        public InstructionPointer MPIP { get; private set; } 
+        public InstrPointer MPIP { get; private set; }
 
         public PramMachine()
         {
@@ -53,19 +40,19 @@ namespace PRAM_simulator
             OutputMemory = new IOMemory();
             Compiler = new CodeCompiler();
             InstructionRegex = new InstructionRegex();
-            MPIP = new InstructionPointer(0);
+            MPIP = new InstrPointer(0);
             IsCrashed = false;
             IsHalted = false;
-            this.JumpMemory = new JumpMemory();
+            JumpMemory = new JumpMemory();
 
 
 
-            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
         public int GetCurrentCodeLineIndex()
         {
-            if(!CheckIfCanContinue())
+            if (!CheckIfCanContinue())
             {
                 return -1;
             }
@@ -98,17 +85,17 @@ namespace PRAM_simulator
 
             if (MasterCodeMemory == null) //Compilation failed
             {
-                this.CompilationErrorMessage = ErrorMessage;
-                this.CompilationErrorLineIndex = ErrorLineIndex;
+                CompilationErrorMessage = ErrorMessage;
+                CompilationErrorLineIndex = ErrorLineIndex;
             }
             else //Compilation successful
             {
-                this.CompilationErrorMessage = null;
-                this.CompilationErrorLineIndex = null;
+                CompilationErrorMessage = null;
+                CompilationErrorLineIndex = null;
 
                 //Set the new jump memory
                 //Note: Standardise this gateway
-                this.JumpMemory = newJumpMemory;
+                JumpMemory = newJumpMemory;
                 MasterGateway.jumpMemory = JumpMemory;
 
                 MPIP.Value = 0;
@@ -119,7 +106,7 @@ namespace PRAM_simulator
             }
         }
 
-        private bool CheckIfCanContinue() 
+        private bool CheckIfCanContinue()
         {
             //Check if compiled
             if (MasterCodeMemory == null)
@@ -193,7 +180,7 @@ namespace PRAM_simulator
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             JumpMemory.Clear();
-            MasterGateway = new Gateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
             MasterCodeMemory = null;
         }
 

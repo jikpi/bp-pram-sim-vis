@@ -19,7 +19,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(Gateway gateway)
+        public void Execute(MasterGateway gateway)
         {
             // Write to memory at specified index from result
             gateway.SharedMemory.Write(MemoryIndex, Result.GetResult(gateway));

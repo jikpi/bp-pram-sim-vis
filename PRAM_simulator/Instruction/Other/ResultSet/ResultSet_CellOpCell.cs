@@ -19,7 +19,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             Operation = operation;
         }
 
-        public int GetResult(Gateway gateway)
+        public int GetResult(MasterGateway gateway)
         {
             // Get values of the cells, that will be used in the operation
             int left = gateway.SharedMemory.Read(LeftCellIndex).Value;
