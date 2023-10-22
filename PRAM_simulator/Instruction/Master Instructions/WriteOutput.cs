@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,13 +11,13 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class WriteOutput : IInstruction
     {
-        public int MemoryIndex { get; set; }
+        public IResultSet Result { get; set; }
         public int InstructionPointerIndex { get; set; }
         public int CodeInstructionLineIndex { get; set; }
 
-        public WriteOutput(int sharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public WriteOutput(IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            MemoryIndex = sharedMemoryIndex;
+            Result = result;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
@@ -24,7 +25,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public void Execute(Gateway gateway)
         {
             // Write to output memory from shared memory at specified index
-            gateway.OutputMemory.Write(gateway.SharedMemory.Read(MemoryIndex).Value);
+            gateway.OutputMemory.Write(Result.GetResult(gateway));
         }
 
     }

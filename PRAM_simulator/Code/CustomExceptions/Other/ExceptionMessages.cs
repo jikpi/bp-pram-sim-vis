@@ -64,7 +64,7 @@
 
         internal static string CompilerResultSetNotRecognized(string resultSet)
         {
-            return $"Cannot assign to cell, as the <RESULT> is not recognized: \"{resultSet}\"";
+            return $"Cannot set a ResultSet, as it is not recognized: \"{resultSet}\"";
         }
 
         internal static string CompilerOperationNotRecognized(string operation)

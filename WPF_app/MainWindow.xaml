@@ -49,7 +49,7 @@
                         </FlowDocument>
                     </RichTextBox>
                     <Label Content="Code" HorizontalAlignment="Left" Margin="105,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
-                    <Label Content="Shared memory" HorizontalAlignment="Left" Margin="545,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
+                    <Label Content="Shared memory" HorizontalAlignment="Left" Margin="561,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
                     
                     <!--Shared memory datagrid-->
                     <DataGrid x:Name="DataGridSharedMemory" Margin="566,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="85" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">

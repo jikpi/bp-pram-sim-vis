@@ -41,7 +41,7 @@ namespace PRAM_lib.Code.Compiler
             }
         }
 
-        private IResultSet AssignResultResolver(InstructionRegex regex, string inputText)
+        private IResultSet ResultSetResolver(InstructionRegex regex, string inputText)
         {
             Match match;
 
@@ -219,10 +219,18 @@ namespace PRAM_lib.Code.Compiler
                 {
                     match = regex.WriteOutput.Match(s);
 
-                    string sharedMemoryAddress = match.Groups[1].Value;
+                    string resultIs_any = match.Groups[1].Value;
 
-                    newCodeMemory.Instructions.Add(new WriteOutput(int.Parse(sharedMemoryAddress), instructionPointerIndex++, lineIndex));
-
+                    try
+                    {
+                        newCodeMemory.Instructions.Add(new WriteOutput(ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                    }
+                    catch (LocalException e)
+                    {
+                        ErrorMessage = e.Message;
+                        ErrorLineIndex = lineIndex;
+                        return null;
+                    }
                     continue;
                 }
 
@@ -236,7 +244,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), AssignResultResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
                         //NOTE: No checks for infinity loops right now
                     }
                     catch (LocalException e)
@@ -257,7 +265,7 @@ namespace PRAM_lib.Code.Compiler
                     string leftPointingIndex = match.Groups[1].Value;
                     string resultIs_any = match.Groups[2].Value;
 
-                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), AssignResultResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
 
                     continue;
                 }

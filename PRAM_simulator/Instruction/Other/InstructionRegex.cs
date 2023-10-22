@@ -24,11 +24,11 @@ namespace PRAM_lib.Instruction.Other
             Comment = new Regex(@"^#.*$"); //0 groups
 
             ReadInput = new Regex(@"^S(\d+) := READ\((\d+|)\)\s*$"); //2 groups
-            WriteOutput = new Regex(@"^WRITE\((\d+)\)\s*$"); //1 group
 
+            WriteOutput = new Regex(@"^WRITE\((.*)\)\s*$"); //1 group
             SetMemoryToResult = new Regex(@"^S(\d+) := (.*)\s*$"); //2 groups
             SetPointerToResult = new Regex(@"^\[S(\d+)\] := (.*)\s*$"); //2 groups
-            //Results for the two above
+            //Result sets for instructions that require it
             ResultSet_Cell = new Regex(@"^S(\d+)\s*$"); //1 group
             ResultSet_CellOpCell = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) S(\d+)\s*$"); //3 groups
             ResultSet_CellOpConstant = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //3 groups
