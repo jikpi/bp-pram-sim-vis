@@ -66,11 +66,16 @@ namespace WPF_app
             if (DataResources.pram.IsCompiled)
             {
                 MessageBox.Show("Compilation successful");
+                ResetCodeEditorColor();
             }
             else
             {
                 MessageBox.Show("Compilation failed");
                 MessageBox.Show(DataResources.pram.CompilationErrorMessage);
+                if(DataResources.pram.CompilationErrorLineIndex >= 0)
+                {
+                    SetCodeEditorLineIndexColor((int)DataResources.pram.CompilationErrorLineIndex);
+                }
             }
 
             DataGridInput.Items.Refresh();

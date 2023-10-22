@@ -19,8 +19,8 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Input" HorizontalAlignment="Left" Margin="15,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
-                    <DataGrid x:Name="DataGridInput" Margin="12,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
-                    <RichTextBox x:Name="RichTextBoxCode" Margin="105,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="159" FontSize="14">
+                    <DataGrid x:Name="DataGridInput" Margin="12,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="55"/>
+                    <RichTextBox x:Name="RichTextBoxCode" Margin="105,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="225" FontSize="14">
                         <RichTextBox.Resources>
                             <Style TargetType="Paragraph">
                                 <Setter Property="LineHeight" Value="3"/>
@@ -43,15 +43,15 @@
                     </RichTextBox>
                     <Label Content="Code" HorizontalAlignment="Left" Margin="105,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
                     <Label Content="Shared memory" HorizontalAlignment="Left" Margin="545,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
-                    <DataGrid x:Name="DataGridSharedMemory" Margin="566,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
+                    <DataGrid x:Name="DataGridSharedMemory" Margin="566,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="55"/>
                     <Label Content="Output" HorizontalAlignment="Left" Margin="701,10,0,0" VerticalAlignment="Top" Height="26" Width="48"/>
-                    <DataGrid x:Name="DataGridOutput" Margin="705,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="47"/>
-                    <Button x:Name="ButtonCompile" Content="Compile" HorizontalAlignment="Left" Margin="271,368,0,0" VerticalAlignment="Top" Width="86" Click="ButtonCompile_Click" Height="23"/>
+                    <DataGrid x:Name="DataGridOutput" Margin="705,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="55"/>
+                    <Button x:Name="ButtonCompile" Content="Compile" HorizontalAlignment="Left" Margin="335,368,0,0" VerticalAlignment="Top" Width="86" Click="ButtonCompile_Click" Height="23"/>
                     <Label x:Name="LabelMasterProcessorInstructionPointer" Content="IP Counter" HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top"/>
-                    <Button x:Name="ButtonNextExecution" Content="Next" HorizontalAlignment="Left" Margin="271,314,0,0" VerticalAlignment="Top" Width="86" Click="ButtonNextExecution_Click"  Height="23"/>
-                    <Button x:Name="ButtonReset" Content="Reset" HorizontalAlignment="Left" Margin="271,286,0,0" VerticalAlignment="Top" Width="86" Click="ButtonReset_Click"  Height="23"/>
-                    <Button x:Name="ButtonClear" Content="Clear all" HorizontalAlignment="Left" Margin="271,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
-                    <Button x:Name="ButtonClearMemory" Content="Clear memory" HorizontalAlignment="Left" Margin="271,259,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClearMemory_Click"  Height="23"/>
+                    <Button x:Name="ButtonNextExecution" Content="Next" HorizontalAlignment="Left" Margin="335,314,0,0" VerticalAlignment="Top" Width="86" Click="ButtonNextExecution_Click"  Height="23"/>
+                    <Button x:Name="ButtonReset" Content="Reset" HorizontalAlignment="Left" Margin="335,286,0,0" VerticalAlignment="Top" Width="86" Click="ButtonReset_Click"  Height="23"/>
+                    <Button x:Name="ButtonClear" Content="Clear all" HorizontalAlignment="Left" Margin="335,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
+                    <Button x:Name="ButtonClearMemory" Content="Clear memory" HorizontalAlignment="Left" Margin="335,259,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClearMemory_Click"  Height="23"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">
