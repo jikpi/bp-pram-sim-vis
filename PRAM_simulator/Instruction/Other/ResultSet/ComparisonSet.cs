@@ -15,9 +15,11 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         internal int? LeftValue;
         internal int? RightValue;
         internal ComparisonMethod? ComparisonMethod;
+        internal GatewayIndexSet gateway;
 
-        public ComparisonSet(ComparisonMethod? method = null, int? leftCell = null, int? rightCell = null, int? leftValue = null, int? rightValue = null)
+        public ComparisonSet(GatewayIndexSet gateway, ComparisonMethod? method = null, int? leftCell = null, int? rightCell = null, int? leftValue = null, int? rightValue = null)
         {
+            this.gateway = gateway;
             LeftCell = leftCell;
             RightCell = rightCell;
             LeftValue = leftValue;
@@ -25,7 +27,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             ComparisonMethod = method;
         }
 
-        public virtual bool GetResult(IGatewayAccessLocal gateway)
+        public virtual bool GetResult()
         {
             if (ComparisonMethod == null)
                 throw new Exception("Debug: ComparisonMethod is null");
@@ -35,7 +37,6 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
 
             // Determine what is being compared, get the values, and compare them. Then return the result.
             if (LeftCell != null)
-                //leftValue = gateway.SharedMemory.Read(LeftCell.Value).Value;
                 leftValue = gateway.Read(LeftCell.Value);
             else if (LeftValue != null)
                 leftValue = LeftValue.Value;
@@ -43,7 +44,6 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                 throw new Exception("Debug: Left is none");
 
             if (RightCell != null)
-                //rightValue = gateway.SharedMemory.Read(RightCell.Value).Value;
                 rightValue = gateway.Read(RightCell.Value);
             else if (RightValue != null)
                 rightValue = RightValue.Value;

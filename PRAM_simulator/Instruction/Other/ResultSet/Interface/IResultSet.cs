@@ -36,6 +36,6 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
     // For instruction "ComparisonSet"
     internal interface IComparisonSet
     {
-        public bool GetResult(IGatewayAccessLocal gateway);
+        public bool GetResult();
     }
 }

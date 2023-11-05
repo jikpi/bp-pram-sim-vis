@@ -10,7 +10,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //TODO THIS IS A RESULT SET, REFACTOR AFTER PARALLELIZATION ARCHITECTURE IS DONE
     internal class ReadInput : IInstruction
     {
-        public int MemoryIndex { get; private set; }
+        GatewayIndexSet gateway { get; set; }
         public bool Sequential { get; private set; }
 
         private int _readIndex;
@@ -23,38 +23,36 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public int InstructionPointerIndex { get; set; }
         public int CodeInstructionLineIndex { get; set; }
 
-        public ReadInput(int sharedMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public ReadInput(GatewayIndexSet gateway, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            MemoryIndex = sharedMemoryIndex;
+            this.gateway = gateway;
             Sequential = false;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public ReadInput(int sharedMemoryIndex, int inputIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public ReadInput(GatewayIndexSet gateway, int inputIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            MemoryIndex = sharedMemoryIndex;
+            this.gateway = gateway;
             InputMemoryIndex = inputIndex;
             Sequential = true;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(IGatewayAccessLocal gateway)
+        public void Execute()
         {
             if (Sequential)
             {
                 // Read from input memory at specified index, and write to shared memory at specified index
 
-                //gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read(InputMemoryIndex).Value);
-                gateway.Write(MemoryIndex, gateway.Read(InputMemoryIndex));
+                gateway.Write(gateway.ReadInput(_readIndex));
             }
             else
             {
                 // Read from input memory, and write to shared memory at specified index
 
-                //gateway.SharedMemory.Write(MemoryIndex, gateway.InputMemory.Read().Value);
-                gateway.Write(MemoryIndex, gateway.ReadInput());
+                gateway.Write(gateway.ReadInput(null));
             }
         }
     }

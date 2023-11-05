@@ -20,7 +20,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             CodeInstructionLineIndex = codeInstructionIndex;
             Count = count;
         }
-        public void Execute(IGatewayAccessLocal gateway)
+        public void Execute()
         {
             throw new NotImplementedException();
         }

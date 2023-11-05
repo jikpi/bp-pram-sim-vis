@@ -164,7 +164,7 @@ namespace PRAM_lib.Machine
                     throw new Exception("Debug error: MPIP is not equal to the virtual instruction index. Bug in code.");
                 }
 
-                MasterCodeMemory.Instructions[MPIP.Value].Execute(MasterGateway);
+                MasterCodeMemory.Instructions[MPIP.Value].Execute();
                 MPIP.Value++;
             }
             catch (LocalException e)

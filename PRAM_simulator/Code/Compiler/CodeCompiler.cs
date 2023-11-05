@@ -1,6 +1,7 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
@@ -43,7 +44,7 @@ namespace PRAM_lib.Code.Compiler
             }
         }
 
-        private IResultSet ResultSetResolver(InstructionRegex regex, string inputText)
+        private IResultSet ResultSetResolver(IGatewayAccessLocal gateway, InstructionRegex regex, string inputText)
         {
             Match match;
 
@@ -54,7 +55,7 @@ namespace PRAM_lib.Code.Compiler
 
                 int cellIndex = int.Parse(match.Groups[2].Value);
 
-                return new ResultSet_Cell(cellIndex);
+                return new ResultSet_Cell(new GatewayIndexSet(gateway, cellIndex));
             }
 
             //ResultSet_CellOpCell
@@ -66,7 +67,7 @@ namespace PRAM_lib.Code.Compiler
                 string operation = match.Groups[2].Value;
                 int rightCellIndex = int.Parse(match.Groups[3].Value);
 
-                return new ResultSet_CellOpCell(leftCellIndex, rightCellIndex, DetermineOperation(operation));
+                return new ResultSet_CellOpCell(new GatewayIndexSet(gateway, leftCellIndex), new GatewayIndexSet(gateway, rightCellIndex), DetermineOperation(operation));
             }
 
             //ResultSet_CellOpConstant
@@ -78,7 +79,7 @@ namespace PRAM_lib.Code.Compiler
                 string operation = match.Groups[3].Value;
                 int constantValue = int.Parse(match.Groups[4].Value);
 
-                return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation));
+                return new ResultSet_CellOpConstant(new GatewayIndexSet(gateway, cellIndex), constantValue, DetermineOperation(operation));
             }
 
             if (regex.ResultSet_ConstantOpCell.IsMatch(inputText))
@@ -89,7 +90,7 @@ namespace PRAM_lib.Code.Compiler
                 string operation = match.Groups[2].Value;
                 int cellIndex = int.Parse(match.Groups[4].Value);
 
-                return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation), false);
+                return new ResultSet_CellOpConstant(new GatewayIndexSet(gateway, cellIndex), constantValue, DetermineOperation(operation), false);
             }
 
             //ResultSet_Pointer
@@ -99,7 +100,7 @@ namespace PRAM_lib.Code.Compiler
 
                 int cellIndex = int.Parse(match.Groups[2].Value);
 
-                return new ResultSet_Pointer(cellIndex);
+                return new ResultSet_Pointer(new GatewayIndexSet(gateway, cellIndex));
             }
 
             //ResultSet_Constant
@@ -116,9 +117,9 @@ namespace PRAM_lib.Code.Compiler
         }
 
         //Parses 
-        private ComparisonSet DetermineComparisonSet(string[] groups)
+        private ComparisonSet DetermineComparisonSet(IGatewayAccessLocal gateway, string[] groups)
         {
-            ComparisonSet set = new ComparisonSet();
+            ComparisonSet set = new ComparisonSet(new GatewayIndexSet(gateway, -1));
 
             if (string.IsNullOrEmpty(groups[0]))
             {
@@ -259,11 +260,11 @@ namespace PRAM_lib.Code.Compiler
 
                     if (selectedReadMemoryAddress == "")
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), instructionPointerIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(gateway, int.Parse(sharedMemoryAddress)), instructionPointerIndex++, lineIndex));
                     }
                     else
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(int.Parse(sharedMemoryAddress), int.Parse(selectedReadMemoryAddress), lineIndex));
+                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(gateway, int.Parse(sharedMemoryAddress)), int.Parse(selectedReadMemoryAddress), lineIndex));
                     }
                     continue;
                 }
@@ -277,7 +278,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new WriteOutput(ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new WriteOutput(new GatewayIndexSet(gateway, 0), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
                     }
                     catch (LocalException e)
                     {
@@ -301,11 +302,12 @@ namespace PRAM_lib.Code.Compiler
                     {
                         if (IsParallel(memoryAddressContext, parallel, regex))
                         {
-                            newCodeMemory.Instructions.Add(new PSetMemoryToResult(gateway, int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex, lineIndex));
+                            //##########################
+                            //newCodeMemory.Instructions.Add(new PSetMemoryToResult(gateway, int.Parse(sharedMemoryResultAddress), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex, lineIndex));
                         }
                         else
                         {
-                            newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                            newCodeMemory.Instructions.Add(new SetMemoryToResult(new GatewayIndexSet(gateway, int.Parse(sharedMemoryResultAddress)), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
                             //NOTE: No checks for infinity loops right now
                         }
                     }
@@ -327,7 +329,7 @@ namespace PRAM_lib.Code.Compiler
                     string leftPointingIndex = match.Groups[2].Value;
                     string resultIs_any = match.Groups[3].Value;
 
-                    newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new SetPointerToResult(new GatewayIndexSet(gateway, int.Parse(leftPointingIndex)), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -341,7 +343,7 @@ namespace PRAM_lib.Code.Compiler
 
                     jumpMemory.AddJumpLabel(jumpName);
 
-                    newCodeMemory.Instructions.Add(new JumpTo(jumpName, instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new JumpTo(new GatewayIndexSet(gateway, -1), jumpName, instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -369,7 +371,7 @@ namespace PRAM_lib.Code.Compiler
                     string potentialRightCell = match.Groups[4].Value; //A cell identifier or empty string, if it's a constant on the right
                     string rightValue = match.Groups[5].Value; //Cell address or constant value
 
-                    ComparisonSet set = DetermineComparisonSet(new string[] { potentialLeftCell,
+                    ComparisonSet set = DetermineComparisonSet(gateway, new string[] { potentialLeftCell,
                         leftValue,
                         comparisonOperator,
                         potentialRightCell,
@@ -377,7 +379,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new IfJumpTo(match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
+                        newCodeMemory.Instructions.Add(new IfJumpTo(new GatewayIndexSet(gateway, -1), match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
                     }
                     catch (LocalException e)
                     {

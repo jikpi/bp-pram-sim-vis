@@ -18,7 +18,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         {
             ConstantValue = constantValue;
         }
-        public virtual int GetResult(IGatewayAccessLocal gateway)
+        public virtual int GetResult()
         {
             return ConstantValue;
         }

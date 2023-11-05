@@ -15,19 +15,20 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public IResultSet Result { get; set; }
         public int InstructionPointerIndex { get; set; }
         public int CodeInstructionLineIndex { get; set; }
+        GatewayIndexSet gateway;
 
-        public WriteOutput(IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)
+        public WriteOutput(GatewayIndexSet gateway, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)
         {
+            this.gateway = gateway;
             Result = result;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public virtual void Execute(IGatewayAccessLocal gateway)
+        public virtual void Execute()
         {
             // Write to output memory from shared memory at specified index
-            //gateway.OutputMemory.Write(Result.GetResult(gateway));
-            gateway.WriteOutput(Result.GetResult(gateway));
+            gateway.WriteOutput(Result.GetResult());
         }
 
     }
