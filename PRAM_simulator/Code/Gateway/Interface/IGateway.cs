@@ -11,7 +11,7 @@ namespace PRAM_lib.Code.Gateway.Interface
     //memory with it.
 
     //TODO fix comment?
-    internal interface IGatewayAccessLocal
+    internal interface IGateway
     {
         //Reads a value from a memory at specified index
         int Read(int index);

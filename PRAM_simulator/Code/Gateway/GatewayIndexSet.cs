@@ -4,9 +4,9 @@ namespace PRAM_lib.Code.Gateway
 {
     internal class GatewayIndexSet
     {
-        private IGatewayAccessLocal Gateway { get; set; }
+        private IGateway Gateway { get; set; }
         private int MemoryAddressIndex { get; set; }
-        public GatewayIndexSet(IGatewayAccessLocal gateway, int memoryAddressIndex)
+        public GatewayIndexSet(IGateway gateway, int memoryAddressIndex)
         {
             Gateway = gateway;
             MemoryAddressIndex = memoryAddressIndex;

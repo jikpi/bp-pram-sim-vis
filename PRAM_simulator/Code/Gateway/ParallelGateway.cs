@@ -9,17 +9,21 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Code.Gateway
 {
-    internal class ParallelGateway : IGatewayAccessLocal
+    internal class ParallelGateway : IGateway
     {
-        internal SharedMemory Memory { get; set; }
-        internal InstrPointer InstructionPointer { get; set; }
-        internal Jumps.JumpMemory jumpMemory { get; set; }
+        internal SharedMemory? Memory { get; set; }
+        internal InstrPointer? InstructionPointer { get; set; }
+        internal Jumps.JumpMemory? jumpMemory { get; set; }
 
         public ParallelGateway(SharedMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory)
         {
             Memory = refMemory;
             InstructionPointer = refInstructionPointer;
             this.jumpMemory = refJumpMemory;
+        }
+
+        public ParallelGateway()
+        {
         }
 
         public int Read(int index)

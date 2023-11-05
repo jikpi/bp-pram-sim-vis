@@ -10,18 +10,16 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     // combinations determine what is being compared.
     internal class ComparisonSet : IComparisonSet
     {
-        internal int? LeftCell;
-        internal int? RightCell;
+        internal GatewayIndexSet? leftGateway { get; set; }
+        internal GatewayIndexSet? rightGateway { get; set; }
         internal int? LeftValue;
         internal int? RightValue;
         internal ComparisonMethod? ComparisonMethod;
-        internal GatewayIndexSet gateway;
 
-        public ComparisonSet(GatewayIndexSet gateway, ComparisonMethod? method = null, int? leftCell = null, int? rightCell = null, int? leftValue = null, int? rightValue = null)
+        public ComparisonSet(GatewayIndexSet? leftGateway = null, GatewayIndexSet? rightGateway = null, ComparisonMethod? method = null, int? leftValue = null, int? rightValue = null)
         {
-            this.gateway = gateway;
-            LeftCell = leftCell;
-            RightCell = rightCell;
+            this.leftGateway = leftGateway;
+            this.rightGateway = rightGateway;
             LeftValue = leftValue;
             RightValue = rightValue;
             ComparisonMethod = method;
@@ -36,15 +34,15 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             int rightValue;
 
             // Determine what is being compared, get the values, and compare them. Then return the result.
-            if (LeftCell != null)
-                leftValue = gateway.Read(LeftCell.Value);
+            if (leftGateway != null)
+                leftValue = leftGateway.Read();
             else if (LeftValue != null)
                 leftValue = LeftValue.Value;
             else
                 throw new Exception("Debug: Left is none");
 
-            if (RightCell != null)
-                rightValue = gateway.Read(RightCell.Value);
+            if (rightGateway != null)
+                rightValue = rightGateway.Read();
             else if (RightValue != null)
                 rightValue = RightValue.Value;
             else

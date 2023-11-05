@@ -44,141 +44,202 @@ namespace PRAM_lib.Code.Compiler
             }
         }
 
-        private IResultSet ResultSetResolver(IGatewayAccessLocal gateway, InstructionRegex regex, string inputText)
-        {
-            Match match;
 
-            //ResultSet_Cell
-            if (regex.ResultSet_Cell.IsMatch(inputText))
-            {
-                match = regex.ResultSet_Cell.Match(inputText);
-
-                int cellIndex = int.Parse(match.Groups[2].Value);
-
-                return new ResultSet_Cell(new GatewayIndexSet(gateway, cellIndex));
-            }
-
-            //ResultSet_CellOpCell
-            if (regex.ResultSet_CellOpCell.IsMatch(inputText))
-            {
-                match = regex.ResultSet_CellOpCell.Match(inputText);
-
-                int leftCellIndex = int.Parse(match.Groups[1].Value);
-                string operation = match.Groups[2].Value;
-                int rightCellIndex = int.Parse(match.Groups[3].Value);
-
-                return new ResultSet_CellOpCell(new GatewayIndexSet(gateway, leftCellIndex), new GatewayIndexSet(gateway, rightCellIndex), DetermineOperation(operation));
-            }
-
-            //ResultSet_CellOpConstant
-            if (regex.ResultSet_CellOpConstant.IsMatch(inputText))
-            {
-                match = regex.ResultSet_CellOpConstant.Match(inputText);
-
-                int cellIndex = int.Parse(match.Groups[2].Value);
-                string operation = match.Groups[3].Value;
-                int constantValue = int.Parse(match.Groups[4].Value);
-
-                return new ResultSet_CellOpConstant(new GatewayIndexSet(gateway, cellIndex), constantValue, DetermineOperation(operation));
-            }
-
-            if (regex.ResultSet_ConstantOpCell.IsMatch(inputText))
-            {
-                match = regex.ResultSet_ConstantOpCell.Match(inputText);
-
-                int constantValue = int.Parse(match.Groups[1].Value);
-                string operation = match.Groups[2].Value;
-                int cellIndex = int.Parse(match.Groups[4].Value);
-
-                return new ResultSet_CellOpConstant(new GatewayIndexSet(gateway, cellIndex), constantValue, DetermineOperation(operation), false);
-            }
-
-            //ResultSet_Pointer
-            if (regex.ResultSet_Pointer.IsMatch(inputText))
-            {
-                match = regex.ResultSet_Pointer.Match(inputText);
-
-                int cellIndex = int.Parse(match.Groups[2].Value);
-
-                return new ResultSet_Pointer(new GatewayIndexSet(gateway, cellIndex));
-            }
-
-            //ResultSet_Constant
-            if (regex.ResultSet_Constant.IsMatch(inputText))
-            {
-                match = regex.ResultSet_Constant.Match(inputText);
-
-                int constantValue = int.Parse(match.Groups[1].Value);
-
-                return new ResultSet_Constant(constantValue);
-            }
-
-            throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));
-        }
-
-        //Parses 
-        private ComparisonSet DetermineComparisonSet(IGatewayAccessLocal gateway, string[] groups)
-        {
-            ComparisonSet set = new ComparisonSet(new GatewayIndexSet(gateway, -1));
-
-            if (string.IsNullOrEmpty(groups[0]))
-            {
-                set.LeftValue = int.Parse(groups[1]);
-            }
-            else
-            {
-                set.LeftCell = int.Parse(groups[1]);
-            }
-
-            if (string.IsNullOrEmpty(groups[3]))
-            {
-                set.RightValue = int.Parse(groups[4]);
-            }
-            else
-            {
-                set.RightCell = int.Parse(groups[4]);
-            }
-
-            switch (groups[2])
-            {
-                case "==":
-                    set.ComparisonMethod = ComparisonMethod.Equal;
-                    break;
-                case "!=":
-                    set.ComparisonMethod = ComparisonMethod.NotEqual;
-                    break;
-                case "<":
-                    set.ComparisonMethod = ComparisonMethod.Less;
-                    break;
-                case "<=":
-                    set.ComparisonMethod = ComparisonMethod.LessOrEqual;
-                    break;
-                case ">":
-                    set.ComparisonMethod = ComparisonMethod.Greater;
-                    break;
-                case ">=":
-                    set.ComparisonMethod = ComparisonMethod.GreaterOrEqual;
-                    break;
-                default:
-                    throw new LocalException(ExceptionMessages.CompilationComparisonNotRecognized(groups[3]));
-            }
-
-            return set;
-        }
-
-        private bool IsParallel(string memoryAddressContext, bool isParallelContext, InstructionRegex regex)
-        {
-            if (memoryAddressContext == regex.ParallelCell && isParallelContext)
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        public CodeMemory.CodeMemory? Compile(string code, MasterGateway gateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, bool parallel = false)
+        public CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
         {
+
+            bool IsParallel(string memoryAddressContext)
+            {
+                if (memoryAddressContext == regex.ParallelCell && parallelGateway != null)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            IResultSet ResultSetResolver(InstructionRegex regex, string inputText)
+            {
+                Match match;
+
+                //ResultSet_Cell
+                if (regex.ResultSet_Cell.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_Cell.Match(inputText);
+                    
+                    string memoryAddressContext = match.Groups[1].Value;
+                    int cellIndex = int.Parse(match.Groups[2].Value);
+
+                    IGateway selectedGateway = masterGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = parallelGateway!;
+                    }
+
+                    return new ResultSet_Cell(new GatewayIndexSet(selectedGateway, cellIndex));
+                }
+
+                //ResultSet_CellOpCell
+                if (regex.ResultSet_CellOpCell.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_CellOpCell.Match(inputText);
+
+                    int leftCellIndex = int.Parse(match.Groups[2].Value);
+                    string operation = match.Groups[3].Value;
+                    int rightCellIndex = int.Parse(match.Groups[5].Value);
+                    string leftMemoryAddressContext = match.Groups[1].Value;
+                    string rightMemoryAddressContext = match.Groups[4].Value;
+
+                    IGateway leftGateway = masterGateway;
+                    IGateway rightGateway = masterGateway;
+                    if (IsParallel(leftMemoryAddressContext))
+                    {
+                        leftGateway = parallelGateway!;
+                    }
+                    if (IsParallel(rightMemoryAddressContext))
+                    {
+                        rightGateway = parallelGateway!;
+                    }
+
+                    return new ResultSet_CellOpCell(new GatewayIndexSet(leftGateway, leftCellIndex), new GatewayIndexSet(rightGateway, rightCellIndex), DetermineOperation(operation));
+                }
+
+                //ResultSet_CellOpConstant
+                if (regex.ResultSet_CellOpConstant.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_CellOpConstant.Match(inputText);
+
+                    string memoryAddressContext = match.Groups[1].Value;
+                    int cellIndex = int.Parse(match.Groups[2].Value);
+                    string operation = match.Groups[3].Value;
+                    int constantValue = int.Parse(match.Groups[4].Value);
+
+                    IGateway selectedGateway = masterGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = parallelGateway!;
+                    }
+
+                    return new ResultSet_CellOpConstant(new GatewayIndexSet(selectedGateway, cellIndex), constantValue, DetermineOperation(operation));
+                }
+
+                if (regex.ResultSet_ConstantOpCell.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_ConstantOpCell.Match(inputText);
+
+                    int constantValue = int.Parse(match.Groups[1].Value);
+                    string operation = match.Groups[2].Value;
+                    int cellIndex = int.Parse(match.Groups[4].Value);
+                    string memoryAddressContext = match.Groups[3].Value;
+
+                    IGateway selectedGateway = masterGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = parallelGateway!;
+                    }
+
+                    return new ResultSet_CellOpConstant(new GatewayIndexSet(selectedGateway, cellIndex), constantValue, DetermineOperation(operation), false);
+                }
+
+                //ResultSet_Pointer
+                if (regex.ResultSet_Pointer.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_Pointer.Match(inputText);
+
+                    string memoryAddressContext = match.Groups[1].Value;
+                    int cellIndex = int.Parse(match.Groups[2].Value);
+
+                    IGateway selectedGateway = masterGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = parallelGateway!;
+                    }
+
+                    return new ResultSet_Pointer(new GatewayIndexSet(selectedGateway, cellIndex));
+                }
+
+                //ResultSet_Constant
+                if (regex.ResultSet_Constant.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_Constant.Match(inputText);
+
+                    int constantValue = int.Parse(match.Groups[1].Value);
+
+                    return new ResultSet_Constant(constantValue);
+                }
+
+                throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));
+            }
+
+            ComparisonSet DetermineComparisonSet(string[] groups)
+            {
+                IGateway leftSelectedGateway = masterGateway;
+                IGateway rightSelectedGateway = masterGateway;
+
+                string leftMemoryAddressContext = groups[0];
+                string rightMemoryAddressContext = groups[4];
+
+                if (IsParallel(leftMemoryAddressContext))
+                {
+                    leftSelectedGateway = parallelGateway!;
+                }
+
+                if (IsParallel(rightMemoryAddressContext))
+                {
+                    rightSelectedGateway = parallelGateway!;
+                }
+
+                ComparisonSet set = new ComparisonSet();
+
+                if (string.IsNullOrEmpty(groups[0]))
+                {
+                    set.LeftValue = int.Parse(groups[1]);
+                }
+                else
+                {
+                    set.leftGateway = new GatewayIndexSet(leftSelectedGateway, int.Parse(groups[1]));
+                }
+
+                if (string.IsNullOrEmpty(groups[3]))
+                {
+                    set.RightValue = int.Parse(groups[4]);
+                }
+                else
+                {
+                    set.rightGateway = new GatewayIndexSet(rightSelectedGateway, int.Parse(groups[4]));
+                }
+
+                switch (groups[2])
+                {
+                    case "==":
+                        set.ComparisonMethod = ComparisonMethod.Equal;
+                        break;
+                    case "!=":
+                        set.ComparisonMethod = ComparisonMethod.NotEqual;
+                        break;
+                    case "<":
+                        set.ComparisonMethod = ComparisonMethod.Less;
+                        break;
+                    case "<=":
+                        set.ComparisonMethod = ComparisonMethod.LessOrEqual;
+                        break;
+                    case ">":
+                        set.ComparisonMethod = ComparisonMethod.Greater;
+                        break;
+                    case ">=":
+                        set.ComparisonMethod = ComparisonMethod.GreaterOrEqual;
+                        break;
+                    default:
+                        throw new LocalException(ExceptionMessages.CompilationComparisonNotRecognized(groups[3]));
+                }
+
+                return set;
+            }
+
+
+
             CodeMemory.CodeMemory newCodeMemory = new CodeMemory.CodeMemory();
             jumpMemory = new Jumps.JumpMemory();
             parallelMachines = new List<ParallelMachineContainer>();
@@ -197,10 +258,19 @@ namespace PRAM_lib.Code.Compiler
             {
                 lineIndex++;
 
-                //Parallel instructions beginning
-                if (strings[i].StartsWith("pardo"))
+                IGateway localGateway = masterGateway;
+                IGateway foreignGateway = masterGateway;
+                if(parallelGateway != null)
                 {
-                    if (parallel)
+                    localGateway = parallelGateway;
+                }
+
+                //Parallel instructions beginning
+                if (regex.ParallelStart.IsMatch(strings[i]))
+                {
+                    match = regex.ParallelStart.Match(strings[i]);
+
+                    if (parallelGateway != null)
                     {
                         ErrorMessage = "Cannot start parallel processors inside a parallel processor";
                         ReturnLineIndex = lineIndex;
@@ -208,7 +278,8 @@ namespace PRAM_lib.Code.Compiler
                     }
 
                     List<string> pardoStrings = strings.GetRange(i + 1, strings.Count - i - 1);
-                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), gateway, regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, true);
+                    ParallelGateway newParallelGateway = new ParallelGateway();
+                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), masterGateway, regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
 
                     if (pardoCodeMemory == null)
                     {
@@ -217,14 +288,32 @@ namespace PRAM_lib.Code.Compiler
                         return null;
                     }
 
-                    int numberofprocessors = strings[i][strings[i].Length - 1] - '0';
-                    parallelMachines.Add(new ParallelMachineContainer(pardoCodeMemory, pardoJumpMemory, numberofprocessors));
+                    int numberofprocessors = int.Parse(match.Groups[1].Value);
+                    parallelMachines.Add(new ParallelMachineContainer(newParallelGateway, pardoCodeMemory, pardoJumpMemory, numberofprocessors));
+
+                    //Skip the lines that were already compiled
+                    while(!regex.ParallelEnd.IsMatch(strings[i]))
+                    {
+                        if(i < strings.Count - 1)
+                        {
+                            i++;
+                            lineIndex++;
+                        }
+                        else
+                        {
+                            ErrorMessage = "Parallel processor not ended";
+                            ReturnLineIndex = lineIndex;
+                            return null;
+                        }
+                    }
+
+                    continue;
                 }
 
                 //Parallel instructions ending
-                if (strings[i].StartsWith("endpardo"))
+                if (regex.ParallelEnd.IsMatch(strings[i]))
                 {
-                    if (!parallel)
+                    if (parallelGateway == null)
                     {
                         ErrorMessage = "Cannot end parallel processors outside a parallel processor";
                         ReturnLineIndex = lineIndex;
@@ -258,13 +347,14 @@ namespace PRAM_lib.Code.Compiler
                     string sharedMemoryAddress = match.Groups[1].Value;
                     string selectedReadMemoryAddress = match.Groups[2].Value;
 
+
                     if (selectedReadMemoryAddress == "")
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(gateway, int.Parse(sharedMemoryAddress)), instructionPointerIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(masterGateway, int.Parse(sharedMemoryAddress)), instructionPointerIndex++, lineIndex));
                     }
                     else
                     {
-                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(gateway, int.Parse(sharedMemoryAddress)), int.Parse(selectedReadMemoryAddress), lineIndex));
+                        newCodeMemory.Instructions.Add(new ReadInput(new GatewayIndexSet(masterGateway, int.Parse(sharedMemoryAddress)), int.Parse(selectedReadMemoryAddress), lineIndex));
                     }
                     continue;
                 }
@@ -278,7 +368,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new WriteOutput(new GatewayIndexSet(gateway, 0), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                        newCodeMemory.Instructions.Add(new WriteOutput(new GatewayIndexSet(masterGateway, 0), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
                     }
                     catch (LocalException e)
                     {
@@ -298,18 +388,16 @@ namespace PRAM_lib.Code.Compiler
                     string sharedMemoryResultAddress = match.Groups[2].Value;
                     string resultIs_any = match.Groups[3].Value;
 
+                    IGateway selectedGateway = localGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = foreignGateway;
+                    }
+
                     try
                     {
-                        if (IsParallel(memoryAddressContext, parallel, regex))
-                        {
-                            //##########################
-                            //newCodeMemory.Instructions.Add(new PSetMemoryToResult(gateway, int.Parse(sharedMemoryResultAddress), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex, lineIndex));
-                        }
-                        else
-                        {
-                            newCodeMemory.Instructions.Add(new SetMemoryToResult(new GatewayIndexSet(gateway, int.Parse(sharedMemoryResultAddress)), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
-                            //NOTE: No checks for infinity loops right now
-                        }
+                        newCodeMemory.Instructions.Add(new SetMemoryToResult(new GatewayIndexSet(selectedGateway, int.Parse(sharedMemoryResultAddress)), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                        //NOTE: No checks for infinity loops right now
                     }
                     catch (LocalException e)
                     {
@@ -326,10 +414,17 @@ namespace PRAM_lib.Code.Compiler
                 {
                     match = regex.SetPointerToResult.Match(strings[i]);
 
+                    string memoryAddressContext = match.Groups[1].Value;
                     string leftPointingIndex = match.Groups[2].Value;
                     string resultIs_any = match.Groups[3].Value;
 
-                    newCodeMemory.Instructions.Add(new SetPointerToResult(new GatewayIndexSet(gateway, int.Parse(leftPointingIndex)), ResultSetResolver(gateway, regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                    IGateway selectedGateway = localGateway;
+                    if (IsParallel(memoryAddressContext))
+                    {
+                        selectedGateway = foreignGateway;
+                    }
+
+                    newCodeMemory.Instructions.Add(new SetPointerToResult(new GatewayIndexSet(selectedGateway, int.Parse(leftPointingIndex)), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -343,7 +438,7 @@ namespace PRAM_lib.Code.Compiler
 
                     jumpMemory.AddJumpLabel(jumpName);
 
-                    newCodeMemory.Instructions.Add(new JumpTo(new GatewayIndexSet(gateway, -1), jumpName, instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new JumpTo(new GatewayIndexSet(masterGateway, -1), jumpName, instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -371,7 +466,7 @@ namespace PRAM_lib.Code.Compiler
                     string potentialRightCell = match.Groups[4].Value; //A cell identifier or empty string, if it's a constant on the right
                     string rightValue = match.Groups[5].Value; //Cell address or constant value
 
-                    ComparisonSet set = DetermineComparisonSet(gateway, new string[] { potentialLeftCell,
+                    ComparisonSet set = DetermineComparisonSet(new string[] { potentialLeftCell,
                         leftValue,
                         comparisonOperator,
                         potentialRightCell,
@@ -379,7 +474,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new IfJumpTo(new GatewayIndexSet(gateway, -1), match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
+                        newCodeMemory.Instructions.Add(new IfJumpTo(new GatewayIndexSet(masterGateway, -1), match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
                     }
                     catch (LocalException e)
                     {

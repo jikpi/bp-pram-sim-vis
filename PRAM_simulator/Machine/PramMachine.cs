@@ -146,7 +146,7 @@ namespace PRAM_lib.Machine
 
         public void ParallelDo(int count)
         {
-            // #########################################
+            int size = count * 10;
         }
 
         public bool ExecuteNextInstruction()

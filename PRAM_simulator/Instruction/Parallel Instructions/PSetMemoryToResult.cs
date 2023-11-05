@@ -19,7 +19,7 @@ namespace PRAM_lib.Instruction.Parallel_Instructions
         //    MasterGateway = masterGateway;
         //}
 
-        public void Execute(IGatewayAccessLocal localGateway)
+        public void Execute(IGateway localGateway)
         {
             // Write to shared memory at specified index from result
 
