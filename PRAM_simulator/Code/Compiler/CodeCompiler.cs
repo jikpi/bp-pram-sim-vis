@@ -1,10 +1,11 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
+using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Parallel_Instructions;
-using PRAM_lib.Machine.ParallelMachineContainer;
+using PRAM_lib.Machine.Container;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -51,7 +52,7 @@ namespace PRAM_lib.Code.Compiler
             {
                 match = regex.ResultSet_Cell.Match(inputText);
 
-                int cellIndex = int.Parse(match.Groups[1].Value);
+                int cellIndex = int.Parse(match.Groups[2].Value);
 
                 return new ResultSet_Cell(cellIndex);
             }
@@ -73,9 +74,9 @@ namespace PRAM_lib.Code.Compiler
             {
                 match = regex.ResultSet_CellOpConstant.Match(inputText);
 
-                int cellIndex = int.Parse(match.Groups[1].Value);
-                string operation = match.Groups[2].Value;
-                int constantValue = int.Parse(match.Groups[3].Value);
+                int cellIndex = int.Parse(match.Groups[2].Value);
+                string operation = match.Groups[3].Value;
+                int constantValue = int.Parse(match.Groups[4].Value);
 
                 return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation));
             }
@@ -86,7 +87,7 @@ namespace PRAM_lib.Code.Compiler
 
                 int constantValue = int.Parse(match.Groups[1].Value);
                 string operation = match.Groups[2].Value;
-                int cellIndex = int.Parse(match.Groups[3].Value);
+                int cellIndex = int.Parse(match.Groups[4].Value);
 
                 return new ResultSet_CellOpConstant(cellIndex, constantValue, DetermineOperation(operation), false);
             }
@@ -96,7 +97,7 @@ namespace PRAM_lib.Code.Compiler
             {
                 match = regex.ResultSet_Pointer.Match(inputText);
 
-                int cellIndex = int.Parse(match.Groups[1].Value);
+                int cellIndex = int.Parse(match.Groups[2].Value);
 
                 return new ResultSet_Pointer(cellIndex);
             }
@@ -164,8 +165,18 @@ namespace PRAM_lib.Code.Compiler
             return set;
         }
 
+        private bool IsParallel(string memoryAddressContext, bool isParallelContext, InstructionRegex regex)
+        {
+            if (memoryAddressContext == regex.ParallelCell && isParallelContext)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        public CodeMemory.CodeMemory? Compile(string code, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, bool parallel = false)
+        public CodeMemory.CodeMemory? Compile(string code, MasterGateway gateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, bool parallel = false)
         {
             CodeMemory.CodeMemory newCodeMemory = new CodeMemory.CodeMemory();
             jumpMemory = new Jumps.JumpMemory();
@@ -196,7 +207,7 @@ namespace PRAM_lib.Code.Compiler
                     }
 
                     List<string> pardoStrings = strings.GetRange(i + 1, strings.Count - i - 1);
-                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, true);
+                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), gateway, regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, true);
 
                     if (pardoCodeMemory == null)
                     {
@@ -218,13 +229,12 @@ namespace PRAM_lib.Code.Compiler
                         ReturnLineIndex = lineIndex;
                         return null;
                     }
-                }
-
-                //Parallel instruction test:
-                if (strings[i].StartsWith("testparallel"))
-                {
-                    //newCodeMemory.Instructions.Add(new PSetMemoryToResult(instructionPointerIndex++, lineIndex));
-                    //todo HERE ################################################################################################
+                    else
+                    {
+                        ErrorMessage = string.Empty;
+                        ReturnLineIndex = -1;
+                        return newCodeMemory;
+                    }
                 }
 
                 //Empty line
@@ -283,13 +293,21 @@ namespace PRAM_lib.Code.Compiler
                 {
                     match = regex.SetMemoryToResult.Match(strings[i]);
 
-                    string sharedMemoryResultAddress = match.Groups[1].Value;
-                    string resultIs_any = match.Groups[2].Value;
+                    string memoryAddressContext = match.Groups[1].Value;
+                    string sharedMemoryResultAddress = match.Groups[2].Value;
+                    string resultIs_any = match.Groups[3].Value;
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
-                        //NOTE: No checks for infinity loops right now
+                        if (IsParallel(memoryAddressContext, parallel, regex))
+                        {
+                            newCodeMemory.Instructions.Add(new PSetMemoryToResult(gateway, int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex, lineIndex));
+                        }
+                        else
+                        {
+                            newCodeMemory.Instructions.Add(new SetMemoryToResult(int.Parse(sharedMemoryResultAddress), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                            //NOTE: No checks for infinity loops right now
+                        }
                     }
                     catch (LocalException e)
                     {
@@ -306,8 +324,8 @@ namespace PRAM_lib.Code.Compiler
                 {
                     match = regex.SetPointerToResult.Match(strings[i]);
 
-                    string leftPointingIndex = match.Groups[1].Value;
-                    string resultIs_any = match.Groups[2].Value;
+                    string leftPointingIndex = match.Groups[2].Value;
+                    string resultIs_any = match.Groups[3].Value;
 
                     newCodeMemory.Instructions.Add(new SetPointerToResult(int.Parse(leftPointingIndex), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
 

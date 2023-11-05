@@ -1,7 +1,7 @@
 ﻿using PRAM_lib.Code.CodeMemory;
 using PRAM_lib.Code.Jumps;
 
-namespace PRAM_lib.Machine.ParallelMachineContainer
+namespace PRAM_lib.Machine.Container
 {
     internal class ParallelMachineContainer
     {

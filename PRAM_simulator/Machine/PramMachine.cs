@@ -5,6 +5,7 @@ using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Jumps;
+using PRAM_lib.Machine.Container;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
 using PRAM_lib.Processor.Interface;
@@ -22,6 +23,7 @@ namespace PRAM_lib.Machine
         internal MasterGateway MasterGateway { get; private set; }
         private CodeCompiler Compiler { get; set; }
         private InstructionRegex InstructionRegex { get; set; }
+        private List<ParallelMachineContainer> ContainedParallelMachines { get; set; }
         public bool IsCompiled => MasterCodeMemory != null;
         public string? CompilationErrorMessage { get; private set; }
         public int? CompilationErrorLineIndex { get; private set; }
@@ -44,6 +46,7 @@ namespace PRAM_lib.Machine
             IsCrashed = false;
             IsHalted = false;
             JumpMemory = new JumpMemory();
+            ContainedParallelMachines = new List<ParallelMachineContainer>();
 
 
 
@@ -87,7 +90,7 @@ namespace PRAM_lib.Machine
             string ErrorMessage;
             int ErrorLineIndex;
 
-            MasterCodeMemory = Compiler.Compile(code, InstructionRegex, out JumpMemory newJumpMemory, out ErrorMessage, out ErrorLineIndex);
+            MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
 
             if (MasterCodeMemory == null) //Compilation failed
             {
@@ -98,6 +101,9 @@ namespace PRAM_lib.Machine
             {
                 CompilationErrorMessage = null;
                 CompilationErrorLineIndex = null;
+
+                //Save the parallel machine containers
+                ContainedParallelMachines = parallelMachines;
 
                 //Set the new jump memory
                 JumpMemory = newJumpMemory;
