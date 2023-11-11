@@ -9,9 +9,9 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, with a left cell, operator, and right cell, that is for example S2 := S2 + S3
     internal class ResultSet_CellOpCell : IResultSet
     {
-        public GatewayIndexSet leftGateway { get; set; }
-        public GatewayIndexSet rightGateway { get; set; }
-        public Operation Operation { get; private set; }
+        public GatewayIndexSet leftGateway { get; }
+        public GatewayIndexSet rightGateway { get; }
+        public Operation Operation { get; }
 
         public ResultSet_CellOpCell(GatewayIndexSet leftGateway, GatewayIndexSet rightGateway, Operation operation)
         {

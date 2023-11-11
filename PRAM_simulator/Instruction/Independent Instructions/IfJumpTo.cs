@@ -6,10 +6,10 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class IfJumpTo : IInstruction
     {
-        public string JumpToLabel { get; set; }
-        public ComparisonSet comparisonSet { get; set; }
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
+        public string JumpToLabel { get; }
+        public ComparisonSet comparisonSet { get; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
         public GatewayIndexSet gateway;
 
         public IfJumpTo(GatewayIndexSet gateway, string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex, ComparisonSet comparisonSet)

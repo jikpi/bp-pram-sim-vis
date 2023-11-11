@@ -5,9 +5,9 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class JumpTo : IInstruction
     {
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        public string JumpToLabel { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        public string JumpToLabel { get; }
 
         public GatewayIndexSet gateway;
 

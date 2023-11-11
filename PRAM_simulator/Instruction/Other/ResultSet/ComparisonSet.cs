@@ -10,11 +10,11 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     // combinations determine what is being compared.
     internal class ComparisonSet : IComparisonSet
     {
-        internal GatewayIndexSet? leftGateway { get; set; }
-        internal GatewayIndexSet? rightGateway { get; set; }
-        internal int? LeftValue;
-        internal int? RightValue;
-        internal ComparisonMethod? ComparisonMethod;
+        internal GatewayIndexSet? leftGateway { get; }
+        internal GatewayIndexSet? rightGateway { get; }
+        internal int? LeftValue { get; }
+        internal int? RightValue { get; }
+        internal ComparisonMethod? ComparisonMethod { get; }
 
         public ComparisonSet(GatewayIndexSet? leftGateway = null, GatewayIndexSet? rightGateway = null, ComparisonMethod? method = null, int? leftValue = null, int? rightValue = null)
         {

@@ -7,10 +7,10 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class SetMemoryToResult : IInstruction
     {
-        public IResultSet Result { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        public int InstructionPointerIndex { get; set; }
-        public GatewayIndexSet gateway { get; set; }
+        public IResultSet Result { get; }
+        public int CodeInstructionLineIndex { get; }
+        public int InstructionPointerIndex { get; }
+        public GatewayIndexSet gateway { get; }
 
         public SetMemoryToResult(GatewayIndexSet gateway, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)
         {

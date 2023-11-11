@@ -12,9 +12,9 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class WriteOutput : IInstruction
     {
-        public IResultSet Result { get; set; }
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
+        public IResultSet Result { get; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
         GatewayIndexSet gateway;
 
         public WriteOutput(GatewayIndexSet gateway, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)

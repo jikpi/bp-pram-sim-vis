@@ -10,8 +10,8 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //TODO THIS IS A RESULT SET, REFACTOR AFTER PARALLELIZATION ARCHITECTURE IS DONE
     internal class ReadInput : IInstruction
     {
-        GatewayIndexSet gateway { get; set; }
-        public bool Sequential { get; private set; }
+        GatewayIndexSet gateway { get; }
+        public bool Sequential { get; }
 
         private int _readIndex;
 
@@ -20,8 +20,8 @@ namespace PRAM_lib.Instruction.Master_Instructions
             get => Sequential ? _readIndex : throw new Exception("Debug error");
             private set => _readIndex = value;
         }
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
 
         public ReadInput(GatewayIndexSet gateway, int virtualInstructionIndex, int codeInstructionIndex)
         {

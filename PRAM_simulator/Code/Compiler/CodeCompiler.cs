@@ -186,51 +186,55 @@ namespace PRAM_lib.Code.Compiler
                     rightSelectedGateway = parallelGateway!;
                 }
 
-                ComparisonSet set = new ComparisonSet();
+                int? leftValue = null;
+                int? rightValue = null;
+                GatewayIndexSet? leftGateway = null;
+                GatewayIndexSet? rightGateway = null;
+                ComparisonMethod? comparisonMethod = null;
 
                 if (string.IsNullOrEmpty(groups[0]))
                 {
-                    set.LeftValue = int.Parse(groups[1]);
+                    leftValue = int.Parse(groups[1]);
                 }
                 else
                 {
-                    set.leftGateway = new GatewayIndexSet(leftSelectedGateway, int.Parse(groups[1]));
+                    leftGateway = new GatewayIndexSet(leftSelectedGateway, int.Parse(groups[1]));
                 }
 
                 if (string.IsNullOrEmpty(groups[3]))
                 {
-                    set.RightValue = int.Parse(groups[4]);
+                    rightValue = int.Parse(groups[4]);
                 }
                 else
                 {
-                    set.rightGateway = new GatewayIndexSet(rightSelectedGateway, int.Parse(groups[4]));
+                    rightGateway = new GatewayIndexSet(rightSelectedGateway, int.Parse(groups[4]));
                 }
 
                 switch (groups[2])
                 {
                     case "==":
-                        set.ComparisonMethod = ComparisonMethod.Equal;
+                        comparisonMethod = ComparisonMethod.Equal;
                         break;
                     case "!=":
-                        set.ComparisonMethod = ComparisonMethod.NotEqual;
+                        comparisonMethod = ComparisonMethod.NotEqual;
                         break;
                     case "<":
-                        set.ComparisonMethod = ComparisonMethod.Less;
+                        comparisonMethod = ComparisonMethod.Less;
                         break;
                     case "<=":
-                        set.ComparisonMethod = ComparisonMethod.LessOrEqual;
+                        comparisonMethod = ComparisonMethod.LessOrEqual;
                         break;
                     case ">":
-                        set.ComparisonMethod = ComparisonMethod.Greater;
+                        comparisonMethod = ComparisonMethod.Greater;
                         break;
                     case ">=":
-                        set.ComparisonMethod = ComparisonMethod.GreaterOrEqual;
+                        comparisonMethod = ComparisonMethod.GreaterOrEqual;
                         break;
                     default:
                         throw new LocalException(ExceptionMessages.CompilationComparisonNotRecognized(groups[3]));
                 }
 
-                return set;
+                return new ComparisonSet(leftGateway, rightGateway, comparisonMethod, leftValue, rightValue);
             }
 
 
@@ -287,7 +291,7 @@ namespace PRAM_lib.Code.Compiler
                     parallelMachines.Add(new ParallelMachineContainer(newParallelGateway, pardoCodeMemory, pardoJumpMemory, numberofprocessors));
 
                     //Add the ParallelDo instruction into the master machine
-                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), numberofprocessors, instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, numberofprocessors));
                     //Skip the lines that were already compiled
                     while(!regex.ParallelEnd.IsMatch(strings[i]))
                     {

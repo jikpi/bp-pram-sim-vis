@@ -13,10 +13,10 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a ResultSet
     internal class SetPointerToResult : IInstruction
     {
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        public GatewayIndexSet gateway { get; set; }
-        public IResultSet RightValueMemoryIndex { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        public GatewayIndexSet gateway { get; }
+        public IResultSet RightValueMemoryIndex { get; }
 
         public SetPointerToResult(GatewayIndexSet gateway, IResultSet rightValueMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {

@@ -12,7 +12,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, that is for example S2 := [S3]
     internal class ResultSet_Pointer : IResultSet
     {
-        GatewayIndexSet gateway { get; set; }
+        GatewayIndexSet gateway { get; }
         public ResultSet_Pointer(GatewayIndexSet gateway)
         {
             this.gateway = gateway;

@@ -11,10 +11,10 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class ParallelDo : IInstruction
     {
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        GatewayIndexSet gateway { get; set; }
-        private int Count { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        GatewayIndexSet gateway { get; }
+        private int Count { get; }
 
         public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex, int count)
         {
