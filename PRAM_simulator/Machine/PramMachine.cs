@@ -8,6 +8,7 @@ using PRAM_lib.Code.Jumps;
 using PRAM_lib.Machine.Container;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
+using PRAM_lib.Processor;
 using PRAM_lib.Processor.Interface;
 using System.Collections.ObjectModel;
 
@@ -23,7 +24,9 @@ namespace PRAM_lib.Machine
         internal MasterGateway MasterGateway { get; private set; }
         private CodeCompiler Compiler { get; set; }
         private InstructionRegex InstructionRegex { get; set; }
+        private int NextParallelDoIndex { get; set; }
         private List<ParallelMachineContainer> ContainedParallelMachines { get; set; }
+        private List<InParallelMachine>? LaunchedParallelMachines { get; set; }
         public bool IsCompiled => MasterCodeMemory != null;
         public string? CompilationErrorMessage { get; private set; }
         public int? CompilationErrorLineIndex { get; private set; }
@@ -31,6 +34,8 @@ namespace PRAM_lib.Machine
         public int? ExecutionErrorLineIndex { get; private set; }
         public bool IsCrashed { get; private set; }
         public bool IsHalted { get; private set; }
+        public bool IsRunningParallel => LaunchedParallelMachines != null;
+
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
         public InstrPointer MPIP { get; private set; }
@@ -47,6 +52,8 @@ namespace PRAM_lib.Machine
             IsHalted = false;
             JumpMemory = new JumpMemory();
             ContainedParallelMachines = new List<ParallelMachineContainer>();
+            NextParallelDoIndex = 0;
+            LaunchedParallelMachines = null;
 
 
 
@@ -144,9 +151,14 @@ namespace PRAM_lib.Machine
             return true;
         }
 
-        public void ParallelDo(int count)
+        internal void ParallelDo(int count)
         {
-            int size = count * 10;
+            LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
+        }
+
+        internal void ExecuteNextParallel()
+        {
+
         }
 
         public bool ExecuteNextInstruction()
@@ -154,6 +166,12 @@ namespace PRAM_lib.Machine
             if (!CheckIfCanContinue())
             {
                 return false;
+            }
+
+            //Check if there are any parallel machines to handle
+            if(LaunchedParallelMachines != null)
+            {
+                ExecuteNextParallel();
             }
 
             try

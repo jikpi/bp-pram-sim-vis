@@ -7,6 +7,7 @@ using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Parallel_Instructions;
 using PRAM_lib.Machine.Container;
+using PRAM_lib.Processor;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -277,18 +278,26 @@ namespace PRAM_lib.Code.Compiler
                     }
 
                     List<string> pardoStrings = strings.GetRange(i + 1, strings.Count - i - 1);
-                    ParallelGateway newParallelGateway = new ParallelGateway();
-                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), masterGateway, regex, out Jumps.JumpMemory pardoJumpMemory, out List<ParallelMachineContainer> pardoParallelMachines, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
+                    int numberofprocessors = int.Parse(match.Groups[1].Value);
 
-                    if (pardoCodeMemory == null)
+                    List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
+
+                    for (int j = 0; j < numberofprocessors; j++)
                     {
-                        ErrorMessage = pardoErrorMessage;
-                        ReturnLineIndex = pardoReturnLineIndex;
-                        return null;
+                        ParallelGateway newParallelGateway = new ParallelGateway();
+                        CodeMemory.CodeMemory? pardoCodeMemory = Compile(string.Join("\r\n", pardoStrings), masterGateway, regex, out Jumps.JumpMemory pardoJumpMemory, out _, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
+
+                        if (pardoCodeMemory == null)
+                        {
+                            ErrorMessage = pardoErrorMessage;
+                            ReturnLineIndex = pardoReturnLineIndex;
+                            return null;
+                        }
+
+                        inParallelMachines.Add(new InParallelMachine(j, newCodeMemory, pardoJumpMemory, newParallelGateway));
                     }
 
-                    int numberofprocessors = int.Parse(match.Groups[1].Value);
-                    parallelMachines.Add(new ParallelMachineContainer(newParallelGateway, pardoCodeMemory, pardoJumpMemory, numberofprocessors));
+                    parallelMachines.Add(new ParallelMachineContainer(inParallelMachines));
 
                     //Add the ParallelDo instruction into the master machine
                     newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, numberofprocessors));
