@@ -20,7 +20,7 @@ namespace PRAM_lib.Code
         public Regex IfJumpTo { get; set; }
         public Regex ParallelStart { get; set; }
         public Regex ParallelEnd { get; set; }
-        public string ParallelCell = "P"; //Not a real instruction
+        public string ParallelCell; //Not a real instruction
 
         public InstructionRegex()
         {
@@ -46,6 +46,7 @@ namespace PRAM_lib.Code
             //Parallel instructions
             ParallelStart = new Regex(@"^PARDO (\d+)\s*$"); //1 group
             ParallelEnd = new Regex(@"^PAREND\s*$"); //0 groups
+            ParallelCell = "P";
 
 
 

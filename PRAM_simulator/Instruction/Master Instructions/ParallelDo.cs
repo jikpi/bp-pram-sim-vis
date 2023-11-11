@@ -1,4 +1,5 @@
-﻿using PRAM_lib.Code.Gateway.Interface;
+﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,19 +11,21 @@ namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class ParallelDo : IInstruction
     {
-        public int InstructionPointerIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public int CodeInstructionLineIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int InstructionPointerIndex { get; set; }
+        public int CodeInstructionLineIndex { get; set; }
+        GatewayIndexSet gateway { get; set; }
         private int Count { get; set; }
 
-        public ParallelDo(int instructionPointerIndex, int codeInstructionIndex, int count)
+        public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex, int count)
         {
+            this.gateway = gateway;
             InstructionPointerIndex = instructionPointerIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
             Count = count;
         }
         public void Execute()
         {
-            throw new NotImplementedException();
+            gateway.ParallelDo(Count);
         }
     }
 }

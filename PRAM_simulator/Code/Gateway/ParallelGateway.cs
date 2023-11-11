@@ -28,12 +28,20 @@ namespace PRAM_lib.Code.Gateway
 
         public int Read(int index)
         {
-            throw new NotImplementedException();
+            if(Memory == null)
+            {
+                throw new Exception("Memory is not set");
+            }
+            return Memory.Read(index).Value;
         }
 
         public void Write(int index, int value)
         {
-            throw new NotImplementedException();
+            if (Memory == null)
+            {
+                throw new Exception("Memory is not set");
+            }
+            Memory.Write(index, value);
         }
 
         public int ReadInput(int index)
@@ -53,12 +61,20 @@ namespace PRAM_lib.Code.Gateway
 
         public int GetJump(string label)
         {
-            throw new NotImplementedException();
+            if (jumpMemory == null)
+            {
+                throw new Exception("Jump memory is not set");
+            }
+            return jumpMemory.GetJump(label);
         }
 
         public void JumpTo(int index)
         {
-            throw new NotImplementedException();
+            if (InstructionPointer == null)
+            {
+                throw new Exception("Instruction pointer is not set");
+            }
+            InstructionPointer.Value = index;
         }
 
         public void ParallelDoStart(int count)

@@ -17,13 +17,8 @@ namespace PRAM_lib.Code.Compiler
     {
         public CodeCompiler()
         {
-            //Instructions = new List<Type>() {
-            //    typeof(ReadInput),
 
-            //};
         }
-
-        //private List<Type> Instructions { get; set; }
 
         private Operation DetermineOperation(string operation)
         {
@@ -291,6 +286,8 @@ namespace PRAM_lib.Code.Compiler
                     int numberofprocessors = int.Parse(match.Groups[1].Value);
                     parallelMachines.Add(new ParallelMachineContainer(newParallelGateway, pardoCodeMemory, pardoJumpMemory, numberofprocessors));
 
+                    //Add the ParallelDo instruction into the master machine
+                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), numberofprocessors, instructionPointerIndex++, lineIndex));
                     //Skip the lines that were already compiled
                     while(!regex.ParallelEnd.IsMatch(strings[i]))
                     {
