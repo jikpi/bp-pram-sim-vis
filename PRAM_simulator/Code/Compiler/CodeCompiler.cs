@@ -281,7 +281,7 @@ namespace PRAM_lib.Code.Compiler
                     int numberofprocessors = int.Parse(match.Groups[1].Value);
 
                     List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
-
+                    
                     for (int j = 0; j < numberofprocessors; j++)
                     {
                         ParallelGateway newParallelGateway = new ParallelGateway();
@@ -290,11 +290,11 @@ namespace PRAM_lib.Code.Compiler
                         if (pardoCodeMemory == null)
                         {
                             ErrorMessage = pardoErrorMessage;
-                            ReturnLineIndex = pardoReturnLineIndex;
+                            ReturnLineIndex = pardoReturnLineIndex + lineIndex + 1;
                             return null;
                         }
 
-                        inParallelMachines.Add(new InParallelMachine(j, newCodeMemory, pardoJumpMemory, newParallelGateway));
+                        inParallelMachines.Add(new InParallelMachine(j, pardoCodeMemory, pardoJumpMemory, newParallelGateway));
                     }
 
                     parallelMachines.Add(new ParallelMachineContainer(inParallelMachines));
@@ -302,6 +302,7 @@ namespace PRAM_lib.Code.Compiler
                     //Add the ParallelDo instruction into the master machine
                     newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, numberofprocessors));
                     //Skip the lines that were already compiled
+                    int originalLineIndex = lineIndex;
                     while(!regex.ParallelEnd.IsMatch(strings[i]))
                     {
                         if(i < strings.Count - 1)
@@ -312,7 +313,7 @@ namespace PRAM_lib.Code.Compiler
                         else
                         {
                             ErrorMessage = "Parallel processor not ended";
-                            ReturnLineIndex = lineIndex;
+                            ReturnLineIndex = originalLineIndex;
                             return null;
                         }
                     }
