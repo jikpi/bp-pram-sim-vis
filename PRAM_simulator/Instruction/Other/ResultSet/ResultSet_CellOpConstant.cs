@@ -14,33 +14,31 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, for example: S2 := S2 + 5
     internal class ResultSet_CellOpConstant : IResultSet
     {
-        public int CellIndex { get; private set; }
-        public int ConstantValue { get; private set; }
-        public Operation operation { get; private set; }
-        private bool IsLeftCell { get; set; }
-        public ResultSet_CellOpConstant(int cellIndex, int constantValue, Operation operation, bool isLeftCell = true)
+        public GatewayIndexSet gateway { get; }
+        public int ConstantValue { get; }
+        public Operation operation { get; }
+        private bool IsLeftCell { get; }
+        public ResultSet_CellOpConstant(GatewayIndexSet gateway, int constantValue, Operation operation, bool isLeftCell = true)
         {
-            CellIndex = cellIndex;
+            this.gateway = gateway;
             ConstantValue = constantValue;
             this.operation = operation;
             IsLeftCell = isLeftCell;
         }
-        public virtual int GetResult(IGatewayAccessLocal gateway)
+        public virtual int GetResult()
         {
             int RightValue = 0;
             int LeftValue = 0;
 
             if(IsLeftCell) 
             {
-                //LeftValue = gateway.SharedMemory.Read(CellIndex).Value;
-                LeftValue = gateway.Read(CellIndex);
+                LeftValue = gateway.Read();
                 RightValue = ConstantValue;
             }
             else
             {
                 LeftValue = ConstantValue;
-                //RightValue = gateway.SharedMemory.Read(CellIndex).Value;
-                RightValue = gateway.Read(CellIndex);
+                RightValue = gateway.Read();
 
             }
             

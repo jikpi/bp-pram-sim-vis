@@ -10,22 +10,22 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     // combinations determine what is being compared.
     internal class ComparisonSet : IComparisonSet
     {
-        internal int? LeftCell;
-        internal int? RightCell;
-        internal int? LeftValue;
-        internal int? RightValue;
-        internal ComparisonMethod? ComparisonMethod;
+        internal GatewayIndexSet? leftGateway { get; }
+        internal GatewayIndexSet? rightGateway { get; }
+        internal int? LeftValue { get; }
+        internal int? RightValue { get; }
+        internal ComparisonMethod? ComparisonMethod { get; }
 
-        public ComparisonSet(ComparisonMethod? method = null, int? leftCell = null, int? rightCell = null, int? leftValue = null, int? rightValue = null)
+        public ComparisonSet(GatewayIndexSet? leftGateway = null, GatewayIndexSet? rightGateway = null, ComparisonMethod? method = null, int? leftValue = null, int? rightValue = null)
         {
-            LeftCell = leftCell;
-            RightCell = rightCell;
+            this.leftGateway = leftGateway;
+            this.rightGateway = rightGateway;
             LeftValue = leftValue;
             RightValue = rightValue;
             ComparisonMethod = method;
         }
 
-        public virtual bool GetResult(IGatewayAccessLocal gateway)
+        public virtual bool GetResult()
         {
             if (ComparisonMethod == null)
                 throw new Exception("Debug: ComparisonMethod is null");
@@ -34,17 +34,15 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             int rightValue;
 
             // Determine what is being compared, get the values, and compare them. Then return the result.
-            if (LeftCell != null)
-                //leftValue = gateway.SharedMemory.Read(LeftCell.Value).Value;
-                leftValue = gateway.Read(LeftCell.Value);
+            if (leftGateway != null)
+                leftValue = leftGateway.Read();
             else if (LeftValue != null)
                 leftValue = LeftValue.Value;
             else
                 throw new Exception("Debug: Left is none");
 
-            if (RightCell != null)
-                //rightValue = gateway.SharedMemory.Read(RightCell.Value).Value;
-                rightValue = gateway.Read(RightCell.Value);
+            if (rightGateway != null)
+                rightValue = rightGateway.Read();
             else if (RightValue != null)
                 rightValue = RightValue.Value;
             else

@@ -1,34 +1,29 @@
 ﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class JumpTo : IInstruction
     {
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        public string JumpToLabel { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        public string JumpToLabel { get; }
 
-        public JumpTo(string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex)
+        public GatewayIndexSet gateway;
+
+        public JumpTo(GatewayIndexSet gateway, string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex)
         {
+            this.gateway = gateway;
             JumpToLabel = jumpToLabelString;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public void Execute(IGatewayAccessLocal gateway)
+        public void Execute()
         {
             // Get index for the InstructionPointer to jump to
-            //int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
             int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
 
-            //gateway.InstructionPointer.Value = InstructionPointerIndex;
             gateway.JumpTo(InstructionPointerIndex);
         }
     }

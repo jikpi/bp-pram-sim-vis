@@ -18,27 +18,36 @@ namespace PRAM_lib.Code
         public Regex JumpToInstruction { get; set; }
         public Regex JumpToLabel { get; set; } //Not a real instruction
         public Regex IfJumpTo { get; set; }
+        public Regex ParallelStart { get; set; }
+        public Regex ParallelEnd { get; set; }
+        public string ParallelCell; //Not a real instruction
 
         public InstructionRegex()
         {
             Comment = new Regex(@"^#.*$"); //0 groups
 
-            ReadInput = new Regex(@"^S(\d+) := READ\((\d+|)\)\s*$"); //2 groups
+            ReadInput = new Regex(@"^[A-Z](\d+) := READ\((\d+|)\)\s*$"); //2 groups
 
             WriteOutput = new Regex(@"^WRITE\((.*)\)\s*$"); //1 group
-            SetMemoryToResult = new Regex(@"^S(\d+) := (.*)\s*$"); //2 groups
-            SetPointerToResult = new Regex(@"^\[S(\d+)\] := (.*)\s*$"); //2 groups
+            SetMemoryToResult = new Regex(@"^([A-Z])(\d+) := (.*)\s*$"); //3 groups
+            SetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$"); //3 groups
             //Result sets for instructions that require it
-            ResultSet_Cell = new Regex(@"^S(\d+)\s*$"); //1 group
-            ResultSet_CellOpCell = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) S(\d+)\s*$"); //3 groups
-            ResultSet_CellOpConstant = new Regex(@"^S(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //3 groups
-            ResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) S(\d+)\s*$"); //3 groups
-            ResultSet_Pointer = new Regex(@"^\[S(\d+)\]\s*$"); //1 group
+            ResultSet_Cell = new Regex(@"^([A-Z])(\d+)\s*$"); //2 groups
+            ResultSet_CellOpCell = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$"); //5 groups
+            ResultSet_CellOpConstant = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //4 groups
+            ResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$"); //4 groups
+            ResultSet_Pointer = new Regex(@"^\[([A-Z])(\d+)\]\s*$"); //2 groups
             ResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$"); //1 group
 
             JumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$"); //1 group
             JumpToLabel = new Regex(@"^:([0-z]*)\s*$"); //1 group
-            IfJumpTo = new Regex(@"^if \((S|)((?:-|)\d+) (==|!=|<|>|<=|>=) (S|)((?:-|)\d+)\) goto :([0-z]*)\s*$"); // 6 groups
+            IfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$"); // 6 groups
+
+            //Parallel instructions
+            ParallelStart = new Regex(@"^PARDO (\d+)\s*$"); //1 group
+            ParallelEnd = new Regex(@"^PAREND\s*$"); //0 groups
+            ParallelCell = "P";
+
 
 
 

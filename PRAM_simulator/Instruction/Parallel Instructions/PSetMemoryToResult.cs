@@ -10,21 +10,21 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Parallel_Instructions
 {
-    internal class PSetMemoryToResult : SetMemoryToResult, IParallelInstruction
+    internal class PSetMemoryToResult //: SetMemoryToResult, IParallelInstruction
     {
         public IGatewayAccessParallel MasterGateway { get; set; }
 
-        public PSetMemoryToResult(IGatewayAccessParallel masterGateway, int sharedMemoryIndex, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex) : base(sharedMemoryIndex, result, virtualInstructionIndex, codeInstructionIndex)
-        {
-            MasterGateway = masterGateway;
-        }
+        //public PSetMemoryToResult(IGatewayAccessParallel masterGateway, int sharedMemoryIndex, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex) : base(sharedMemoryIndex, result, virtualInstructionIndex, codeInstructionIndex)
+        //{
+        //    MasterGateway = masterGateway;
+        //}
 
-        public override void Execute(IGatewayAccessLocal localGateway)
+        public void Execute(IGateway localGateway)
         {
             // Write to shared memory at specified index from result
 
             //MasterGateway.PWrite(MemoryIndex, Result.GetResult(localGateway));
-            MasterGateway.PWrite(MemoryIndex, 256);
+            //MasterGateway.PWrite(MemoryIndex, 256);
         }
     }
 }

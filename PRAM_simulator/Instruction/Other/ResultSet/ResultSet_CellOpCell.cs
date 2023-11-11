@@ -9,24 +9,22 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, with a left cell, operator, and right cell, that is for example S2 := S2 + S3
     internal class ResultSet_CellOpCell : IResultSet
     {
-        public int LeftCellIndex { get; private set; }
-        public int RightCellIndex { get; private set; }
-        public Operation Operation { get; private set; }
+        public GatewayIndexSet leftGateway { get; }
+        public GatewayIndexSet rightGateway { get; }
+        public Operation Operation { get; }
 
-        public ResultSet_CellOpCell(int leftCellIndex, int rightCellIndex, Operation operation)
+        public ResultSet_CellOpCell(GatewayIndexSet leftGateway, GatewayIndexSet rightGateway, Operation operation)
         {
-            LeftCellIndex = leftCellIndex;
-            RightCellIndex = rightCellIndex;
+            this.leftGateway = leftGateway;
+            this.rightGateway = rightGateway;
             Operation = operation;
         }
 
-        public virtual int GetResult(IGatewayAccessLocal gateway)
+        public virtual int GetResult()
         {
             // Get values of the cells, that will be used in the operation
-            //int left = gateway.SharedMemory.Read(LeftCellIndex).Value;
-            int left = gateway.Read(LeftCellIndex);
-            //int right = gateway.SharedMemory.Read(RightCellIndex).Value;
-            int right = gateway.Read(RightCellIndex);
+            int left = leftGateway.Read();
+            int right = rightGateway.Read();
             switch (Operation)
             {
                 case Operation.Add:

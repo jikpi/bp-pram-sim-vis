@@ -13,30 +13,28 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a ResultSet
     internal class SetPointerToResult : IInstruction
     {
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
-        public int LeftPointingMemoryIndex { get; set; }
-        public IResultSet RightValueMemoryIndex { get; set; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        public GatewayIndexSet gateway { get; }
+        public IResultSet RightValueMemoryIndex { get; }
 
-        public SetPointerToResult(int leftPointingMemoryIndex, IResultSet rightValueMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
+        public SetPointerToResult(GatewayIndexSet gateway, IResultSet rightValueMemoryIndex, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            LeftPointingMemoryIndex = leftPointingMemoryIndex;
+            this.gateway = gateway;
             RightValueMemoryIndex = rightValueMemoryIndex;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
-        public virtual void Execute(IGatewayAccessLocal gateway)
+        public virtual void Execute()
         {
             // Get value of the cell, that will be used as a pointer
-            //int pointed = gateway.SharedMemory.Read(LeftPointingSharedMemoryIndex).Value;
-            int pointed = gateway.Read(LeftPointingMemoryIndex);
+            int pointed = gateway.Read();
 
             // Get the resulting value of ResultSet (<RESULT>)
-            int value = RightValueMemoryIndex.GetResult(gateway);
+            int value = RightValueMemoryIndex.GetResult();
 
             // Write the value to the pointed cell
-            //gateway.SharedMemory.Write(pointed, value);
             gateway.Write(pointed, value);
 
         }

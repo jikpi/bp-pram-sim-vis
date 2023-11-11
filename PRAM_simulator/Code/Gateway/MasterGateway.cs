@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace PRAM_lib.Code.Gateway
 {
     //A class that represents a gateway between a processor and a memory
-    internal class MasterGateway : IGatewayAccessLocal, IGatewayAccessParallel
+    internal class MasterGateway : IGateway, IGatewayAccessParallel
     {
         private SharedMemory SharedMemory { get; set; }
         private IOMemory InputMemory { get; set; }

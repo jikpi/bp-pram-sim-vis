@@ -1,43 +1,37 @@
 ﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
     internal class IfJumpTo : IInstruction
     {
-        public string JumpToLabel { get; set; }
-        public ComparisonSet comparisonSet { get; set; }
-        public int InstructionPointerIndex { get; set; }
-        public int CodeInstructionLineIndex { get; set; }
+        public string JumpToLabel { get; }
+        public ComparisonSet comparisonSet { get; }
+        public int InstructionPointerIndex { get; }
+        public int CodeInstructionLineIndex { get; }
+        public GatewayIndexSet gateway;
 
-        public IfJumpTo(string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex, ComparisonSet comparisonSet)
+        public IfJumpTo(GatewayIndexSet gateway, string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex, ComparisonSet comparisonSet)
         {
+            this.gateway = gateway;
             JumpToLabel = jumpToLabelString;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
             this.comparisonSet = comparisonSet;
         }
 
-        public void Execute(IGatewayAccessLocal gateway)
+        public void Execute()
         {
             // Retrieve boolean result from ComparisonSet
-            if(!comparisonSet.GetResult(gateway))
+            if (!comparisonSet.GetResult())
             {
                 return;
             }
 
             // Get index of instruction to jump to, and set instruction pointer to that index
-            //int InstructionPointerIndex = gateway.jumpMemory.GetJump(JumpToLabel);
             int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
 
-            //gateway.InstructionPointer.Value = InstructionPointerIndex;
             gateway.JumpTo(InstructionPointerIndex);
         }
 

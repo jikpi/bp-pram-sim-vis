@@ -114,6 +114,11 @@ namespace WPF_app
 
         private void SetCodeEditorLineIndexColor(int index)
         {
+            if(index >= RichTextBoxCode.Document.Blocks.Count)
+            {
+                return;
+            }
+
             if (index < 0)
             {
                 return;

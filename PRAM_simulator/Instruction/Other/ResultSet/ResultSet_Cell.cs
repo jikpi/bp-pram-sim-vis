@@ -12,15 +12,14 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, with a cell that is: S2 := S3
     internal class ResultSet_Cell : IResultSet
     {
-        public int CellIndex { get; private set; }
-        public ResultSet_Cell(int cellIndex)
+        public GatewayIndexSet gateway { get; }
+        public ResultSet_Cell(GatewayIndexSet gateway)
         {
-            CellIndex = cellIndex;
+            this.gateway = gateway;
         }
-        public virtual int GetResult(IGatewayAccessLocal gateway)
+        public virtual int GetResult()
         {
-            //return gateway.SharedMemory.Read(CellIndex).Value;
-            return gateway.Read(CellIndex);
+            return gateway.Read();
         }
     }
 }
