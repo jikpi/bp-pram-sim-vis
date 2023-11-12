@@ -116,9 +116,10 @@ namespace PRAM_lib.Processor
 
         public void Restart()
         {
-            IP = new InstrPointer(0);
+            IP.Value = 0;
             IsCrashed = false;
             IsHalted = false;
+            ClearMemory();
         }
 
         public void ClearMemory()

@@ -120,9 +120,7 @@ namespace PRAM_lib.Machine
 
                 MPIP.Value = 0;
                 IsHalted = false;
-                //SharedMemory = new SharedMemory();
-                //InputMemory = new IOMemory();
-                //OutputMemory = new IOMemory();
+                NextParallelDoIndex = 0;
             }
         }
 
