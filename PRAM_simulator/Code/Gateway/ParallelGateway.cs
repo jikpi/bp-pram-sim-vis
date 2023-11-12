@@ -1,4 +1,6 @@
-﻿using PRAM_lib.Code.Gateway.Interface;
+﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
 
