@@ -88,6 +88,16 @@ namespace PRAM_lib.Machine
             return SharedMemory.Cells;
         }
 
+        public ObservableCollection<MemoryCell>? GetParallelMachinesMemory(int index)
+        {
+            if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count)
+            {
+                return null;
+            }
+
+            return LaunchedParallelMachines[index].GetMemory();
+        }
+
         private void RefreshGateway()
         {
             MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
@@ -121,6 +131,15 @@ namespace PRAM_lib.Machine
                 MPIP.Value = 0;
                 IsHalted = false;
                 NextParallelDoIndex = 0;
+
+                //Restart all parallel machines
+                foreach (ParallelMachineContainer container in ContainedParallelMachines)
+                {
+                    foreach (InParallelMachine machine in container.ParallelMachines)
+                    {
+                        machine.Restart();
+                    }
+                }
             }
         }
 
