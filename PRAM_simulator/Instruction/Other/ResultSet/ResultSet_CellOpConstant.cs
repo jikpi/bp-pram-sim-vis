@@ -1,13 +1,7 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
@@ -30,7 +24,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             int RightValue = 0;
             int LeftValue = 0;
 
-            if(IsLeftCell) 
+            if (IsLeftCell)
             {
                 LeftValue = gateway.Read();
                 RightValue = ConstantValue;
@@ -41,7 +35,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                 RightValue = gateway.Read();
 
             }
-            
+
 
             switch (operation)
             {
@@ -52,7 +46,7 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                 case Operation.Mul:
                     return LeftValue * RightValue;
                 case Operation.Div:
-                    if(RightValue == 0)
+                    if (RightValue == 0)
                         throw new LocalException(ExceptionMessages.DivisionByZero());
                     return LeftValue / RightValue;
                 case Operation.Mod:

@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PRAM_lib.Code.Gateway.Interface
+﻿namespace PRAM_lib.Code.Gateway.Interface
 {
     //A class that represents a gateway between a processor and a memory, and contextualizes a simple memory access
     //in the context of the processor. So, a PRAM will access a shared memory with it, and parallel processors will access their own
     //memory with it.
-
-    //TODO fix comment?
     internal interface IGateway
     {
         //Reads a value from a memory at specified index
@@ -28,7 +20,7 @@ namespace PRAM_lib.Code.Gateway.Interface
         void JumpTo(int index);
 
         //Notify PRAM about the launch of a parallel processors
-        void ParallelDoStart(int count);
+        void ParallelDoStart();
 
         int GetParallelIndex();
     }

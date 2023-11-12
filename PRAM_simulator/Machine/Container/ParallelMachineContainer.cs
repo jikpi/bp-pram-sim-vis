@@ -1,7 +1,4 @@
-﻿using PRAM_lib.Code.CodeMemory;
-using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Jumps;
-using PRAM_lib.Processor;
+﻿using PRAM_lib.Processor;
 
 namespace PRAM_lib.Machine.Container
 {

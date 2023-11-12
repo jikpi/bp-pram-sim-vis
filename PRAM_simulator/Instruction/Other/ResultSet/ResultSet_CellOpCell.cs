@@ -1,7 +1,6 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult

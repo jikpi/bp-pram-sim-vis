@@ -1,18 +1,13 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Memory.Interface;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Memory
 {
     internal class IOMemory : IMemory
     {
-        public int MemoryPointer { get; set; }
+        private int MemoryPointer { get; set; }
         public ObservableCollection<MemoryCell> Cells { get; set; }
         public IOMemory()
         {
@@ -35,12 +30,12 @@ namespace PRAM_lib.Memory
 
         public MemoryCell Read()
         {
-            if(Cells.Count == 0)
+            if (Cells.Count == 0)
             {
                 throw new LocalException(ExceptionMessages.IOInputIsEmpty());
             }
 
-            if(MemoryPointer >= Cells.Count)
+            if (MemoryPointer >= Cells.Count)
             {
                 return Cells[Cells.Count - 1];
             }
@@ -51,9 +46,9 @@ namespace PRAM_lib.Memory
 
         public void Write(int value)
         {
-            if(MemoryPointer >= Cells.Count)
+            if (MemoryPointer >= Cells.Count)
             {
-                for(int i = Cells.Count; i <= MemoryPointer; i++)
+                for (int i = Cells.Count; i <= MemoryPointer; i++)
                 {
                     Cells.Add(new MemoryCell());
                 }

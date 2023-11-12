@@ -44,7 +44,7 @@ namespace PRAM_lib.Code.Compiler
 
 
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        public CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
+        internal CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
         {
 
             bool IsLocalMemoryAccess(string memoryAddressContext)
@@ -315,7 +315,7 @@ namespace PRAM_lib.Code.Compiler
                     parallelMachines.Add(new ParallelMachineContainer(inParallelMachines));
 
                     //Add the ParallelDo instruction into the master machine
-                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, numberofprocessors));
+                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex));
                     //Skip the lines that were already compiled
                     int originalLineIndex = lineIndex;
                     while (!regex.ParallelEnd.IsMatch(strings[i]))

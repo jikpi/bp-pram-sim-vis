@@ -12,7 +12,7 @@ namespace PRAM_lib.Processor
 {
     internal class InParallelMachine : IProcessor
     {
-        internal SharedMemory LocalMemory { get; private set; }
+        internal MachineMemory LocalMemory { get; private set; }
         internal CodeMemory CodeMemory { get; private set; }
         internal JumpMemory JumpMemory { get; private set; }
         internal ParallelGateway Gateway { get; private set; }
@@ -26,7 +26,7 @@ namespace PRAM_lib.Processor
 
         public InParallelMachine(int processorIndex, CodeMemory codeMemory, JumpMemory jumpMemory, ParallelGateway parallelGateway)
         {
-            LocalMemory = new SharedMemory();
+            LocalMemory = new MachineMemory();
             CodeMemory = codeMemory;
             JumpMemory = jumpMemory;
             IP = new InstrPointer(0);
@@ -109,7 +109,7 @@ namespace PRAM_lib.Processor
                 return -1;
             }
 
-            return this.CodeMemory!.Instructions[IP.Value].CodeInstructionLineIndex;
+            return CodeMemory!.Instructions[IP.Value].CodeInstructionLineIndex;
         }
 
 

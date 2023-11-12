@@ -14,7 +14,7 @@ namespace PRAM_lib.Code.Gateway
 
         public int ReadInput(int? inputIndex)
         {
-            if(inputIndex.HasValue)
+            if (inputIndex.HasValue)
             {
                 return Gateway.ReadInput(inputIndex.Value);
             }
@@ -59,9 +59,9 @@ namespace PRAM_lib.Code.Gateway
             Gateway.JumpTo(index);
         }
 
-        public void ParallelDo(int count)
+        public void ParallelDo()
         {
-            Gateway.ParallelDoStart(count);
+            Gateway.ParallelDoStart();
         }
 
         public int GetParallelIndex()

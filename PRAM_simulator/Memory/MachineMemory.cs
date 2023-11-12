@@ -1,21 +1,16 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Memory.Interface;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Memory
 {
-    internal class SharedMemory : IMemory
+    internal class MachineMemory : IMemory
     {
         public ObservableCollection<MemoryCell> Cells { get; set; }
         public int MaxCellSize { get; set; }
 
-        public SharedMemory()
+        public MachineMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
             MaxCellSize = 2_147_000_000;

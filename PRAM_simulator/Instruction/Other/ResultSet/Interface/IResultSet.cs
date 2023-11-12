@@ -1,12 +1,4 @@
-﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
+﻿namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
 {
     public enum ComparisonMethod
     {

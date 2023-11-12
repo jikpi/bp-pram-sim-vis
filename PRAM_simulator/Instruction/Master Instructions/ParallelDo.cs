@@ -1,11 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
@@ -13,19 +7,17 @@ namespace PRAM_lib.Instruction.Master_Instructions
     {
         public int InstructionPointerIndex { get; }
         public int CodeInstructionLineIndex { get; }
-        GatewayIndexSet gateway { get; }
-        private int Count { get; }
+        private GatewayIndexSet gateway { get; }
 
-        public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex, int count)
+        public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex)
         {
             this.gateway = gateway;
             InstructionPointerIndex = instructionPointerIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
-            Count = count;
         }
         public void Execute()
         {
-            gateway.ParallelDo(Count);
+            gateway.ParallelDo();
         }
     }
 }

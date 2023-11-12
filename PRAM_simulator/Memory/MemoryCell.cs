@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace PRAM_lib.Memory
 {
     public class MemoryCell : INotifyPropertyChanged
     {
-        private int value;
+        private int _value;
 
         public int Value
         {
-            get { return value; }
+            get { return _value; }
             set
             {
-                if (this.value != value)
+                if (_value != value)
                 {
-                    this.value = value;
+                    _value = value;
                     OnPropertyChanged(nameof(Value));
                 }
             }
@@ -34,9 +29,9 @@ namespace PRAM_lib.Memory
             Value = value;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

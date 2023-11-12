@@ -11,13 +11,12 @@ using PRAM_lib.Memory;
 using PRAM_lib.Processor;
 using PRAM_lib.Processor.Interface;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 
 namespace PRAM_lib.Machine
 {
     public class PramMachine : IProcessor
     {
-        internal SharedMemory SharedMemory { get; private set; }
+        internal MachineMemory SharedMemory { get; private set; }
         internal IOMemory InputMemory { get; private set; }
         internal IOMemory OutputMemory { get; private set; }
         private CodeMemory? MasterCodeMemory { get; set; }
@@ -44,7 +43,7 @@ namespace PRAM_lib.Machine
 
         public PramMachine()
         {
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             Compiler = new CodeCompiler();
@@ -130,6 +129,7 @@ namespace PRAM_lib.Machine
 
                 MPIP.Value = 0;
                 IsHalted = false;
+                IsCrashed = false;
                 NextParallelDoIndex = 0;
 
                 //Restart all parallel machines
@@ -170,7 +170,7 @@ namespace PRAM_lib.Machine
             return true;
         }
 
-        internal void ParallelDo(int count)
+        private void ParallelDo()
         {
             LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
         }
@@ -178,7 +178,7 @@ namespace PRAM_lib.Machine
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
 
-            for(int i = 0; i < LaunchedParallelMachines!.Count; i++)
+            for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
             {
                 if (LaunchedParallelMachines[i].IsHalted)
                 {
@@ -204,10 +204,10 @@ namespace PRAM_lib.Machine
                     }
                 }
             }
-            
 
 
-            if(LaunchedParallelMachines == null)
+
+            if (LaunchedParallelMachines == null)
             {
                 throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
             }
@@ -233,7 +233,7 @@ namespace PRAM_lib.Machine
             }
 
             //Check if there are any parallel machines to handle
-            if(LaunchedParallelMachines != null)
+            if (LaunchedParallelMachines != null)
             {
                 ExecuteNextParallel(out InParallelMachine? relParallelMachine);
                 if (relParallelMachine != null)
@@ -286,7 +286,7 @@ namespace PRAM_lib.Machine
                 foreach (InParallelMachine machine in container.ParallelMachines)
                 {
                     machine.Restart();
-                
+
                 }
             }
 
@@ -296,7 +296,7 @@ namespace PRAM_lib.Machine
         {
             Restart();
 
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             JumpMemory.Clear();

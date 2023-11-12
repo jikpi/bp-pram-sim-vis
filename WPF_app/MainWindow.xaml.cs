@@ -115,7 +115,7 @@ namespace WPF_app
 
         private void SetCodeEditorLineIndexColor(int index)
         {
-            if(index >= RichTextBoxCode.Document.Blocks.Count)
+            if (index >= RichTextBoxCode.Document.Blocks.Count)
             {
                 return;
             }
@@ -141,7 +141,7 @@ namespace WPF_app
         {
             bool result = DataResources.PRAM.ExecuteNextInstruction();
 
-            if(DataResources.PRAM.ParallelMachinesCount > 0)
+            if (DataResources.PRAM.ParallelMachinesCount > 0)
             {
                 int count = DataResources.PRAM.ParallelMachinesCount;
 
