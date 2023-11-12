@@ -10,7 +10,7 @@ namespace PRAM_lib.Code.CodeMemory
     //A class that represents a memory of a processor
     internal class CodeMemory
     {
-        public List<IInstruction> Instructions { get; set; }
+        internal List<IInstruction> Instructions { get; set; }
         public CodeMemory()
         {
             Instructions = new List<IInstruction>();

@@ -17,7 +17,7 @@ namespace PRAM_lib.Machine
 {
     public class PramMachine : IProcessor
     {
-        internal SharedMemory SharedMemory { get; private set; }
+        internal MachineMemory SharedMemory { get; private set; }
         internal IOMemory InputMemory { get; private set; }
         internal IOMemory OutputMemory { get; private set; }
         private CodeMemory? MasterCodeMemory { get; set; }
@@ -44,7 +44,7 @@ namespace PRAM_lib.Machine
 
         public PramMachine()
         {
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             Compiler = new CodeCompiler();
@@ -130,6 +130,7 @@ namespace PRAM_lib.Machine
 
                 MPIP.Value = 0;
                 IsHalted = false;
+                IsCrashed = false;
                 NextParallelDoIndex = 0;
 
                 //Restart all parallel machines
@@ -170,7 +171,7 @@ namespace PRAM_lib.Machine
             return true;
         }
 
-        internal void ParallelDo(int count)
+        private void ParallelDo()
         {
             LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
         }
@@ -296,7 +297,7 @@ namespace PRAM_lib.Machine
         {
             Restart();
 
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             JumpMemory.Clear();

@@ -14,18 +14,16 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public int InstructionPointerIndex { get; }
         public int CodeInstructionLineIndex { get; }
         GatewayIndexSet gateway { get; }
-        private int Count { get; }
 
-        public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex, int count)
+        public ParallelDo(GatewayIndexSet gateway, int instructionPointerIndex, int codeInstructionIndex)
         {
             this.gateway = gateway;
             InstructionPointerIndex = instructionPointerIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
-            Count = count;
         }
         public void Execute()
         {
-            gateway.ParallelDo(Count);
+            gateway.ParallelDo();
         }
     }
 }

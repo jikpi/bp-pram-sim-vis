@@ -2,7 +2,7 @@
 
 namespace PRAM_lib.Code
 {
-    internal class InstructionRegex
+    public class InstructionRegex
     {
         public Regex Comment { get; set; } //Not a real instruction
         public Regex ReadInput { get; set; }

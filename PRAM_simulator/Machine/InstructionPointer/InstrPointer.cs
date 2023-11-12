@@ -2,16 +2,22 @@
 {
     public class InstrPointer
     {
-        private int value;
+        private int _value;
+
+        public InstrPointer(int initialValue)
+        {
+            _value = initialValue;
+            ValueChanged = delegate { };
+        }
 
         public int Value
         {
-            get { return value; }
+            get { return _value; }
             set
             {
-                if (this.value != value)
+                if (_value != value)
                 {
-                    this.value = value;
+                    _value = value;
                     OnValueChanged();
                 }
             }
@@ -19,14 +25,11 @@
 
         public event EventHandler ValueChanged;
 
-        protected virtual void OnValueChanged()
+        private void OnValueChanged()
         {
             ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public InstrPointer(int initialValue)
-        {
-            value = initialValue;
-        }
+
     }
 }

@@ -12,7 +12,7 @@ namespace PRAM_lib.Memory
 {
     internal class IOMemory : IMemory
     {
-        public int MemoryPointer { get; set; }
+        private int MemoryPointer { get; set; }
         public ObservableCollection<MemoryCell> Cells { get; set; }
         public IOMemory()
         {

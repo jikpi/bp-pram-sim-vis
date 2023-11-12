@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Memory
 {
-    internal class SharedMemory : IMemory
+    internal class MachineMemory : IMemory
     {
         public ObservableCollection<MemoryCell> Cells { get; set; }
         public int MaxCellSize { get; set; }
 
-        public SharedMemory()
+        public MachineMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
             MaxCellSize = 2_147_000_000;
