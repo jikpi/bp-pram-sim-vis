@@ -88,5 +88,10 @@ namespace PRAM_lib.Code.Gateway
             //TODO implement
             SharedMemory.Write(memoryIndex, value);
         }
+
+        public int GetParallelIndex()
+        {
+            return 0;
+        }
     }
 }

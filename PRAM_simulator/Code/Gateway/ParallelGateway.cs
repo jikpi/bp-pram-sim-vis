@@ -14,12 +14,14 @@ namespace PRAM_lib.Code.Gateway
         internal SharedMemory? Memory { get; set; }
         internal InstrPointer? InstructionPointer { get; set; }
         internal Jumps.JumpMemory? jumpMemory { get; set; }
+        internal int ParallelIndex { get; set; }
 
-        public ParallelGateway(SharedMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory)
+        public ParallelGateway(SharedMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory, int parallelIndex)
         {
             Memory = refMemory;
             InstructionPointer = refInstructionPointer;
             this.jumpMemory = refJumpMemory;
+            ParallelIndex = parallelIndex;
         }
 
         public ParallelGateway()
@@ -80,6 +82,11 @@ namespace PRAM_lib.Code.Gateway
         public void ParallelDoStart(int count)
         {
             throw new NotImplementedException();
+        }
+
+        public int GetParallelIndex()
+        {
+            return ParallelIndex;
         }
     }
 }

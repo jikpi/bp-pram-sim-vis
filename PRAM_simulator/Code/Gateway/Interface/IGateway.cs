@@ -29,5 +29,7 @@ namespace PRAM_lib.Code.Gateway.Interface
 
         //Notify PRAM about the launch of a parallel processors
         void ParallelDoStart(int count);
+
+        int GetParallelIndex();
     }
 }

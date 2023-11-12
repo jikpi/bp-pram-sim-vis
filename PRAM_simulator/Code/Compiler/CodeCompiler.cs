@@ -5,6 +5,7 @@ using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
+using PRAM_lib.Instruction.Other.ResultSet;
 using PRAM_lib.Instruction.Parallel_Instructions;
 using PRAM_lib.Machine.Container;
 using PRAM_lib.Processor;
@@ -164,6 +165,20 @@ namespace PRAM_lib.Code.Compiler
                     int constantValue = int.Parse(match.Groups[1].Value);
 
                     return new ResultSet_Constant(constantValue);
+                }
+
+                //ResultSet_ParallelIndex
+                if (regex.ResultSet_ParallelIndex.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_ParallelIndex.Match(inputText);
+
+                    IGateway selectedGateway = masterGateway;
+                    if(parallelGateway != null)
+                    {
+                        selectedGateway = parallelGateway;
+                    }
+
+                    return new ResultSet_ParallelIndex(new GatewayIndexSet(selectedGateway, -1));
                 }
 
                 throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));

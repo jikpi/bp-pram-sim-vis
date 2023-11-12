@@ -21,6 +21,8 @@ namespace PRAM_lib.Code
         public Regex ParallelStart { get; set; }
         public Regex ParallelEnd { get; set; }
         public string ParallelCell; //Not a real instruction
+        public Regex ResultSet_ParallelIndex { get; set; }
+
 
         public InstructionRegex()
         {
@@ -47,6 +49,10 @@ namespace PRAM_lib.Code
             ParallelStart = new Regex(@"^PARDO (\d+)\s*$"); //1 group
             ParallelEnd = new Regex(@"^PAREND\s*$"); //0 groups
             ParallelCell = "P";
+            //Result set for parallel instructions
+            ResultSet_ParallelIndex = new Regex(@"^{i}\s*$"); //1 group
+
+
 
 
 
