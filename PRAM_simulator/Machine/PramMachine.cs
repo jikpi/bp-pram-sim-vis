@@ -36,6 +36,8 @@ namespace PRAM_lib.Machine
         public bool IsHalted { get; private set; }
         public bool IsRunningParallel => LaunchedParallelMachines != null;
         public int ParallelMachinesCount => LaunchedParallelMachines?.Count ?? 0;
+        private bool CREW { get; set; }
+        private bool EREW { get => !CREW; }
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -55,10 +57,11 @@ namespace PRAM_lib.Machine
             ContainedParallelMachines = new List<ParallelMachineContainer>();
             NextParallelDoIndex = 0;
             LaunchedParallelMachines = null;
+            CREW = true;
 
 
 
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CREW);
             MasterGateway.ParallelDoLaunch += ParallelDo;
         }
 
@@ -99,7 +102,7 @@ namespace PRAM_lib.Machine
 
         private void RefreshGateway()
         {
-            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CREW);
         }
 
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
@@ -319,6 +322,12 @@ namespace PRAM_lib.Machine
                     machine.ClearMemory();
                 }
             }
+        }
+
+        public void SetCREW(bool CREW)
+        {
+            this.CREW = CREW;
+            RefreshGateway();
         }
 
     }

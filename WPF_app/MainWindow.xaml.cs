@@ -232,5 +232,15 @@ namespace WPF_app
         {
             DataResources.PRAM.ClearMemory();
         }
+
+        private void checkBoxCREW_Click(object sender, RoutedEventArgs e)
+        {
+            if(checkBoxCREW.IsChecked == null)
+            {
+                return;
+            }
+
+            DataResources.PRAM.SetCREW(checkBoxCREW.IsChecked.Value);
+        }
     }
 }

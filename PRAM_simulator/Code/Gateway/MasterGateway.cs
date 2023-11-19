@@ -14,23 +14,139 @@ namespace PRAM_lib.Code.Gateway
         private Jumps.JumpMemory JumpMemory { get; set; }
         public event Action ParallelDoLaunch;
 
-        public MasterGateway(MachineMemory refSharedMemory, IOMemory refInputMemory, IOMemory refOutputMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory)
+        public int? IllegalMemoryReadIndex { get; private set; }
+        public int? IllegalMemoryWriteIndex { get; private set; }
+        public bool CREW { get; set; }
+
+        private bool AccessingParallel;
+        private List<bool> ReadAccessed;
+        private List<bool> ReadSingleInstructionAccess;
+
+        private List<int> WriteAccessed;
+        private List<int> WriteSingleInstructionAccess;
+        public void AccessingParallelStart()
         {
-            SharedMemory = refSharedMemory;
-            InputMemory = refInputMemory;
-            OutputMemory = refOutputMemory;
-            InstructionPointer = refInstructionPointer;
-            JumpMemory = refJumpMemory;
-            ParallelDoLaunch = delegate { };
+            AccessingParallel = true;
+            ReadAccessed.Clear();
+            ReadSingleInstructionAccess.Clear();
         }
 
-        public void Refresh(MachineMemory refSharedMemory, IOMemory refInputMemory, IOMemory refOutputMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory)
+        private bool CheckReadAccess()
+        {
+            if (ReadAccessed.Count < ReadSingleInstructionAccess.Count)
+            {
+                for (int i = ReadAccessed.Count; i < ReadSingleInstructionAccess.Count; i++)
+                {
+                    ReadAccessed.Add(false);
+                }
+            }
+
+            for (int i = 0; i < ReadAccessed.Count; i++)
+            {
+                if (ReadAccessed[i] && ReadSingleInstructionAccess[i])
+                {
+                    IllegalMemoryReadIndex = i;
+                    return false;
+                }
+                else
+                {
+                    ReadAccessed[i] = ReadSingleInstructionAccess[i];
+                }
+            }
+
+            return true;
+        }
+
+        private bool CheckWriteAccess()
+        {
+            if (WriteAccessed.Count < WriteSingleInstructionAccess.Count)
+            {
+                for (int i = WriteAccessed.Count; i < WriteSingleInstructionAccess.Count; i++)
+                {
+                    WriteAccessed.Add(0);
+                }
+            }
+
+            for (int i = 0; i < WriteAccessed.Count; i++)
+            {
+                if (WriteAccessed[i] > 1 && WriteSingleInstructionAccess[i] > 1)
+                {
+                    IllegalMemoryWriteIndex = i;
+                    return false;
+                }
+                else
+                {
+                    WriteAccessed[i] = WriteSingleInstructionAccess[i];
+                }
+            }
+
+            return true;
+        }
+
+        public void AccessingParallelInstructionEnd()
+        {
+            if (AccessingParallel)
+            {
+                if(!CREW)
+                {
+                    CheckReadAccess();
+                }
+
+                ReadSingleInstructionAccess.Clear();
+                WriteSingleInstructionAccess.Clear();
+            }
+        }
+
+        public void AccessingParallelEnd()
+        {
+            AccessingParallel = false;
+            ReadAccessed.Clear();
+            ReadSingleInstructionAccess.Clear();
+            WriteAccessed.Clear();
+            WriteSingleInstructionAccess.Clear();
+        }
+
+        public MasterGateway(MachineMemory refSharedMemory, IOMemory refInputMemory, IOMemory refOutputMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory, bool CREW)
         {
             SharedMemory = refSharedMemory;
             InputMemory = refInputMemory;
             OutputMemory = refOutputMemory;
             InstructionPointer = refInstructionPointer;
             JumpMemory = refJumpMemory;
+            this.CREW = CREW;
+            ParallelDoLaunch = delegate { };
+
+            ReadAccessed = new List<bool>();
+            ReadSingleInstructionAccess = new List<bool>();
+
+            WriteAccessed = new List<int>();
+            WriteSingleInstructionAccess = new List<int>();
+
+            AccessingParallel = false;
+            
+            IllegalMemoryReadIndex = null;
+            IllegalMemoryWriteIndex = null;
+        }
+
+        public void Refresh(MachineMemory refSharedMemory, IOMemory refInputMemory, IOMemory refOutputMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory, bool CREW)
+        {
+            SharedMemory = refSharedMemory;
+            InputMemory = refInputMemory;
+            OutputMemory = refOutputMemory;
+            InstructionPointer = refInstructionPointer;
+            JumpMemory = refJumpMemory;
+            this.CREW = CREW;
+
+            ReadAccessed = new List<bool>();
+            ReadSingleInstructionAccess = new List<bool>();
+
+            WriteAccessed = new List<int>();
+            WriteSingleInstructionAccess = new List<int>();
+
+            AccessingParallel = false;
+
+            IllegalMemoryReadIndex = null;
+            IllegalMemoryWriteIndex = null;
         }
 
         public int Read(int cellIndex)
