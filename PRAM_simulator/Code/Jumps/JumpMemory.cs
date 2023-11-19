@@ -1,10 +1,5 @@
 ﻿using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Code.Jumps
 {
@@ -18,7 +13,7 @@ namespace PRAM_lib.Code.Jumps
         }
 
         //A jump like "goto :jump"
-        public void AddJumpLabel (string jumpName)
+        public void AddJumpLabel(string jumpName)
         {
             if (JumpMemoryDictionary.ContainsKey(jumpName))
                 return;
@@ -27,14 +22,14 @@ namespace PRAM_lib.Code.Jumps
         }
 
         //Flag like ":jump" on a certain VirtualIndex
-        public void SetJump (string jumpName, int instructionPointerIndex)
+        public void SetJump(string jumpName, int instructionPointerIndex)
         {
             JumpMemoryDictionary[jumpName] = instructionPointerIndex - 1;
         }
 
-        public int GetJump (string jumpName)
+        public int GetJump(string jumpName)
         {
-            if(!JumpMemoryDictionary.ContainsKey(jumpName))
+            if (!JumpMemoryDictionary.ContainsKey(jumpName))
                 throw new LocalException(ExceptionMessages.JumpNotDefined(jumpName));
 
             if (JumpMemoryDictionary[jumpName] == -2)

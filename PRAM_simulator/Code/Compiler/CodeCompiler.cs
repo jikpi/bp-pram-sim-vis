@@ -5,6 +5,7 @@ using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
+using PRAM_lib.Instruction.Other.ResultSet;
 using PRAM_lib.Instruction.Parallel_Instructions;
 using PRAM_lib.Machine.Container;
 using PRAM_lib.Processor;
@@ -43,12 +44,12 @@ namespace PRAM_lib.Code.Compiler
 
 
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        public CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
+        internal CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
         {
 
-            bool IsParallel(string memoryAddressContext)
+            bool IsLocalMemoryAccess(string memoryAddressContext)
             {
-                if (memoryAddressContext == regex.ParallelCell && parallelGateway != null)
+                if (memoryAddressContext != regex.ParallelCell && parallelGateway != null)
                 {
                     return true;
                 }
@@ -64,12 +65,12 @@ namespace PRAM_lib.Code.Compiler
                 if (regex.ResultSet_Cell.IsMatch(inputText))
                 {
                     match = regex.ResultSet_Cell.Match(inputText);
-                    
+
                     string memoryAddressContext = match.Groups[1].Value;
                     int cellIndex = int.Parse(match.Groups[2].Value);
 
                     IGateway selectedGateway = masterGateway;
-                    if (IsParallel(memoryAddressContext))
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
                         selectedGateway = parallelGateway!;
                     }
@@ -90,11 +91,11 @@ namespace PRAM_lib.Code.Compiler
 
                     IGateway leftGateway = masterGateway;
                     IGateway rightGateway = masterGateway;
-                    if (IsParallel(leftMemoryAddressContext))
+                    if (IsLocalMemoryAccess(leftMemoryAddressContext))
                     {
                         leftGateway = parallelGateway!;
                     }
-                    if (IsParallel(rightMemoryAddressContext))
+                    if (IsLocalMemoryAccess(rightMemoryAddressContext))
                     {
                         rightGateway = parallelGateway!;
                     }
@@ -113,7 +114,7 @@ namespace PRAM_lib.Code.Compiler
                     int constantValue = int.Parse(match.Groups[4].Value);
 
                     IGateway selectedGateway = masterGateway;
-                    if (IsParallel(memoryAddressContext))
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
                         selectedGateway = parallelGateway!;
                     }
@@ -131,7 +132,7 @@ namespace PRAM_lib.Code.Compiler
                     string memoryAddressContext = match.Groups[3].Value;
 
                     IGateway selectedGateway = masterGateway;
-                    if (IsParallel(memoryAddressContext))
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
                         selectedGateway = parallelGateway!;
                     }
@@ -148,7 +149,7 @@ namespace PRAM_lib.Code.Compiler
                     int cellIndex = int.Parse(match.Groups[2].Value);
 
                     IGateway selectedGateway = masterGateway;
-                    if (IsParallel(memoryAddressContext))
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
                         selectedGateway = parallelGateway!;
                     }
@@ -166,6 +167,20 @@ namespace PRAM_lib.Code.Compiler
                     return new ResultSet_Constant(constantValue);
                 }
 
+                //ResultSet_ParallelIndex
+                if (regex.ResultSet_ParallelIndex.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_ParallelIndex.Match(inputText);
+
+                    IGateway selectedGateway = masterGateway;
+                    if (parallelGateway != null)
+                    {
+                        selectedGateway = parallelGateway;
+                    }
+
+                    return new ResultSet_ParallelIndex(new GatewayIndexSet(selectedGateway, -1));
+                }
+
                 throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));
             }
 
@@ -177,12 +192,12 @@ namespace PRAM_lib.Code.Compiler
                 string leftMemoryAddressContext = groups[0];
                 string rightMemoryAddressContext = groups[4];
 
-                if (IsParallel(leftMemoryAddressContext))
+                if (IsLocalMemoryAccess(leftMemoryAddressContext))
                 {
                     leftSelectedGateway = parallelGateway!;
                 }
 
-                if (IsParallel(rightMemoryAddressContext))
+                if (IsLocalMemoryAccess(rightMemoryAddressContext))
                 {
                     rightSelectedGateway = parallelGateway!;
                 }
@@ -258,9 +273,9 @@ namespace PRAM_lib.Code.Compiler
             {
                 lineIndex++;
 
-                IGateway localGateway = masterGateway;
                 IGateway foreignGateway = masterGateway;
-                if(parallelGateway != null)
+                IGateway localGateway = masterGateway;
+                if (parallelGateway != null)
                 {
                     localGateway = parallelGateway;
                 }
@@ -281,7 +296,7 @@ namespace PRAM_lib.Code.Compiler
                     int numberofprocessors = int.Parse(match.Groups[1].Value);
 
                     List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
-                    
+
                     for (int j = 0; j < numberofprocessors; j++)
                     {
                         ParallelGateway newParallelGateway = new ParallelGateway();
@@ -300,12 +315,12 @@ namespace PRAM_lib.Code.Compiler
                     parallelMachines.Add(new ParallelMachineContainer(inParallelMachines));
 
                     //Add the ParallelDo instruction into the master machine
-                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, numberofprocessors));
+                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex));
                     //Skip the lines that were already compiled
                     int originalLineIndex = lineIndex;
-                    while(!regex.ParallelEnd.IsMatch(strings[i]))
+                    while (!regex.ParallelEnd.IsMatch(strings[i]))
                     {
-                        if(i < strings.Count - 1)
+                        if (i < strings.Count - 1)
                         {
                             i++;
                             lineIndex++;
@@ -316,6 +331,35 @@ namespace PRAM_lib.Code.Compiler
                             ReturnLineIndex = originalLineIndex;
                             return null;
                         }
+                    }
+
+                    continue;
+                }
+
+                //IndirectMultiMemoryToResult
+                if (regex.IndirectMultiMemoryToResult.IsMatch(strings[i]))
+                {
+                    match = regex.IndirectMultiMemoryToResult.Match(strings[i]);
+
+                    string memoryAddressContext = match.Groups[1].Value;
+                    string addressingResult = match.Groups[2].Value;
+                    string resultIs_any = match.Groups[3].Value;
+
+                    IGateway selectedGateway = foreignGateway;
+                    if (IsLocalMemoryAccess(memoryAddressContext))
+                    {
+                        selectedGateway = localGateway;
+                    }
+
+                    try
+                    {
+                        newCodeMemory.Instructions.Add(new IndirectMultiMemoryToResult(new GatewayIndexSet(selectedGateway, -1), ResultSetResolver(regex, addressingResult), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
+                    }
+                    catch (LocalException e)
+                    {
+                        ErrorMessage = e.Message;
+                        ReturnLineIndex = lineIndex;
+                        return null;
                     }
 
                     continue;
@@ -399,10 +443,10 @@ namespace PRAM_lib.Code.Compiler
                     string sharedMemoryResultAddress = match.Groups[2].Value;
                     string resultIs_any = match.Groups[3].Value;
 
-                    IGateway selectedGateway = localGateway;
-                    if (IsParallel(memoryAddressContext))
+                    IGateway selectedGateway = foreignGateway;
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
-                        selectedGateway = foreignGateway;
+                        selectedGateway = localGateway;
                     }
 
                     try
@@ -429,10 +473,10 @@ namespace PRAM_lib.Code.Compiler
                     string leftPointingIndex = match.Groups[2].Value;
                     string resultIs_any = match.Groups[3].Value;
 
-                    IGateway selectedGateway = localGateway;
-                    if (IsParallel(memoryAddressContext))
+                    IGateway selectedGateway = foreignGateway;
+                    if (IsLocalMemoryAccess(memoryAddressContext))
                     {
-                        selectedGateway = foreignGateway;
+                        selectedGateway = localGateway;
                     }
 
                     newCodeMemory.Instructions.Add(new SetPointerToResult(new GatewayIndexSet(selectedGateway, int.Parse(leftPointingIndex)), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
@@ -449,7 +493,7 @@ namespace PRAM_lib.Code.Compiler
 
                     jumpMemory.AddJumpLabel(jumpName);
 
-                    newCodeMemory.Instructions.Add(new JumpTo(new GatewayIndexSet(masterGateway, -1), jumpName, instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new JumpTo(new GatewayIndexSet(localGateway, -1), jumpName, instructionPointerIndex++, lineIndex));
 
                     continue;
                 }
@@ -485,7 +529,7 @@ namespace PRAM_lib.Code.Compiler
 
                     try
                     {
-                        newCodeMemory.Instructions.Add(new IfJumpTo(new GatewayIndexSet(masterGateway, -1), match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
+                        newCodeMemory.Instructions.Add(new IfJumpTo(new GatewayIndexSet(localGateway, -1), match.Groups[6].Value, instructionPointerIndex++, lineIndex, set));
                     }
                     catch (LocalException e)
                     {

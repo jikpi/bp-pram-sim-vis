@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF_app"
         mc:Ignorable="d"
-        Title="MainWindow" Height="492" Width="832">
+        Title="MainWindow" Height="512" Width="1352">
     <Grid>
         <TabControl>
             <TabItem Header="Main">
@@ -15,7 +15,7 @@
                         <RowDefinition Height="17*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="749"/>
+                        <ColumnDefinition Width="Auto" MinWidth="1285"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Input" HorizontalAlignment="Left" Margin="15,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
@@ -49,30 +49,63 @@
                         </FlowDocument>
                     </RichTextBox>
                     <Label Content="Code" HorizontalAlignment="Left" Margin="105,10,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
-                    <Label Content="Shared memory" HorizontalAlignment="Left" Margin="561,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
-                    
+                    <Label Content="Shared memory" HorizontalAlignment="Left" Margin="431,10,0,0" VerticalAlignment="Top" Width="102" Height="26"/>
+
                     <!--Shared memory datagrid-->
-                    <DataGrid x:Name="DataGridSharedMemory" Margin="566,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="85" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                    <DataGrid x:Name="DataGridSharedMemory" Margin="436,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="85" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Shared" Binding="{Binding Value}" />
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Label Content="Output" HorizontalAlignment="Left" Margin="701,10,0,0" VerticalAlignment="Top" Height="26" Width="48"/>
+                    <Label Content="Output" HorizontalAlignment="Left" Margin="1183,10,0,0" VerticalAlignment="Top" Height="26" Width="47"/>
 
                     <!--Output memory Datagrid-->
-                    <DataGrid x:Name="DataGridOutput" Margin="705,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="85" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                    <DataGrid x:Name="DataGridOutput" Margin="1187,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="85" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Input" Binding="{Binding Value}" />
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <Button x:Name="ButtonCompile" Content="Compile" HorizontalAlignment="Left" Margin="335,368,0,0" VerticalAlignment="Top" Width="86" Click="ButtonCompile_Click" Height="23"/>
-                    <Label x:Name="LabelMasterProcessorInstructionPointer" Content="IP Counter" HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="LabelMasterProcessorInstructionPointer" Content="IP Counter" HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top" Height="26" Width="66"/>
                     <Button x:Name="ButtonNextExecution" Content="Next" HorizontalAlignment="Left" Margin="335,314,0,0" VerticalAlignment="Top" Width="86" Click="ButtonNextExecution_Click"  Height="23"/>
                     <Button x:Name="ButtonReset" Content="Reset" HorizontalAlignment="Left" Margin="335,286,0,0" VerticalAlignment="Top" Width="86" Click="ButtonReset_Click"  Height="23"/>
                     <Button x:Name="ButtonClear" Content="Clear all" HorizontalAlignment="Left" Margin="335,225,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClear_Click"  Height="23"/>
                     <Button x:Name="ButtonClearMemory" Content="Clear memory" HorizontalAlignment="Left" Margin="335,259,0,0" VerticalAlignment="Top" Width="86" Click="ButtonClearMemory_Click"  Height="23"/>
+
+                    <DataGrid x:Name="DataGridInParallelMemory1" Margin="619,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="83" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Local 1" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="DataGridInParallelMemory2" Margin="709,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="83" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Local 2" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="DataGridInParallelMemory3" Margin="799,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="83" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Local 3" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="DataGridInParallelMemory4" Margin="889,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="83" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Local 4" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="DataGridInParallelMemory5" Margin="979,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="355" Width="83" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False"  AutoGenerateColumns="False" LoadingRow="DataGridMemory_IndexRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Local 5" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Label Content="Parallel machine's memory" HorizontalAlignment="Left" Margin="622,10,0,0" VerticalAlignment="Top" Width="170" Height="26"/>
+                    <CheckBox x:Name="checkBoxCREW" Content="CREW" HorizontalAlignment="Left" Margin="342,42,0,0" VerticalAlignment="Top"/>
+
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">

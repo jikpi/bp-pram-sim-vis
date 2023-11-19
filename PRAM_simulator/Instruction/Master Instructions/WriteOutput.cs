@@ -1,12 +1,6 @@
 ﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Other.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
@@ -15,7 +9,8 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public IResultSet Result { get; }
         public int InstructionPointerIndex { get; }
         public int CodeInstructionLineIndex { get; }
-        GatewayIndexSet gateway;
+
+        private GatewayIndexSet gateway;
 
         public WriteOutput(GatewayIndexSet gateway, IResultSet result, int virtualInstructionIndex, int codeInstructionIndex)
         {

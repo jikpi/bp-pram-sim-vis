@@ -1,5 +1,4 @@
 ﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
@@ -10,7 +9,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
     //TODO THIS IS A RESULT SET, REFACTOR AFTER PARALLELIZATION ARCHITECTURE IS DONE
     internal class ReadInput : IInstruction
     {
-        GatewayIndexSet gateway { get; }
+        private GatewayIndexSet gateway { get; }
         public bool Sequential { get; }
 
         private int _readIndex;

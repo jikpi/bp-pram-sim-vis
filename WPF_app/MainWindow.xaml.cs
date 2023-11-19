@@ -1,5 +1,6 @@
 ﻿using PRAM_lib.Machine;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -114,7 +115,7 @@ namespace WPF_app
 
         private void SetCodeEditorLineIndexColor(int index)
         {
-            if(index >= RichTextBoxCode.Document.Blocks.Count)
+            if (index >= RichTextBoxCode.Document.Blocks.Count)
             {
                 return;
             }
@@ -139,6 +140,58 @@ namespace WPF_app
         private void ButtonNextExecution_Click(object sender, RoutedEventArgs e)
         {
             bool result = DataResources.PRAM.ExecuteNextInstruction();
+
+            if (DataResources.PRAM.ParallelMachinesCount > 0)
+            {
+                int count = DataResources.PRAM.ParallelMachinesCount;
+
+                ObservableCollection<PRAM_lib.Memory.MemoryCell>? memory = DataResources.PRAM.GetParallelMachinesMemory(0);
+                if (memory != null)
+                {
+                    //Input memory binding
+                    DataGridInParallelMemory1.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = memory });
+                }
+
+                if (count > 1)
+                {
+                    memory = DataResources.PRAM.GetParallelMachinesMemory(1);
+                    if (memory != null)
+                    {
+                        //Input memory binding
+                        DataGridInParallelMemory2.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = memory });
+                    }
+                }
+
+                if (count > 2)
+                {
+                    memory = DataResources.PRAM.GetParallelMachinesMemory(2);
+                    if (memory != null)
+                    {
+                        //Input memory binding
+                        DataGridInParallelMemory3.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = memory });
+                    }
+                }
+
+                if (count > 3)
+                {
+                    memory = DataResources.PRAM.GetParallelMachinesMemory(3);
+                    if (memory != null)
+                    {
+                        //Input memory binding
+                        DataGridInParallelMemory4.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = memory });
+                    }
+                }
+
+                if (count > 4)
+                {
+                    memory = DataResources.PRAM.GetParallelMachinesMemory(4);
+                    if (memory != null)
+                    {
+                        //Input memory binding
+                        DataGridInParallelMemory5.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = memory });
+                    }
+                }
+            }
 
             if (result)
             {

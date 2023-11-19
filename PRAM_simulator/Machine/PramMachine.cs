@@ -16,7 +16,7 @@ namespace PRAM_lib.Machine
 {
     public class PramMachine : IProcessor
     {
-        internal SharedMemory SharedMemory { get; private set; }
+        internal MachineMemory SharedMemory { get; private set; }
         internal IOMemory InputMemory { get; private set; }
         internal IOMemory OutputMemory { get; private set; }
         private CodeMemory? MasterCodeMemory { get; set; }
@@ -35,6 +35,7 @@ namespace PRAM_lib.Machine
         public bool IsCrashed { get; private set; }
         public bool IsHalted { get; private set; }
         public bool IsRunningParallel => LaunchedParallelMachines != null;
+        public int ParallelMachinesCount => LaunchedParallelMachines?.Count ?? 0;
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -42,7 +43,7 @@ namespace PRAM_lib.Machine
 
         public PramMachine()
         {
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             Compiler = new CodeCompiler();
@@ -86,6 +87,16 @@ namespace PRAM_lib.Machine
             return SharedMemory.Cells;
         }
 
+        public ObservableCollection<MemoryCell>? GetParallelMachinesMemory(int index)
+        {
+            if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count)
+            {
+                return null;
+            }
+
+            return LaunchedParallelMachines[index].GetMemory();
+        }
+
         private void RefreshGateway()
         {
             MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
@@ -118,9 +129,17 @@ namespace PRAM_lib.Machine
 
                 MPIP.Value = 0;
                 IsHalted = false;
-                //SharedMemory = new SharedMemory();
-                //InputMemory = new IOMemory();
-                //OutputMemory = new IOMemory();
+                IsCrashed = false;
+                NextParallelDoIndex = 0;
+
+                //Restart all parallel machines
+                foreach (ParallelMachineContainer container in ContainedParallelMachines)
+                {
+                    foreach (InParallelMachine machine in container.ParallelMachines)
+                    {
+                        machine.Restart();
+                    }
+                }
             }
         }
 
@@ -151,14 +170,59 @@ namespace PRAM_lib.Machine
             return true;
         }
 
-        internal void ParallelDo(int count)
+        private void ParallelDo()
         {
             LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
         }
 
-        internal void ExecuteNextParallel()
+        internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
 
+            for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
+            {
+                if (LaunchedParallelMachines[i].IsHalted)
+                {
+                    continue;
+                }
+
+                //if (LaunchedParallelMachines[i].IsCrashed)
+                //{
+                //    relParallelMachine = LaunchedParallelMachines[i];
+                //}
+
+                if (!LaunchedParallelMachines[i].ExecuteNextInstruction())
+                {
+                    if (LaunchedParallelMachines[i].IsCrashed)
+                    {
+                        relParallelMachine = LaunchedParallelMachines[i];
+                        return;
+                    }
+
+                    if (LaunchedParallelMachines[i].IsHalted)
+                    {
+                        continue;
+                    }
+                }
+            }
+
+
+
+            if (LaunchedParallelMachines == null)
+            {
+                throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
+            }
+
+            //Check if all parallel machines have finished
+            if (LaunchedParallelMachines.All(x => x.IsHalted))
+            {
+                LaunchedParallelMachines = null;
+                NextParallelDoIndex++;
+                relParallelMachine = null;
+            }
+            else
+            {
+                relParallelMachine = null;
+            }
         }
 
         public bool ExecuteNextInstruction()
@@ -169,9 +233,18 @@ namespace PRAM_lib.Machine
             }
 
             //Check if there are any parallel machines to handle
-            if(LaunchedParallelMachines != null)
+            if (LaunchedParallelMachines != null)
             {
-                ExecuteNextParallel();
+                ExecuteNextParallel(out InParallelMachine? relParallelMachine);
+                if (relParallelMachine != null)
+                {
+                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage;
+                    ExecutionErrorLineIndex = relParallelMachine.GetCurrentCodeLineIndex() + GetCurrentCodeLineIndex();
+                    IsCrashed = true;
+                    return false;
+                }
+
+                return true;
             }
 
             try
@@ -203,25 +276,49 @@ namespace PRAM_lib.Machine
             IsCrashed = false;
             InputMemory.ResetMemoryPointer();
             OutputMemory.ResetMemoryPointer();
+
+            NextParallelDoIndex = 0;
+            LaunchedParallelMachines = null;
+
+            //Restart all parallel machines
+            foreach (ParallelMachineContainer container in ContainedParallelMachines)
+            {
+                foreach (InParallelMachine machine in container.ParallelMachines)
+                {
+                    machine.Restart();
+
+                }
+            }
+
         }
 
         public void Clear()
         {
             Restart();
 
-            SharedMemory = new SharedMemory();
+            SharedMemory = new MachineMemory();
             InputMemory = new IOMemory();
             OutputMemory = new IOMemory();
             JumpMemory.Clear();
-
+            ContainedParallelMachines.Clear();
+            NextParallelDoIndex = 0;
+            LaunchedParallelMachines = null;
             RefreshGateway();
-
             MasterCodeMemory = null;
         }
 
         public void ClearMemory()
         {
             SharedMemory.Clear();
+
+            //Clear all parallel machines
+            foreach (ParallelMachineContainer container in ContainedParallelMachines)
+            {
+                foreach (InParallelMachine machine in container.ParallelMachines)
+                {
+                    machine.ClearMemory();
+                }
+            }
         }
 
     }

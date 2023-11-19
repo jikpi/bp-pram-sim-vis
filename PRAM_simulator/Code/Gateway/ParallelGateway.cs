@@ -1,25 +1,24 @@
-﻿using PRAM_lib.Code.Gateway.Interface;
+﻿using PRAM_lib.Code.CustomExceptions;
+using PRAM_lib.Code.CustomExceptions.Other;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Code.Gateway
 {
     internal class ParallelGateway : IGateway
     {
-        internal SharedMemory? Memory { get; set; }
+        internal MachineMemory? Memory { get; set; }
         internal InstrPointer? InstructionPointer { get; set; }
         internal Jumps.JumpMemory? jumpMemory { get; set; }
+        internal int ParallelIndex { get; set; }
 
-        public ParallelGateway(SharedMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory)
+        public ParallelGateway(MachineMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory, int parallelIndex)
         {
             Memory = refMemory;
             InstructionPointer = refInstructionPointer;
             this.jumpMemory = refJumpMemory;
+            ParallelIndex = parallelIndex;
         }
 
         public ParallelGateway()
@@ -28,7 +27,7 @@ namespace PRAM_lib.Code.Gateway
 
         public int Read(int index)
         {
-            if(Memory == null)
+            if (Memory == null)
             {
                 throw new Exception("Memory is not set");
             }
@@ -63,7 +62,7 @@ namespace PRAM_lib.Code.Gateway
         {
             if (jumpMemory == null)
             {
-                throw new Exception("Jump memory is not set");
+                throw new Exception("Debug exception: Jump memory in parallel gateway not set");
             }
             return jumpMemory.GetJump(label);
         }
@@ -72,14 +71,19 @@ namespace PRAM_lib.Code.Gateway
         {
             if (InstructionPointer == null)
             {
-                throw new Exception("Instruction pointer is not set");
+                throw new Exception("Debug exception: Instruction pointer not set");
             }
             InstructionPointer.Value = index;
         }
 
-        public void ParallelDoStart(int count)
+        public void ParallelDoStart()
         {
             throw new NotImplementedException();
+        }
+
+        public int GetParallelIndex()
+        {
+            return ParallelIndex;
         }
     }
 }

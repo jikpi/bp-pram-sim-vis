@@ -2,7 +2,7 @@
 
 namespace PRAM_lib.Code
 {
-    internal class InstructionRegex
+    public class InstructionRegex
     {
         public Regex Comment { get; set; } //Not a real instruction
         public Regex ReadInput { get; set; }
@@ -21,6 +21,9 @@ namespace PRAM_lib.Code
         public Regex ParallelStart { get; set; }
         public Regex ParallelEnd { get; set; }
         public string ParallelCell; //Not a real instruction
+        public Regex ResultSet_ParallelIndex { get; set; }
+        public Regex IndirectMultiMemoryToResult { get; set; }
+
 
         public InstructionRegex()
         {
@@ -44,9 +47,15 @@ namespace PRAM_lib.Code
             IfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$"); // 6 groups
 
             //Parallel instructions
-            ParallelStart = new Regex(@"^PARDO (\d+)\s*$"); //1 group
-            ParallelEnd = new Regex(@"^PAREND\s*$"); //0 groups
+            ParallelStart = new Regex(@"^pardo (\d+)\s*$"); //1 group
+            ParallelEnd = new Regex(@"^parend\s*$"); //0 groups
             ParallelCell = "P";
+            IndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$"); //3 groups
+
+            //Result set for parallel instructions
+            ResultSet_ParallelIndex = new Regex(@"^{i}\s*$"); //1 group
+
+
 
 
 
