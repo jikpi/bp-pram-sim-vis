@@ -36,8 +36,12 @@ namespace PRAM_lib.Machine
         public bool IsHalted { get; private set; }
         public bool IsRunningParallel => LaunchedParallelMachines != null;
         public int ParallelMachinesCount => LaunchedParallelMachines?.Count ?? 0;
-        private bool CREW { get; set; }
-        private bool EREW { get => !CREW; }
+        private bool CRXW { get; set; }
+        private bool ERXW { get => !CRXW; set => CRXW = !value; }
+        private bool XRCW { get; set; }
+        private bool XRXW { get => !XRCW; set => XRCW = !value; }
+        public List<IllegalMemoryAccesInfo> IllegalMemoryAccesses { get; private set; }
+        public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -56,12 +60,11 @@ namespace PRAM_lib.Machine
             JumpMemory = new JumpMemory();
             ContainedParallelMachines = new List<ParallelMachineContainer>();
             NextParallelDoIndex = 0;
-            LaunchedParallelMachines = null;
-            CREW = true;
+            CRXW = true;
+            XRCW = true;
+            IllegalMemoryAccesses = new List<IllegalMemoryAccesInfo>();
 
-
-
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CREW);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW);
             MasterGateway.ParallelDoLaunch += ParallelDo;
         }
 
@@ -102,7 +105,7 @@ namespace PRAM_lib.Machine
 
         private void RefreshGateway()
         {
-            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CREW);
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW, XRCW);
         }
 
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
@@ -206,9 +209,23 @@ namespace PRAM_lib.Machine
                         continue;
                     }
                 }
+
+                //Check memory access
+                if (MasterGateway.IllegalMemoryReadIndex != null)
+                {
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(i,
+                        LaunchedParallelMachines[i].GetMemory(),
+                        readIndex: MasterGateway.IllegalMemoryReadIndex));
+                }
+
+                if (MasterGateway.IllegalMemoryWriteIndex != null)
+                {
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(i,
+                        LaunchedParallelMachines[i].GetMemory(),
+                        writeIndex: MasterGateway.IllegalMemoryWriteIndex));
+                }
+
             }
-
-
 
             if (LaunchedParallelMachines == null)
             {
@@ -279,6 +296,7 @@ namespace PRAM_lib.Machine
             IsCrashed = false;
             InputMemory.ResetMemoryPointer();
             OutputMemory.ResetMemoryPointer();
+            IllegalMemoryAccesses.Clear();
 
             NextParallelDoIndex = 0;
             LaunchedParallelMachines = null;
@@ -324,9 +342,15 @@ namespace PRAM_lib.Machine
             }
         }
 
-        public void SetCREW(bool CREW)
+        public void SetCRXW(bool state)
         {
-            this.CREW = CREW;
+            CRXW = state;
+            RefreshGateway();
+        }
+
+        public void SetXRCW(bool state)
+        {
+            XRCW = state;
             RefreshGateway();
         }
 

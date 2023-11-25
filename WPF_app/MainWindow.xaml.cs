@@ -240,7 +240,7 @@ namespace WPF_app
                 return;
             }
 
-            DataResources.PRAM.SetCREW(checkBoxCREW.IsChecked.Value);
+            DataResources.PRAM.SetCRXW(checkBoxCREW.IsChecked.Value);
         }
     }
 }
