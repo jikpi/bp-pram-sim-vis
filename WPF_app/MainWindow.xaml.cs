@@ -202,6 +202,14 @@ namespace WPF_app
                 MessageBox.Show("Execution failed");
                 MessageBox.Show(DataResources.PRAM.ExecutionErrorMessage);
             }
+
+            if (DataResources.PRAM.IllegalMemoryAccess)
+            {
+                MessageBox.Show("Illegal memory access");
+                MessageBox.Show($"A parallel machine with indexes {string.Join(", ", DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryParallelMachineIndexes)} tried to access memory illegally");
+                MessageBox.Show($"Illegal read index: {DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryReadIndex ?? -1}");
+                MessageBox.Show($"Illegal write index: {DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryWriteIndex ?? -1}");
+            }
         }
 
         private void RichTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -233,14 +241,24 @@ namespace WPF_app
             DataResources.PRAM.ClearMemory();
         }
 
-        private void checkBoxCREW_Click(object sender, RoutedEventArgs e)
+        private void checkBoxCRXW_Click(object sender, RoutedEventArgs e)
         {
-            if(checkBoxCREW.IsChecked == null)
+            if (checkBoxCRXW.IsChecked == null)
             {
                 return;
             }
 
-            DataResources.PRAM.SetCRXW(checkBoxCREW.IsChecked.Value);
+            DataResources.PRAM.SetCRXW(checkBoxCRXW.IsChecked.Value);
+        }
+
+        private void checkBoxXRCW_Click(object sender, RoutedEventArgs e)
+        {
+            if (checkBoxXRCW.IsChecked == null)
+            {
+                return;
+            }
+
+            DataResources.PRAM.SetXRCW(checkBoxXRCW.IsChecked.Value);
         }
     }
 }

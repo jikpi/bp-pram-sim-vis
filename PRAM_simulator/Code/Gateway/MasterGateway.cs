@@ -22,10 +22,22 @@ namespace PRAM_lib.Code.Gateway
         public bool XRXW { get { return !XRCW; } set { XRCW = !value; } }
 
         private bool AccessingParallel;
-        private List<bool> ReadAccessed;
+
+        internal class GatewayParallelMemoryAccessInfo
+        {
+            public bool IsAccessed { get; set; }
+            public List<int> AccessingParallelMachineIndex { get; set; }
+
+            public GatewayParallelMemoryAccessInfo()
+            {
+                IsAccessed = false;
+                AccessingParallelMachineIndex = new List<int>();
+            }
+        }
+        public List<GatewayParallelMemoryAccessInfo> ReadAccessed { get; private set; }
         private List<bool> ReadSingleInstructionAccess;
 
-        private List<bool> WriteAccessed;
+        public List<GatewayParallelMemoryAccessInfo> WriteAccessed { get; private set; }
         private List<bool> WriteSingleInstructionAccess;
 
         public MasterGateway(MachineMemory refSharedMemory,
@@ -43,10 +55,10 @@ namespace PRAM_lib.Code.Gateway
             this.CRXW = CREW;
             ParallelDoLaunch = delegate { };
 
-            ReadAccessed = new List<bool>();
+            ReadAccessed = new List<GatewayParallelMemoryAccessInfo>();
             ReadSingleInstructionAccess = new List<bool>();
 
-            WriteAccessed = new List<bool>();
+            WriteAccessed = new List<GatewayParallelMemoryAccessInfo>();
             WriteSingleInstructionAccess = new List<bool>();
 
             AccessingParallel = false;
@@ -71,10 +83,10 @@ namespace PRAM_lib.Code.Gateway
             this.CRXW = CRXW;
             this.XRCW = XRCW;
 
-            ReadAccessed = new List<bool>();
+            ReadAccessed.Clear();
             ReadSingleInstructionAccess = new List<bool>();
 
-            WriteAccessed = new List<bool>();
+            WriteAccessed.Clear();
             WriteSingleInstructionAccess = new List<bool>();
 
             AccessingParallel = false;
@@ -93,27 +105,35 @@ namespace PRAM_lib.Code.Gateway
 
 
         //Check read access
-        private bool CheckReadAccess()
+        private bool CheckReadAccess(int parallelMachineIndex)
         {
             if (ReadAccessed.Count < ReadSingleInstructionAccess.Count)
             {
                 ReadAccessed.Capacity = ReadSingleInstructionAccess.Count + 1;
                 for (int i = ReadAccessed.Count; i < ReadSingleInstructionAccess.Count; i++)
                 {
-                    ReadAccessed.Add(default);
+                    ReadAccessed.Add(new GatewayParallelMemoryAccessInfo());
                 }
             }
 
             for (int i = 0; i < ReadAccessed.Count; i++)
             {
-                if (ReadAccessed[i] && ReadSingleInstructionAccess[i])
+                if (ReadAccessed[i].IsAccessed && ReadSingleInstructionAccess[i])
                 {
                     IllegalMemoryReadIndex = i;
+                    ReadAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
                     return false;
                 }
                 else
                 {
-                    ReadAccessed[i] = ReadSingleInstructionAccess[i];
+                    // If the index is out of range, then it is not accessed, since no entry was made for it in the last execution
+                    if (i >= ReadAccessed.Count)
+                    {
+                        continue;
+                    }
+
+                    ReadAccessed[i].IsAccessed = ReadSingleInstructionAccess[i];
+                    ReadAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
                 }
             }
 
@@ -121,26 +141,33 @@ namespace PRAM_lib.Code.Gateway
         }
 
         // Check write access
-        private bool CheckWriteAccess()
+        private bool CheckWriteAccess(int parallelMachineIndex)
         {
             if (WriteAccessed.Count < WriteSingleInstructionAccess.Count)
             {
                 for (int i = WriteAccessed.Count; i < WriteSingleInstructionAccess.Count; i++)
                 {
-                    WriteAccessed.Add(default);
+                    WriteAccessed.Add(new GatewayParallelMemoryAccessInfo());
                 }
             }
 
             for (int i = 0; i < WriteAccessed.Count; i++)
             {
-                if (WriteAccessed[i] && WriteSingleInstructionAccess[i])
+                if (WriteAccessed[i].IsAccessed && WriteSingleInstructionAccess[i])
                 {
                     IllegalMemoryWriteIndex = i;
+                    WriteAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
                     return false;
                 }
                 else
                 {
-                    WriteAccessed[i] = WriteSingleInstructionAccess[i];
+                    if (i >= WriteAccessed.Count)
+                    {
+                        continue;
+                    }
+
+                    WriteAccessed[i].IsAccessed = WriteSingleInstructionAccess[i];
+                    WriteAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
                 }
             }
 
@@ -180,18 +207,18 @@ namespace PRAM_lib.Code.Gateway
         }
 
         // A parallel processor has accessed memory, now check if it is legal
-        public void AccessingParallelInstructionEnd()
+        public void SingleParallelInstructionExecuted(int parallelMachineIndex)
         {
             if (AccessingParallel)
             {
                 if (!CRXW)
                 {
-                    CheckReadAccess();
+                    CheckReadAccess(parallelMachineIndex);
                 }
 
                 if (!XRCW)
                 {
-                    CheckWriteAccess();
+                    CheckWriteAccess(parallelMachineIndex);
                 }
 
                 ReadSingleInstructionAccess.Clear();

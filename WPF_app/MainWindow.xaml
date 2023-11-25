@@ -104,7 +104,8 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <Label Content="Parallel machine's memory" HorizontalAlignment="Left" Margin="622,10,0,0" VerticalAlignment="Top" Width="170" Height="26"/>
-                    <CheckBox x:Name="checkBoxCREW" Content="CR" HorizontalAlignment="Left" Margin="342,42,0,0" VerticalAlignment="Top" IsChecked="True" Click="checkBoxCREW_Click"/>
+                    <CheckBox x:Name="checkBoxCRXW" Content="CR" HorizontalAlignment="Left" Margin="342,42,0,0" VerticalAlignment="Top" IsChecked="True" Click="checkBoxCRXW_Click"/>
+                    <CheckBox x:Name="checkBoxXRCW" Content="CW" HorizontalAlignment="Left" Margin="342,63,0,0" VerticalAlignment="Top" IsChecked="True" Click="checkBoxXRCW_Click"/>
 
                 </Grid>
             </TabItem>

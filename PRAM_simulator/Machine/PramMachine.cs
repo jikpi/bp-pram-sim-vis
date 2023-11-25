@@ -176,9 +176,11 @@ namespace PRAM_lib.Machine
             return true;
         }
 
+        // Start parallel
         private void ParallelDo()
         {
             LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
+            MasterGateway.AccessingParallelStart();
         }
 
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
@@ -210,19 +212,26 @@ namespace PRAM_lib.Machine
                     }
                 }
 
+                //Note single instruction in parallel access
+                MasterGateway.SingleParallelInstructionExecuted(i);
+
                 //Check memory access
                 if (MasterGateway.IllegalMemoryReadIndex != null)
                 {
-                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(i,
+                    int illegalReadIndex = MasterGateway.IllegalMemoryReadIndex.Value;
+
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.ReadAccessed[illegalReadIndex].AccessingParallelMachineIndex,
                         LaunchedParallelMachines[i].GetMemory(),
-                        readIndex: MasterGateway.IllegalMemoryReadIndex));
+                        readIndex: illegalReadIndex));
                 }
 
                 if (MasterGateway.IllegalMemoryWriteIndex != null)
                 {
-                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(i,
+                    int illegalWriteIndex = MasterGateway.IllegalMemoryWriteIndex.Value;
+
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.WriteAccessed[illegalWriteIndex].AccessingParallelMachineIndex,
                         LaunchedParallelMachines[i].GetMemory(),
-                        writeIndex: MasterGateway.IllegalMemoryWriteIndex));
+                        writeIndex: illegalWriteIndex));
                 }
 
             }
@@ -232,12 +241,13 @@ namespace PRAM_lib.Machine
                 throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
             }
 
-            //Check if all parallel machines have finished
+            //Check if all parallel machines have finished, if so, end parallel.
             if (LaunchedParallelMachines.All(x => x.IsHalted))
             {
                 LaunchedParallelMachines = null;
                 NextParallelDoIndex++;
                 relParallelMachine = null;
+                MasterGateway.AccessingParallelEnd();
             }
             else
             {
