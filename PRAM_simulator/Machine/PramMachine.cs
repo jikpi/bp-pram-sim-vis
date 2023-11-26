@@ -36,6 +36,12 @@ namespace PRAM_lib.Machine
         public bool IsHalted { get; private set; }
         public bool IsRunningParallel => LaunchedParallelMachines != null;
         public int ParallelMachinesCount => LaunchedParallelMachines?.Count ?? 0;
+        private bool CRXW { get; set; }
+        private bool ERXW { get => !CRXW; set => CRXW = !value; }
+        private bool XRCW { get; set; }
+        private bool XRXW { get => !XRCW; set => XRCW = !value; }
+        public List<IllegalMemoryAccesInfo> IllegalMemoryAccesses { get; private set; }
+        public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -54,11 +60,11 @@ namespace PRAM_lib.Machine
             JumpMemory = new JumpMemory();
             ContainedParallelMachines = new List<ParallelMachineContainer>();
             NextParallelDoIndex = 0;
-            LaunchedParallelMachines = null;
+            CRXW = true;
+            XRCW = true;
+            IllegalMemoryAccesses = new List<IllegalMemoryAccesInfo>();
 
-
-
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW);
             MasterGateway.ParallelDoLaunch += ParallelDo;
         }
 
@@ -99,7 +105,7 @@ namespace PRAM_lib.Machine
 
         private void RefreshGateway()
         {
-            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW, XRCW);
         }
 
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
@@ -170,9 +176,11 @@ namespace PRAM_lib.Machine
             return true;
         }
 
+        // Start parallel
         private void ParallelDo()
         {
             LaunchedParallelMachines = ContainedParallelMachines[NextParallelDoIndex].ParallelMachines;
+            MasterGateway.AccessingParallelStart();
         }
 
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
@@ -203,21 +211,43 @@ namespace PRAM_lib.Machine
                         continue;
                     }
                 }
+
+                //Note single instruction in parallel access
+                MasterGateway.SingleParallelInstructionExecuted(i);
+
+                //Check memory access
+                if (MasterGateway.IllegalMemoryReadIndex != null)
+                {
+                    int illegalReadIndex = MasterGateway.IllegalMemoryReadIndex.Value;
+
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.ReadAccessed[illegalReadIndex].AccessingParallelMachineIndex,
+                        LaunchedParallelMachines[i].GetMemory(),
+                        readIndex: illegalReadIndex));
+                }
+
+                if (MasterGateway.IllegalMemoryWriteIndex != null)
+                {
+                    int illegalWriteIndex = MasterGateway.IllegalMemoryWriteIndex.Value;
+
+                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.WriteAccessed[illegalWriteIndex].AccessingParallelMachineIndex,
+                        LaunchedParallelMachines[i].GetMemory(),
+                        writeIndex: illegalWriteIndex));
+                }
+
             }
-
-
 
             if (LaunchedParallelMachines == null)
             {
                 throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
             }
 
-            //Check if all parallel machines have finished
+            //Check if all parallel machines have finished, if so, end parallel.
             if (LaunchedParallelMachines.All(x => x.IsHalted))
             {
                 LaunchedParallelMachines = null;
                 NextParallelDoIndex++;
                 relParallelMachine = null;
+                MasterGateway.AccessingParallelEnd();
             }
             else
             {
@@ -276,6 +306,7 @@ namespace PRAM_lib.Machine
             IsCrashed = false;
             InputMemory.ResetMemoryPointer();
             OutputMemory.ResetMemoryPointer();
+            IllegalMemoryAccesses.Clear();
 
             NextParallelDoIndex = 0;
             LaunchedParallelMachines = null;
@@ -319,6 +350,18 @@ namespace PRAM_lib.Machine
                     machine.ClearMemory();
                 }
             }
+        }
+
+        public void SetCRXW(bool state)
+        {
+            CRXW = state;
+            RefreshGateway();
+        }
+
+        public void SetXRCW(bool state)
+        {
+            XRCW = state;
+            RefreshGateway();
         }
 
     }
