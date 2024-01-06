@@ -49,7 +49,7 @@ namespace PRAM_lib.Code
             //Parallel instructions
             ParallelStart = new Regex(@"^pardo (\d+)\s*$"); //1 group
             ParallelEnd = new Regex(@"^parend\s*$"); //0 groups
-            ParallelCell = "P";
+            ParallelCell = "S";
             IndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$"); //3 groups
 
             //Result set for parallel instructions

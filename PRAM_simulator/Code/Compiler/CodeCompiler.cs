@@ -268,18 +268,18 @@ namespace PRAM_lib.Code.Compiler
             //Used by compiler to set the values in instructions, and to set the jump memory.
             int instructionPointerIndex = 0;
 
+            //Set the gateways
+            IGateway foreignGateway = masterGateway;
+            IGateway localGateway = masterGateway;
+            if (parallelGateway != null)
+            {
+                localGateway = parallelGateway;
+            }
+
             Match? match;
             for (int i = 0; i < strings.Count; i++)
             {
                 lineIndex++;
-
-                //Unnecessary to do every loop
-                IGateway foreignGateway = masterGateway;
-                IGateway localGateway = masterGateway;
-                if (parallelGateway != null)
-                {
-                    localGateway = parallelGateway;
-                }
 
                 //Parallel instructions beginning
                 if (regex.ParallelStart.IsMatch(strings[i]))
