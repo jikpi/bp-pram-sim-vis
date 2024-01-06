@@ -23,6 +23,7 @@ namespace PRAM_lib.Code
         public string ParallelCell; //Not a real instruction
         public Regex ResultSet_ParallelIndex { get; set; }
         public Regex IndirectMultiMemoryToResult { get; set; }
+        public Regex Halt { get; set; }
 
 
         public InstructionRegex()
@@ -54,6 +55,10 @@ namespace PRAM_lib.Code
 
             //Result set for parallel instructions
             ResultSet_ParallelIndex = new Regex(@"^{i}\s*$"); //1 group
+
+            Halt = new Regex(@"^halt\s*$"); //0 groups
+
+            
 
 
 

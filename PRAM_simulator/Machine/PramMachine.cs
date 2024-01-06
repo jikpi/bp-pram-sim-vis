@@ -66,6 +66,7 @@ namespace PRAM_lib.Machine
 
             MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW);
             MasterGateway.ParallelDoLaunch += ParallelDo;
+            MasterGateway.HaltNotify += delegate { IsHalted = true; };
         }
 
         public int GetCurrentCodeLineIndex()

@@ -12,6 +12,7 @@ namespace PRAM_lib.Code.Gateway
         internal InstrPointer? InstructionPointer { get; set; }
         internal Jumps.JumpMemory? jumpMemory { get; set; }
         internal int ParallelIndex { get; set; }
+        public event Action HaltNotify;
 
         public ParallelGateway(MachineMemory refMemory, InstrPointer refInstructionPointer, Jumps.JumpMemory refJumpMemory, int parallelIndex)
         {
@@ -19,10 +20,12 @@ namespace PRAM_lib.Code.Gateway
             InstructionPointer = refInstructionPointer;
             this.jumpMemory = refJumpMemory;
             ParallelIndex = parallelIndex;
+            HaltNotify = delegate { };
         }
 
         public ParallelGateway()
         {
+            HaltNotify = delegate { };
         }
 
         public int Read(int index)
@@ -84,6 +87,11 @@ namespace PRAM_lib.Code.Gateway
         public int GetParallelIndex()
         {
             return ParallelIndex;
+        }
+
+        public void Halt()
+        {
+            HaltNotify?.Invoke();
         }
     }
 }

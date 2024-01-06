@@ -23,5 +23,8 @@
         void ParallelDoStart();
 
         int GetParallelIndex();
+
+        //Halt
+        void Halt();
     }
 }

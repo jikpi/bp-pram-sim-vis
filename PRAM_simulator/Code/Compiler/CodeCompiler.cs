@@ -2,6 +2,7 @@
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Gateway.Interface;
+using PRAM_lib.Instruction.Independent_Instructions;
 using PRAM_lib.Instruction.Master_Instructions;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
@@ -542,7 +543,12 @@ namespace PRAM_lib.Code.Compiler
                     continue;
                 }
 
-
+                //Halt
+                if (regex.Halt.IsMatch(strings[i]))
+                {
+                    newCodeMemory.Instructions.Add(new Halt(new GatewayIndexSet(localGateway, -1), instructionPointerIndex++, lineIndex));
+                    continue;
+                }
 
                 //Instruction not recognized
                 errorMessage = ExceptionMessages.CompilationInstructionNotRecognized(strings[i]);

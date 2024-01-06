@@ -39,6 +39,8 @@ namespace PRAM_lib.Processor
             Gateway.InstructionPointer = IP;
             Gateway.jumpMemory = JumpMemory;
             Gateway.ParallelIndex = ProcessorIndex;
+
+            Gateway.HaltNotify += delegate { IsHalted = true; };
         }
 
         public ObservableCollection<MemoryCell> GetMemory()

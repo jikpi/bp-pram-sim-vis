@@ -13,6 +13,7 @@ namespace PRAM_lib.Code.Gateway
         private InstrPointer InstructionPointer { get; set; }
         private Jumps.JumpMemory JumpMemory { get; set; }
         public event Action ParallelDoLaunch;
+        public event Action HaltNotify;
 
         public int? IllegalMemoryReadIndex { get; private set; }
         public int? IllegalMemoryWriteIndex { get; private set; }
@@ -54,6 +55,7 @@ namespace PRAM_lib.Code.Gateway
             JumpMemory = refJumpMemory;
             this.CRXW = CREW;
             ParallelDoLaunch = delegate { };
+            HaltNotify = delegate { };
 
             ReadAccessed = new List<GatewayParallelMemoryAccessInfo>();
             ReadSingleInstructionAccess = new List<bool>();
@@ -282,6 +284,11 @@ namespace PRAM_lib.Code.Gateway
         public int GetParallelIndex()
         {
             return 0;
+        }
+
+        public void Halt()
+        {
+            HaltNotify?.Invoke();
         }
     }
 }

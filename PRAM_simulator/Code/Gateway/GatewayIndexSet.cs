@@ -68,5 +68,10 @@ namespace PRAM_lib.Code.Gateway
         {
             return Gateway.GetParallelIndex();
         }
+
+        public void Halt()
+        {
+            Gateway.Halt();
+        }
     }
 }
