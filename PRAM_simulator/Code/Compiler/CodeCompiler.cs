@@ -44,7 +44,7 @@ namespace PRAM_lib.Code.Compiler
 
 
         //Will return the compiled code and the jump memory. Otherwise will return null if compilation fails, and will return the error message and the line index of the error.
-        internal CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string ErrorMessage, out int ReturnLineIndex, ParallelGateway? parallelGateway = null)
+        internal CodeMemory.CodeMemory? Compile(string code, MasterGateway masterGateway, InstructionRegex regex, out Jumps.JumpMemory jumpMemory, out List<ParallelMachineContainer> parallelMachines, out string errorMessage, out int returnLineIndex, ParallelGateway? parallelGateway = null)
         {
 
             bool IsLocalMemoryAccess(string memoryAddressContext)
@@ -273,6 +273,7 @@ namespace PRAM_lib.Code.Compiler
             {
                 lineIndex++;
 
+                //Unnecessary to do every loop
                 IGateway foreignGateway = masterGateway;
                 IGateway localGateway = masterGateway;
                 if (parallelGateway != null)
@@ -287,8 +288,8 @@ namespace PRAM_lib.Code.Compiler
 
                     if (parallelGateway != null)
                     {
-                        ErrorMessage = "Cannot start parallel processors inside a parallel processor";
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = "Cannot start parallel processors inside a parallel processor";
+                        returnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -304,8 +305,8 @@ namespace PRAM_lib.Code.Compiler
 
                         if (pardoCodeMemory == null)
                         {
-                            ErrorMessage = pardoErrorMessage;
-                            ReturnLineIndex = pardoReturnLineIndex + lineIndex + 1;
+                            errorMessage = pardoErrorMessage;
+                            returnLineIndex = pardoReturnLineIndex + lineIndex + 1;
                             return null;
                         }
 
@@ -327,8 +328,8 @@ namespace PRAM_lib.Code.Compiler
                         }
                         else
                         {
-                            ErrorMessage = "Parallel processor not ended";
-                            ReturnLineIndex = originalLineIndex;
+                            errorMessage = "Parallel processor not ended";
+                            returnLineIndex = originalLineIndex;
                             return null;
                         }
                     }
@@ -357,8 +358,8 @@ namespace PRAM_lib.Code.Compiler
                     }
                     catch (LocalException e)
                     {
-                        ErrorMessage = e.Message;
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = e.Message;
+                        returnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -370,14 +371,14 @@ namespace PRAM_lib.Code.Compiler
                 {
                     if (parallelGateway == null)
                     {
-                        ErrorMessage = "Cannot end parallel processors outside a parallel processor";
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = "Cannot end parallel processors outside a parallel processor";
+                        returnLineIndex = lineIndex;
                         return null;
                     }
                     else
                     {
-                        ErrorMessage = string.Empty;
-                        ReturnLineIndex = -1;
+                        errorMessage = string.Empty;
+                        returnLineIndex = -1;
                         return newCodeMemory;
                     }
                 }
@@ -427,8 +428,8 @@ namespace PRAM_lib.Code.Compiler
                     }
                     catch (LocalException e)
                     {
-                        ErrorMessage = e.Message;
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = e.Message;
+                        returnLineIndex = lineIndex;
                         return null;
                     }
                     continue;
@@ -456,8 +457,8 @@ namespace PRAM_lib.Code.Compiler
                     }
                     catch (LocalException e)
                     {
-                        ErrorMessage = e.Message;
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = e.Message;
+                        returnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -533,8 +534,8 @@ namespace PRAM_lib.Code.Compiler
                     }
                     catch (LocalException e)
                     {
-                        ErrorMessage = e.Message;
-                        ReturnLineIndex = lineIndex;
+                        errorMessage = e.Message;
+                        returnLineIndex = lineIndex;
                         return null;
                     }
 
@@ -544,13 +545,13 @@ namespace PRAM_lib.Code.Compiler
 
 
                 //Instruction not recognized
-                ErrorMessage = ExceptionMessages.CompilationInstructionNotRecognized(strings[i]);
-                ReturnLineIndex = lineIndex;
+                errorMessage = ExceptionMessages.CompilationInstructionNotRecognized(strings[i]);
+                returnLineIndex = lineIndex;
                 return null;
             }
 
-            ErrorMessage = string.Empty;
-            ReturnLineIndex = -1;
+            errorMessage = string.Empty;
+            returnLineIndex = -1;
             return newCodeMemory;
         }
     }
