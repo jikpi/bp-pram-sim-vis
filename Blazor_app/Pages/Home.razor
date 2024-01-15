@@ -1,7 +1,44 @@
 ﻿@page "/"
+@using PRAM_lib.Machine
+@using PRAM_lib.Memory
+@inject PramMachine pramMachine
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Welcome</h1>
 
-Welcome to your new app.
+PRAM Simulator App
+
+@* <Blazor_app.Components.Memory.SharedMemory />
+<Blazor_app.Components.Memory.IOMemory.InputMemory />
+<Blazor_app.Components.Memory.IOMemory.OutputMemory /> *@
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <Blazor_app.Components.Memory.SharedMemory />
+        </div>
+        <div class="col">
+            <Blazor_app.Components.Memory.IOMemory.InputMemory />
+        </div>
+        <div class="col">
+            <Blazor_app.Components.Memory.IOMemory.OutputMemory />
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" @onclick="AddCell">addCell</button>
+<button class="btn btn-primary" @onclick="testAdd">test set</button>
+
+
+@code {
+    private void AddCell()
+    {
+        pramMachine.GetSharedMemory().Add(new MemoryCell());
+    }
+
+    private void testAdd()
+    {
+        pramMachine.GetSharedMemory()[2].Value = 5000;
+    }
+}
