@@ -260,7 +260,7 @@ namespace PRAM_lib.Code.Compiler
             jumpMemory = new Jumps.JumpMemory();
             parallelMachines = new List<ParallelMachineContainer>();
 
-            List<string> strings = code.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
+            List<string> strings = code.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
             StringBuilder potentialErrorMessage = new StringBuilder();
 
             // An index for lines, where even comments count as lines
