@@ -4,27 +4,81 @@
 @using PRAM_lib.Memory
 @inject RefreshService refreshService
 
-<table class="table">
+<style>
+    .compact-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+        .compact-table td:nth-child(2),
+        .compact-table th:nth-child(2) {
+            border: 2px solid black;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            text-align: left;
+            padding: 4px;
+            vertical-align: middle;
+        }
+
+        .compact-table th {
+            background-color: #f2f2f2;
+        }
+
+            .compact-table td:nth-child(1),
+            .compact-table th:nth-child(1) {
+                width: 35px;
+                max-width: 35px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                text-align: center;
+                border: none;
+            }
+
+            .compact-table td:nth-child(2),
+            .compact-table th:nth-child(2) {
+                width: 150px;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+    .compact-input {
+        padding: 2px 5px;
+        width: 100%;
+        box-sizing: border-box;
+        border: none;
+        text-align: center;
+    }
+</style>
+
+
+<table class="table compact-table">
     <thead>
         <tr>
-            <th>Address</th>
+            <th>i</th>
             <th>Value</th>
         </tr>
     </thead>
     <tbody>
         @{
             int i = 0;
-        }
-        @foreach (var item in MemoryItems!)
-        {
-            <tr>
-                <td>@i</td>
-                <td><input @bind="item.Value" /></td>
-            </tr>
-            i++;
+            foreach (var item in MemoryItems)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td><input class="compact-input" @bind="item.Value" /></td>
+                </tr>
+                i++;
+            }
         }
     </tbody>
 </table>
+
 
 @code {
     [Parameter]
