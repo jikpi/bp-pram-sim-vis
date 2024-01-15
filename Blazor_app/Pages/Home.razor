@@ -1,7 +1,10 @@
 ﻿@page "/"
+@using Blazor_app.Services
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
 @inject PramMachine pramMachine
+@inject RefreshService refreshService
+@inject CodeEditorService codeEditorService
 
 <PageTitle>Home</PageTitle>
 
@@ -9,36 +12,106 @@
 
 PRAM Simulator App
 
-@* <Blazor_app.Components.Memory.SharedMemory />
-<Blazor_app.Components.Memory.IOMemory.InputMemory />
-<Blazor_app.Components.Memory.IOMemory.OutputMemory /> *@
+<button class="btn btn-primary" @onclick="AddCell">addCell</button>
+<button class="btn btn-primary" @onclick="testAdd">test set</button>
+<button class="btn btn-primary" @onclick="Compile">Compile</button>
+<button class="btn btn-primary" @onclick="NextExecutionStep">NextExecutionStep</button>
 
 <div class="container">
     <div class="row">
         <div class="col">
-            <Blazor_app.Components.Memory.SharedMemory />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
         </div>
         <div class="col">
-            <Blazor_app.Components.Memory.IOMemory.InputMemory />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
         </div>
         <div class="col">
-            <Blazor_app.Components.Memory.IOMemory.OutputMemory />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
         </div>
     </div>
 </div>
 
-<button class="btn btn-primary" @onclick="AddCell">addCell</button>
-<button class="btn btn-primary" @onclick="testAdd">test set</button>
+<Blazor_app.Components.CodeEditor />
+
+<style>
+    .popup {
+        position: fixed;
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+</style>
+
+@if (showPopup)
+{
+    <div class="popup">
+        <span>@popupMessage</span>
+        <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+    </div>
+}
+
+
+
+
+
 
 
 @code {
+    private bool showPopup = false;
+    private string popupMessage = "";
+    private void ShowPopup(string message)
+    {
+        popupMessage = message;
+        showPopup = true;
+    }
+
+    private void ClosePopup()
+    {
+        showPopup = false;
+    }
+
     private void AddCell()
     {
         pramMachine.GetSharedMemory().Add(new MemoryCell());
+        pramMachine.GetInputMemory().Add(new MemoryCell());
+        pramMachine.GetOutputMemory().Add(new MemoryCell());
     }
 
     private void testAdd()
     {
         pramMachine.GetSharedMemory()[2].Value = 5000;
+        refreshService.RefreshMemory();
+    }
+
+    private void Compile()
+    {
+
+
+        pramMachine.Compile(codeEditorService.Code);
+
+        if (pramMachine.IsCompiled)
+        {
+            ShowPopup("Compilation successful");
+        }
+        else
+        {
+            ShowPopup($"Compilation failed: {pramMachine.CompilationErrorMessage}");
+        }
+
+
+    }
+
+    private void NextExecutionStep()
+    {
+        bool result = pramMachine.ExecuteNextInstruction();
+        if (!result)
+        {
+            ShowPopup($"Execution stop: {pramMachine.ExecutionErrorMessage}");
+        }
     }
 }

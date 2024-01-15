@@ -2,8 +2,8 @@
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
-@inject PramMachine pramMachine
 @inject RefreshService refreshService
+
 <table class="table">
     <thead>
         <tr>
@@ -21,7 +21,6 @@
                 <td>@i</td>
                 <td><input @bind="item.Value" /></td>
             </tr>
-
             i++;
         }
     </tbody>
@@ -34,13 +33,25 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        MemoryItems = pramMachine.GetSharedMemory();
-        MemoryItems.CollectionChanged += MemoryItems_CollectionChanged;
-        refreshService.MemoryRefreshed += MemoryChanged;
+        SubscribeToEvents();
+    }
 
+    private void SubscribeToEvents()
+    {
+        if (MemoryItems != null)
+        {
+            MemoryItems.CollectionChanged += MemoryItems_CollectionChanged;
+        }
+
+        refreshService.MemoryRefreshed += MemoryChanged;
     }
 
     private void MemoryItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private void MemoryChanged()
     {
         StateHasChanged();
     }
@@ -55,8 +66,4 @@
         refreshService.MemoryRefreshed -= MemoryChanged;
     }
 
-    private void MemoryChanged()
-    {
-        StateHasChanged();
-    }
 }
