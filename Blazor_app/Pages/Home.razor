@@ -3,10 +3,11 @@
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
 @inject PramMachine pramMachine
+@inject GlobalService globalService
 @inject RefreshService refreshService
 @inject CodeEditorService codeEditorService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>PRAM Simulator</PageTitle>
 
 <style>
 
@@ -33,29 +34,36 @@
 
 </style>
 
-<h1>PRAM Simulator App</h1>
-
 <div class="container">
     <div class="row">
         <div class="col">
             <Blazor_app.Components.CodeEditor />
         </div>
         <div class="col">
+            <div class="text-center">
+                Input Memory
+            </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
             <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+                <button class="btn btn-primary" @onclick="AddInputCell">Add Cell</button>
             </div>
         </div>
         <div class="col">
+            <div class="text-center">
+                Shared Memory
+            </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
             <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
             </div>
         </div>
         <div class="col">
+            <div class="text-center">
+                Output Memory
+            </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
             <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
             </div>
         </div>
     </div>
@@ -84,6 +92,7 @@
 
 
 @code {
+    // Popup
     private bool showPopup = false;
     private string popupMessage = "";
     private void ShowPopup(string message)
@@ -96,12 +105,16 @@
     {
         showPopup = false;
     }
+    // -----------------------------
 
-    private void AddCell()
+    private void AddSharedMemoryCell()
     {
         pramMachine.GetSharedMemory().Add(new MemoryCell());
+    }
+
+    private void AddInputCell()
+    {
         pramMachine.GetInputMemory().Add(new MemoryCell());
-        pramMachine.GetOutputMemory().Add(new MemoryCell());
     }
 
     private void testAdd()
@@ -112,17 +125,16 @@
 
     private void Compile()
     {
-
         codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
 
         if (pramMachine.IsCompiled)
         {
-            ShowPopup("Compilation successful");
+            globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
         }
         else
         {
-            ShowPopup($"Compilation failed: {pramMachine.CompilationErrorMessage}");
+            globalService.SetLastState($"Compilation failed: {pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
         }
 
 
@@ -133,7 +145,7 @@
         bool result = pramMachine.ExecuteNextInstruction();
         if (!result)
         {
-            ShowPopup(pramMachine.ExecutionErrorMessage);
+            globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
         }
     }
 }
