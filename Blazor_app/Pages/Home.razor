@@ -8,36 +8,18 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Welcome</h1>
-
-PRAM Simulator App
-
-<button class="btn btn-primary" @onclick="AddCell">addCell</button>
-<button class="btn btn-primary" @onclick="testAdd">test set</button>
-<button class="btn btn-primary" @onclick="Compile">Compile</button>
-<button class="btn btn-primary" @onclick="NextExecutionStep">NextExecutionStep</button>
-
 <style>
 
+    .overlay_popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
 
-</style>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
-        </div>
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
-        </div>
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
-        </div>
-    </div>
-</div>
-
-<Blazor_app.Components.CodeEditor />
-
-<style>
     .popup {
         position: fixed;
         background-color: white;
@@ -51,17 +33,53 @@ PRAM Simulator App
 
 </style>
 
+<h1>PRAM Simulator App</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <Blazor_app.Components.CodeEditor />
+        </div>
+        <div class="col">
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+            </div>
+        </div>
+        <div class="col">
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+            </div>
+        </div>
+        <div class="col">
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddCell">Add Cell</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" @onclick="testAdd">Test Set</button>
+<button class="btn btn-primary" @onclick="Compile">Compile</button>
+<button class="btn btn-primary" @onclick="NextExecutionStep">Next Execution Step</button>
+
 @if (showPopup)
 {
+    <div class="overlay_popup"></div>
     <div class="popup">
-        <span>@popupMessage</span>
-        <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+        <div class="text-center font-weight-bold mb-2">
+            <span>Exception:</span>
+        </div>
+        <div class="text-center mb-2">
+            <span>@popupMessage</span>
+        </div>
+        <div class="text-center mt-2">
+            <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+        </div>
     </div>
 }
-
-
-
-
 
 
 
@@ -95,7 +113,7 @@ PRAM Simulator App
     private void Compile()
     {
 
-
+        codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
 
         if (pramMachine.IsCompiled)
@@ -115,7 +133,7 @@ PRAM Simulator App
         bool result = pramMachine.ExecuteNextInstruction();
         if (!result)
         {
-            ShowPopup($"Execution stop: {pramMachine.ExecutionErrorMessage}");
+            ShowPopup(pramMachine.ExecutionErrorMessage);
         }
     }
 }

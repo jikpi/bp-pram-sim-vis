@@ -10,10 +10,16 @@
     protected override void OnInitialized()
     {
         inputText = codeEditor.Code;
+        codeEditor.SaveCode += SaveText;
     }
 
     private void SaveText()
     {
         codeEditor.Code = inputText;
+    }
+
+    public void Dispose()
+    {
+        codeEditor.SaveCode -= SaveText;
     }
 }
