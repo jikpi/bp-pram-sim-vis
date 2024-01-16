@@ -1,0 +1,37 @@
+﻿@using System.Collections.ObjectModel
+@using PRAM_lib.Machine
+@using PRAM_lib.Memory
+@inject PramMachine pramMachine
+<table class="table">
+    <thead>
+        <tr>
+            <th>Address</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 0;
+        }
+        @foreach (var item in MemoryItems!)
+        {
+            <tr>
+                <td>@i</td>
+                <td><input @bind="item.Value" /></td>
+            </tr>
+
+            i++;
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public ObservableCollection<MemoryCell>? MemoryItems { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        MemoryItems = pramMachine.GetOutputMemory();
+    }
+}

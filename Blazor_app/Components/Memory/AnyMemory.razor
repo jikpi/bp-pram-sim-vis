@@ -1,0 +1,123 @@
+﻿@using System.Collections.ObjectModel
+@using Blazor_app.Services
+@using PRAM_lib.Machine
+@using PRAM_lib.Memory
+@inject RefreshService refreshService
+
+<style>
+    .compact-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+        .compact-table td:nth-child(2),
+        .compact-table th:nth-child(2) {
+            border: 2px solid black;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            text-align: left;
+            padding: 4px;
+            vertical-align: middle;
+        }
+
+        .compact-table th {
+            background-color: #f2f2f2;
+        }
+
+            .compact-table td:nth-child(1),
+            .compact-table th:nth-child(1) {
+                width: 35px;
+                max-width: 35px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                text-align: center;
+                border: none;
+            }
+
+            .compact-table td:nth-child(2),
+            .compact-table th:nth-child(2) {
+                width: 150px;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+    .compact-input {
+        padding: 2px 5px;
+        width: 100%;
+        box-sizing: border-box;
+        border: none;
+        text-align: center;
+    }
+</style>
+
+
+<table class="table compact-table">
+    <thead>
+        <tr>
+            <th>i</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 0;
+            foreach (var item in MemoryItems)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td><input class="compact-input" @bind="item.Value" /></td>
+                </tr>
+                i++;
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    [Parameter]
+    public ObservableCollection<MemoryCell>? MemoryItems { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        if (MemoryItems != null)
+        {
+            MemoryItems.CollectionChanged += MemoryItems_CollectionChanged;
+        }
+
+        refreshService.MemoryRefreshed += MemoryChanged;
+    }
+
+    private void MemoryItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private void MemoryChanged()
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        if (MemoryItems != null)
+        {
+            MemoryItems.CollectionChanged -= MemoryItems_CollectionChanged;
+        }
+
+        refreshService.MemoryRefreshed -= MemoryChanged;
+    }
+
+}

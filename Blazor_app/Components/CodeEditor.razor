@@ -1,0 +1,19 @@
+﻿@using Blazor_app.Services
+@inject CodeEditorService codeEditor
+
+<textarea @bind="inputText" rows="4" class="form-control"></textarea>
+<button @onclick="SaveText" class="btn btn-primary mt-2">Save Text</button>
+
+@code {
+    private string inputText;
+
+    protected override void OnInitialized()
+    {
+        inputText = codeEditor.Code;
+    }
+
+    private void SaveText()
+    {
+        codeEditor.Code = inputText;
+    }
+}
