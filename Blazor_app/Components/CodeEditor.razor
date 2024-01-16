@@ -2,7 +2,6 @@
 @inject CodeEditorService codeEditor
 
 <textarea @bind="inputText" rows="4" class="form-control"></textarea>
-<button @onclick="SaveText" class="btn btn-primary mt-2">Save Text</button>
 
 @code {
     private string inputText;
@@ -11,6 +10,7 @@
     {
         inputText = codeEditor.Code;
         codeEditor.SaveCode += SaveText;
+        codeEditor.CodeChanged += ChangedText;
     }
 
     private void SaveText()
@@ -18,8 +18,15 @@
         codeEditor.Code = inputText;
     }
 
+    private void ChangedText(string text)
+    {
+        inputText = text;
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
         codeEditor.SaveCode -= SaveText;
+        codeEditor.CodeChanged -= ChangedText;
     }
 }

@@ -34,15 +34,28 @@
 
 </style>
 
-<div class="container">
+<div class="text-center ms-1">
+    <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
+    <button class="btn btn-primary" @onclick="Reset">Reset</button>
+    <button class="btn btn-secondary" @onclick="ClearMemories">Clear memory</button>
+    <button class="btn btn-warning" @onclick="Clear">Clear all</button>
+</div>
+
+<div class="container my-2 mt-2">
     <div class="row">
         <div class="col">
+            <button class="btn btn-primary mb-1" @onclick="Compile">Compile</button>
             <Blazor_app.Components.CodeEditor />
         </div>
         <div class="col">
             <div class="text-center">
-                Input Memory
+                <h4>Input</h4>
             </div>
+
+            <div class="text-center my-1">
+                <button class="btn btn-secondary" @onclick="ClearInputMemory">Clear</button>
+            </div>
+
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
             <div class="text-center">
                 <button class="btn btn-primary" @onclick="AddInputCell">Add Cell</button>
@@ -50,7 +63,11 @@
         </div>
         <div class="col">
             <div class="text-center">
-                Shared Memory
+                <h4>Shared Memory</h4>
+            </div>
+
+            <div class="text-center my-1">
+                <button class="btn btn-secondary" @onclick="ClearSharedMemory">Clear</button>
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
             <div class="text-center">
@@ -59,7 +76,11 @@
         </div>
         <div class="col">
             <div class="text-center">
-                Output Memory
+                <h4>Output</h4>
+            </div>
+
+            <div class="text-center">
+                <button class="btn btn-secondary my-1" @onclick="ClearOutputMemory">Clear</button>
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
             <div class="text-center">
@@ -70,8 +91,7 @@
 </div>
 
 <button class="btn btn-primary" @onclick="testAdd">Test Set</button>
-<button class="btn btn-primary" @onclick="Compile">Compile</button>
-<button class="btn btn-primary" @onclick="NextExecutionStep">Next Execution Step</button>
+<button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
 
 @if (showPopup)
 {
@@ -136,8 +156,38 @@
         {
             globalService.SetLastState($"Compilation failed: {pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
         }
+    }
 
+    private void Reset()
+    {
+        pramMachine.Restart();
+        globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+    }
 
+    private void Clear()
+    {
+        pramMachine.Clear();
+        globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
+    }
+
+    private void ClearInputMemory()
+    {
+        pramMachine.GetInputMemory().Clear();
+    }
+
+    private void ClearSharedMemory()
+    {
+        pramMachine.GetSharedMemory().Clear();
+    }
+
+    private void ClearOutputMemory()
+    {
+        pramMachine.GetOutputMemory().Clear();
+    }
+
+    private void ClearMemories()
+    {
+        pramMachine.ClearMemory();
     }
 
     private void NextExecutionStep()
@@ -145,7 +195,29 @@
         bool result = pramMachine.ExecuteNextInstruction();
         if (!result)
         {
-            globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
+            if (pramMachine.IsCrashed)
+            {
+                ShowPopup(pramMachine.ExecutionErrorMessage);
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
+            }
+            else
+            {
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
+            }
+            
+
+            
         }
+        else
+        {
+            globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+        }
+
+
+    }
+
+    private void AddTestCode()
+    {
+        codeEditorService.ChangeCode(globalService.TestedCode);
     }
 }
