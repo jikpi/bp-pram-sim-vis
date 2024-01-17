@@ -1,16 +1,18 @@
 ﻿@using Blazor_app.Services
 @inject CodeEditorService codeEditor
 
-<textarea @bind="inputText" rows="4" class="form-control"></textarea>
+<textarea @bind="inputText" rows="@textAreaRows" class="form-control"></textarea>
 
 @code {
-    private string inputText;
+    private string inputText = "";
+    private int textAreaRows = 4;
 
     protected override void OnInitialized()
     {
         inputText = codeEditor.Code;
         codeEditor.SaveCode += SaveText;
         codeEditor.CodeChanged += ChangedText;
+        SetTextAreaRows();
     }
 
     private void SaveText()
@@ -21,7 +23,14 @@
     private void ChangedText(string text)
     {
         inputText = text;
+        SetTextAreaRows();
+
         StateHasChanged();
+    }
+
+    private void SetTextAreaRows()
+    {
+        textAreaRows = codeEditor.Code.Split('\n').Length;
     }
 
     public void Dispose()
