@@ -147,6 +147,7 @@
     {
         codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
+        globalService.ResetParallelRunningState();
 
         if (pramMachine.IsCompiled)
         {
@@ -162,12 +163,14 @@
     {
         pramMachine.Restart();
         globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+        globalService.ResetParallelRunningState();
     }
 
     private void Clear()
     {
         pramMachine.Clear();
         globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
+        globalService.ResetParallelRunningState();
     }
 
     private void ClearInputMemory()
@@ -202,12 +205,29 @@
             }
             else
             {
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
             }
         }
         else
         {
             globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+        }
+
+        if (pramMachine.IsRunningParallel)
+        {
+            if (globalService.IsRunningParallel == false)
+            {
+                globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
+                globalService.IsRunningParallel = true;
+            }
+        }
+        else
+        {
+            if (globalService.IsRunningParallel == true)
+            {
+                globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
+                globalService.IsRunningParallel = false;
+            }
         }
 
 
