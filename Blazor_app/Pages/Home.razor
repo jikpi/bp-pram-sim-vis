@@ -6,6 +6,7 @@
 @inject GlobalService globalService
 @inject RefreshService refreshService
 @inject CodeEditorService codeEditorService
+@inject NavigationManager NavigationManager
 
 <PageTitle>PRAM Simulator</PageTitle>
 
@@ -92,6 +93,7 @@
 
 <button class="btn btn-primary" @onclick="testAdd">Test Set</button>
 <button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
+<button class="btn btn-primary" @onclick="ShowParMachineCode">Show ParMachine code</button>
 
 @if (showPopup)
 {
@@ -219,6 +221,8 @@
             {
                 globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
                 globalService.IsRunningParallel = true;
+                NavigationManager.NavigateTo("/pramview");
+
             }
         }
         else
@@ -236,5 +240,15 @@
     private void AddTestCode()
     {
         codeEditorService.ChangeCode(globalService.TestedCode);
+    }
+
+    private void ShowParMachineCode()
+    {
+        string? code = pramMachine.GetCurrentParallelMachineCode();
+        if (code != null)
+        {
+            ShowPopup(code);
+            codeEditorService.ChangeCode(code);
+        }
     }
 }
