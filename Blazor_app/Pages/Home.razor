@@ -3,41 +3,24 @@
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
 @inject PramMachine pramMachine
+@inject GlobalService globalService
 @inject RefreshService refreshService
 @inject CodeEditorService codeEditorService
 
-<PageTitle>Home</PageTitle>
-
-<h1>Welcome</h1>
-
-PRAM Simulator App
-
-<button class="btn btn-primary" @onclick="AddCell">addCell</button>
-<button class="btn btn-primary" @onclick="testAdd">test set</button>
-<button class="btn btn-primary" @onclick="Compile">Compile</button>
-<button class="btn btn-primary" @onclick="NextExecutionStep">NextExecutionStep</button>
+<PageTitle>PRAM Simulator</PageTitle>
 
 <style>
 
+    .overlay_popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
 
-</style>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
-        </div>
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
-        </div>
-        <div class="col">
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
-        </div>
-    </div>
-</div>
-
-<Blazor_app.Components.CodeEditor />
-
-<style>
     .popup {
         position: fixed;
         background-color: white;
@@ -51,21 +34,85 @@ PRAM Simulator App
 
 </style>
 
+<div class="text-center ms-1">
+    <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
+    <button class="btn btn-primary" @onclick="Reset">Reset</button>
+    <button class="btn btn-secondary" @onclick="ClearMemories">Clear memory</button>
+    <button class="btn btn-warning" @onclick="Clear">Clear all</button>
+</div>
+
+<div class="container my-2 mt-2">
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary mb-1" @onclick="Compile">Compile</button>
+            <Blazor_app.Components.CodeEditor />
+        </div>
+        <div class="col">
+            <div class="text-center">
+                <h4>Input</h4>
+            </div>
+
+            <div class="text-center my-1">
+                <button class="btn btn-secondary" @onclick="ClearInputMemory">Clear</button>
+            </div>
+
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddInputCell">Add Cell</button>
+            </div>
+        </div>
+        <div class="col">
+            <div class="text-center">
+                <h4>Shared Memory</h4>
+            </div>
+
+            <div class="text-center my-1">
+                <button class="btn btn-secondary" @onclick="ClearSharedMemory">Clear</button>
+            </div>
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
+            </div>
+        </div>
+        <div class="col">
+            <div class="text-center">
+                <h4>Output</h4>
+            </div>
+
+            <div class="text-center">
+                <button class="btn btn-secondary my-1" @onclick="ClearOutputMemory">Clear</button>
+            </div>
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" @onclick="testAdd">Test Set</button>
+<button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
+
 @if (showPopup)
 {
+    <div class="overlay_popup"></div>
     <div class="popup">
-        <span>@popupMessage</span>
-        <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+        <div class="text-center font-weight-bold mb-2">
+            <span>Exception:</span>
+        </div>
+        <div class="text-center mb-2">
+            <span>@popupMessage</span>
+        </div>
+        <div class="text-center mt-2">
+            <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+        </div>
     </div>
 }
 
 
 
-
-
-
-
 @code {
+    // Popup
     private bool showPopup = false;
     private string popupMessage = "";
     private void ShowPopup(string message)
@@ -78,12 +125,16 @@ PRAM Simulator App
     {
         showPopup = false;
     }
+    // -----------------------------
 
-    private void AddCell()
+    private void AddSharedMemoryCell()
     {
         pramMachine.GetSharedMemory().Add(new MemoryCell());
+    }
+
+    private void AddInputCell()
+    {
         pramMachine.GetInputMemory().Add(new MemoryCell());
-        pramMachine.GetOutputMemory().Add(new MemoryCell());
     }
 
     private void testAdd()
@@ -94,20 +145,49 @@ PRAM Simulator App
 
     private void Compile()
     {
-
-
+        codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
 
         if (pramMachine.IsCompiled)
         {
-            ShowPopup("Compilation successful");
+            globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
         }
         else
         {
-            ShowPopup($"Compilation failed: {pramMachine.CompilationErrorMessage}");
+            globalService.SetLastState($"Compilation failed: {pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
         }
+    }
 
+    private void Reset()
+    {
+        pramMachine.Restart();
+        globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+    }
 
+    private void Clear()
+    {
+        pramMachine.Clear();
+        globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
+    }
+
+    private void ClearInputMemory()
+    {
+        pramMachine.GetInputMemory().Clear();
+    }
+
+    private void ClearSharedMemory()
+    {
+        pramMachine.GetSharedMemory().Clear();
+    }
+
+    private void ClearOutputMemory()
+    {
+        pramMachine.GetOutputMemory().Clear();
+    }
+
+    private void ClearMemories()
+    {
+        pramMachine.ClearMemory();
     }
 
     private void NextExecutionStep()
@@ -115,7 +195,26 @@ PRAM Simulator App
         bool result = pramMachine.ExecuteNextInstruction();
         if (!result)
         {
-            ShowPopup($"Execution stop: {pramMachine.ExecutionErrorMessage}");
+            if (pramMachine.IsCrashed)
+            {
+                ShowPopup(pramMachine.ExecutionErrorMessage);
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
+            }
+            else
+            {
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
+            }
         }
+        else
+        {
+            globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+        }
+
+
+    }
+
+    private void AddTestCode()
+    {
+        codeEditorService.ChangeCode(globalService.TestedCode);
     }
 }

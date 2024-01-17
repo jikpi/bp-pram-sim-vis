@@ -24,6 +24,9 @@ namespace Blazor_app
             //dependency injection for the refresh service
             builder.Services.AddSingleton<RefreshService>();
 
+            //dependency injection for the global service
+            builder.Services.AddSingleton<GlobalService>();
+
             await builder.Build().RunAsync();
         }
     }

@@ -1,39 +1,95 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Blazor_app.Services
+@inject GlobalService globalService
+
+<div class="top-row navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Blazor_app</a>
+        <a class="navbar-brand" href="/">PRAM Simulator</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <div class="@NavMenuCssClass navbar-collapse custom-collapse">
+            <nav class="navbar-nav">
+                <NavLink class="nav-item nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                </NavLink>
+                <NavLink class="nav-item nav-link" href="pramview">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Pram view
+                </NavLink>
+                <NavLink class="nav-item nav-link" href="counter">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Test p1
+                </NavLink>
+                <NavLink class="nav-item nav-link" href="weather">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Test p2
+                </NavLink>
+
+            </nav>
+        </div>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+
+<div class="container-fluid mt-1">
+    <div class="row">
+        <div class="col">
+            <div class="text-center">
+                <span class="bi bi-info-circle-fill" style="color:@stateIndicatorColor; font-size: large;" aria-hidden="true"></span>
+                <span style="color:@stateIndicatorColor; font-size: large;">@stateIndicator</span>
+            </div>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
+    </div>
 </div>
 
+
 @code {
+    protected override void OnInitialized()
+    {
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        globalService.LastStateUpdated += OnStateChanged;
+    }
+
+    //## Navmenu collapse
     private bool collapseNavMenu = true;
-
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    //-----------------
+
+    //## State indicator
+    private string stateIndicator = "Ready";
+    //color of the text
+    private string stateIndicatorColor = "white";
+
+    private void OnStateChanged()
+    {
+        stateIndicator = globalService.LastState.ToString();
+
+        if (globalService.LastStateType == GlobalService.LastStateUniform.Ok)
+        {
+            stateIndicatorColor = "white";
+
+        }
+        else if (globalService.LastStateType == GlobalService.LastStateUniform.Note)
+        {
+            stateIndicatorColor = "orange";
+        }
+        else if (globalService.LastStateType == GlobalService.LastStateUniform.Error)
+        {
+            stateIndicatorColor = "red";
+        }
+
+        StateHasChanged();
+    }
+    //-----------------
+
+    public void Dispose()
+    {
+        globalService.LastStateUpdated -= OnStateChanged;
     }
 }
