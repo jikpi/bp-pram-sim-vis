@@ -45,7 +45,17 @@
 <div class="container my-2 mt-2">
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary mb-1" @onclick="Compile">Compile</button>
+
+            @if (codeEditorService.EditMode)
+            {
+                <button @onclick="CompileCode" class="btn btn-primary">Compile</button>
+            }
+            else
+            {
+                <button @onclick="EditCode" class="btn btn-secondary">Edit</button>
+                <button @onclick="codeEditorService.CancelExecution" class="btn btn-danger">Cancel</button>
+            }
+
             <Blazor_app.Components.CodeEditor />
         </div>
         <div class="col">
@@ -145,20 +155,27 @@
         refreshService.RefreshMemory();
     }
 
-    private void Compile()
+    private void CompileCode()
     {
-        codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
         globalService.ResetParallelRunningState();
 
         if (pramMachine.IsCompiled)
         {
             globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
+            codeEditorService.CodeToCompiledMode();
+            //StateHasChanged();
         }
         else
         {
             globalService.SetLastState($"Compilation failed: {pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
         }
+    }
+
+    private void EditCode()
+    {
+        codeEditorService.EditCode();
+        StateHasChanged();
     }
 
     private void Reset()
@@ -213,6 +230,8 @@
         else
         {
             globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+            int currentLine = pramMachine.GetCurrentCodeLineIndex();
+            codeEditorService.UpdateExecutingLine(currentLine);
         }
 
         if (pramMachine.IsRunningParallel)
