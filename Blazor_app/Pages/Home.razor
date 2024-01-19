@@ -35,12 +35,7 @@
 
 </style>
 
-<div class="text-center ms-1">
-    <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
-    <button class="btn btn-primary" @onclick="Reset">Reset</button>
-    <button class="btn btn-secondary" @onclick="ClearMemories">Clear memory</button>
-    <button class="btn btn-warning" @onclick="Clear">Clear all</button>
-</div>
+<Blazor_app.Components.CommonControls />
 
 <div class="container my-2 mt-2">
     <div class="row">
@@ -107,41 +102,10 @@
 
 <button class="btn btn-primary" @onclick="testAdd">Test Set</button>
 <button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
-<button class="btn btn-primary" @onclick="ShowParMachineCode">Show ParMachine code</button>
-
-@if (showPopup)
-{
-    <div class="overlay_popup"></div>
-    <div class="popup">
-        <div class="text-center font-weight-bold mb-2">
-            <span>Exception:</span>
-        </div>
-        <div class="text-center mb-2">
-            <span>@popupMessage</span>
-        </div>
-        <div class="text-center mt-2">
-            <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
-        </div>
-    </div>
-}
 
 
 
 @code {
-    // Popup
-    private bool showPopup = false;
-    private string popupMessage = "";
-    private void ShowPopup(string message)
-    {
-        popupMessage = message;
-        showPopup = true;
-    }
-
-    private void ClosePopup()
-    {
-        showPopup = false;
-    }
-    // -----------------------------
 
     private void AddSharedMemoryCell()
     {
@@ -181,20 +145,6 @@
         StateHasChanged();
     }
 
-    private void Reset()
-    {
-        pramMachine.Restart();
-        globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
-        globalService.ResetParallelRunningState();
-    }
-
-    private void Clear()
-    {
-        pramMachine.Clear();
-        globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
-        globalService.ResetParallelRunningState();
-    }
-
     private void ClearInputMemory()
     {
         pramMachine.GetInputMemory().Clear();
@@ -210,72 +160,8 @@
         pramMachine.GetOutputMemory().Clear();
     }
 
-    private void ClearMemories()
-    {
-        pramMachine.ClearMemory();
-    }
-
-    private void NextExecutionStep()
-    {
-        bool result = pramMachine.ExecuteNextInstruction();
-        if (!result)
-        {
-            if (pramMachine.IsCrashed)
-            {
-                ShowPopup(pramMachine.ExecutionErrorMessage);
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
-            }
-            else
-            {
-                //not shown if machine is halted, since the if for 'halt' will override
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
-            }
-        }
-        else
-        {
-            globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
-            int currentLine = pramMachine.GetCurrentCodeLineIndex();
-            codeEditorService.UpdateExecutingLine(currentLine);
-        }
-
-        if (pramMachine.IsRunningParallel)
-        {
-            if (globalService.IsRunningParallel == false)
-            {
-                globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
-                globalService.IsRunningParallel = true;
-                NavigationManager.NavigateTo("/pramview");
-            }
-        }
-        else
-        {
-            if (globalService.IsRunningParallel == true)
-            {
-                globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
-                globalService.IsRunningParallel = false;
-            }
-
-            if(pramMachine.IsHalted)
-            {
-                globalService.SetLastState("Execution finished", GlobalService.LastStateUniform.Note);
-            }
-        }
-
-
-    }
-
     private void AddTestCode()
     {
         codeEditorService.ChangeCode(globalService.TestedCode);
-    }
-
-    private void ShowParMachineCode()
-    {
-        string? code = pramMachine.GetCurrentParallelMachineCode();
-        if (code != null)
-        {
-            ShowPopup(code);
-            codeEditorService.ChangeCode(code);
-        }
     }
 }
