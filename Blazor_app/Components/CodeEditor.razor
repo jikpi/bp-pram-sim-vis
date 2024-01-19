@@ -1,5 +1,7 @@
 ﻿@using Blazor_app.Services
+@using PRAM_lib.Machine
 @inject CodeEditorService codeEditor
+@inject PramMachine pramMachine
 
 <style>
     .compiled-code-container {
@@ -10,7 +12,20 @@
     }
 
     .current-line {
+        color: black;
         background-color: dodgerblue;
+    }
+
+    .comment {
+        color: green;
+    }
+
+    .jump {
+        color: darkred;
+    }
+
+    .label-jump {
+        color: mediumblue;
     }
 </style>
 
@@ -22,12 +37,12 @@
 else
 {
     <div class="compiled-code-container">
-            @foreach (var line in codeEditor.CompiledLines)
-            {
+        @foreach (var line in codeEditor.CompiledLines)
+        {
             <div class="@GetLineClass(line.Key)">
-                    @line.Value
+                @line.Value
             </div>
-            }
+        }
     </div>
 }
 
@@ -41,7 +56,29 @@ else
 
     private string GetLineClass(int lineIndex)
     {
-        return lineIndex == codeEditor.CurrentExecutingLine ? "current-line" : "";
+        if (lineIndex == codeEditor.CurrentExecutingLine)
+        {
+            return "current-line";
+        }
+
+        if (pramMachine.InstructionRegex.Comment.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "comment";
+        }
+
+        if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "jump";
+        }
+
+        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "label-jump";
+        }
+
+
+
+        return "";
     }
 
     public void Dispose()

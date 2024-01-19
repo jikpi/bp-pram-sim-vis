@@ -48,12 +48,16 @@
 
             @if (codeEditorService.EditMode)
             {
-                <button @onclick="CompileCode" class="btn btn-primary">Compile</button>
+                <div class="container mb-2 mx-3">
+                    <button @onclick="codeEditorService.CancelEditMode" class="btn btn-danger">Cancel</button>
+                    <button @onclick="CompileCode" class="btn btn-primary me-2">Compile</button>
+                </div>
             }
             else
             {
-                <button @onclick="EditCode" class="btn btn-secondary">Edit</button>
-                <button @onclick="codeEditorService.CancelExecution" class="btn btn-danger">Cancel</button>
+                <div class="container mb-2 mx-3">
+                    <button @onclick="EditCode" class="btn btn-secondary">Edit</button>
+                </div>
             }
 
             <Blazor_app.Components.CodeEditor />
@@ -164,7 +168,6 @@
         {
             globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
             codeEditorService.CodeToCompiledMode();
-            //StateHasChanged();
         }
         else
         {
@@ -224,6 +227,7 @@
             }
             else
             {
+                //not shown if machine is halted, since the if for 'halt' will override
                 globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
             }
         }
@@ -241,7 +245,6 @@
                 globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
                 globalService.IsRunningParallel = true;
                 NavigationManager.NavigateTo("/pramview");
-
             }
         }
         else
@@ -250,6 +253,11 @@
             {
                 globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
                 globalService.IsRunningParallel = false;
+            }
+
+            if(pramMachine.IsHalted)
+            {
+                globalService.SetLastState("Execution finished", GlobalService.LastStateUniform.Note);
             }
         }
 

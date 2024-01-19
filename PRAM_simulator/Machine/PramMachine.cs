@@ -23,7 +23,7 @@ namespace PRAM_lib.Machine
         private JumpMemory JumpMemory { get; set; }
         internal MasterGateway MasterGateway { get; private set; }
         private CodeCompiler Compiler { get; set; }
-        private InstructionRegex InstructionRegex { get; set; }
+        public InstructionRegex InstructionRegex { get; set; }
         private int NextParallelDoIndex { get; set; }
         private List<ParallelMachineContainer> ContainedParallelMachines { get; set; }
         private List<InParallelMachine>? LaunchedParallelMachines { get; set; }
