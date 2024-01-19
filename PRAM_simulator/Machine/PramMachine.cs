@@ -375,5 +375,15 @@ namespace PRAM_lib.Machine
             return ContainedParallelMachines[NextParallelDoIndex].ParallelMachineCode;
         }
 
+        private InParallelMachine? GetParallelMachine(int index)
+        {
+            if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count)
+            {
+                return null;
+            }
+
+            return LaunchedParallelMachines[index];
+        }
+
     }
 }
