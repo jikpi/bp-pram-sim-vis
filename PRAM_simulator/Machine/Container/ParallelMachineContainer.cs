@@ -6,9 +6,11 @@ namespace PRAM_lib.Machine.Container
     {
         internal List<InParallelMachine> ParallelMachines { get; private set; }
         internal int NumberOfProcessors { get => ParallelMachines.Count; }
-        public ParallelMachineContainer(List<InParallelMachine> inParallelMachines)
+        public string ParallelMachineCode { get; private set; }
+        public ParallelMachineContainer(List<InParallelMachine> inParallelMachines, string parallelMachineCode)
         {
             ParallelMachines = inParallelMachines;
+            ParallelMachineCode = parallelMachineCode;
         }
     }
 }

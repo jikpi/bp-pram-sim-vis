@@ -6,6 +6,7 @@
 @inject GlobalService globalService
 @inject RefreshService refreshService
 @inject CodeEditorService codeEditorService
+@inject NavigationManager NavigationManager
 
 <PageTitle>PRAM Simulator</PageTitle>
 
@@ -44,7 +45,17 @@
 <div class="container my-2 mt-2">
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary mb-1" @onclick="Compile">Compile</button>
+
+            @if (codeEditorService.EditMode)
+            {
+                <button @onclick="CompileCode" class="btn btn-primary">Compile</button>
+            }
+            else
+            {
+                <button @onclick="EditCode" class="btn btn-secondary">Edit</button>
+                <button @onclick="codeEditorService.CancelExecution" class="btn btn-danger">Cancel</button>
+            }
+
             <Blazor_app.Components.CodeEditor />
         </div>
         <div class="col">
@@ -92,6 +103,7 @@
 
 <button class="btn btn-primary" @onclick="testAdd">Test Set</button>
 <button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
+<button class="btn btn-primary" @onclick="ShowParMachineCode">Show ParMachine code</button>
 
 @if (showPopup)
 {
@@ -143,14 +155,16 @@
         refreshService.RefreshMemory();
     }
 
-    private void Compile()
+    private void CompileCode()
     {
-        codeEditorService.Save();
         pramMachine.Compile(codeEditorService.Code);
+        globalService.ResetParallelRunningState();
 
         if (pramMachine.IsCompiled)
         {
             globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
+            codeEditorService.CodeToCompiledMode();
+            //StateHasChanged();
         }
         else
         {
@@ -158,16 +172,24 @@
         }
     }
 
+    private void EditCode()
+    {
+        codeEditorService.EditCode();
+        StateHasChanged();
+    }
+
     private void Reset()
     {
         pramMachine.Restart();
         globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+        globalService.ResetParallelRunningState();
     }
 
     private void Clear()
     {
         pramMachine.Clear();
         globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
+        globalService.ResetParallelRunningState();
     }
 
     private void ClearInputMemory()
@@ -202,12 +224,33 @@
             }
             else
             {
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Note);
+                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
             }
         }
         else
         {
             globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+            int currentLine = pramMachine.GetCurrentCodeLineIndex();
+            codeEditorService.UpdateExecutingLine(currentLine);
+        }
+
+        if (pramMachine.IsRunningParallel)
+        {
+            if (globalService.IsRunningParallel == false)
+            {
+                globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
+                globalService.IsRunningParallel = true;
+                NavigationManager.NavigateTo("/pramview");
+
+            }
+        }
+        else
+        {
+            if (globalService.IsRunningParallel == true)
+            {
+                globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
+                globalService.IsRunningParallel = false;
+            }
         }
 
 
@@ -216,5 +259,15 @@
     private void AddTestCode()
     {
         codeEditorService.ChangeCode(globalService.TestedCode);
+    }
+
+    private void ShowParMachineCode()
+    {
+        string? code = pramMachine.GetCurrentParallelMachineCode();
+        if (code != null)
+        {
+            ShowPopup(code);
+            codeEditorService.ChangeCode(code);
+        }
     }
 }

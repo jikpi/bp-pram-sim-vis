@@ -77,11 +77,15 @@
         }
         else if (globalService.LastStateType == GlobalService.LastStateUniform.Note)
         {
-            stateIndicatorColor = "orange";
+            stateIndicatorColor = "#45dc2e";
         }
         else if (globalService.LastStateType == GlobalService.LastStateUniform.Error)
         {
             stateIndicatorColor = "red";
+        }
+        else if (globalService.LastStateType == GlobalService.LastStateUniform.Warning)
+        {
+            stateIndicatorColor = "orange";
         }
 
         StateHasChanged();

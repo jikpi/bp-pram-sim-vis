@@ -1,4 +1,5 @@
 using Blazor_app.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PRAM_lib.Machine;

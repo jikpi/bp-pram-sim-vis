@@ -365,5 +365,15 @@ namespace PRAM_lib.Machine
             RefreshGateway();
         }
 
+        public string? GetCurrentParallelMachineCode()
+        {
+            if (LaunchedParallelMachines == null)
+            {
+                return null;
+            }
+
+            return ContainedParallelMachines[NextParallelDoIndex].ParallelMachineCode;
+        }
+
     }
 }
