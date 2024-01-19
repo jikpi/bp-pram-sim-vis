@@ -385,5 +385,40 @@ namespace PRAM_lib.Machine
             return LaunchedParallelMachines[index];
         }
 
+        public int? GetParallelMachineCodeLineIndex(int index)
+        {
+            InParallelMachine? machine = GetParallelMachine(index);
+
+            if (machine == null)
+            {
+                return null;
+            }
+
+            return machine.GetCurrentCodeLineIndex();
+        }
+
+        public bool GetParallelMachineIsCrashed(int index)
+        {
+            InParallelMachine? machine = GetParallelMachine(index);
+
+            if (machine == null)
+            {
+                return false;
+            }
+
+            return machine.IsCrashed;
+        }
+
+        public bool GetParallelMachineIsHalted(int index)
+        {
+            InParallelMachine? machine = GetParallelMachine(index);
+
+            if (machine == null)
+            {
+                return false;
+            }
+
+            return machine.IsHalted;
+        }
     }
 }

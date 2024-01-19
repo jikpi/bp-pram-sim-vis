@@ -107,6 +107,11 @@
 
 @code {
 
+    protected override void OnInitialized()
+    {
+        
+    }
+
     private void AddSharedMemoryCell()
     {
         pramMachine.GetSharedMemory().Add(new MemoryCell());
@@ -163,5 +168,10 @@
     private void AddTestCode()
     {
         codeEditorService.ChangeCode(globalService.TestedCode);
+    }
+
+    public void Dispose()
+    {
+        
     }
 }

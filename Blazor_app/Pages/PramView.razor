@@ -5,6 +5,42 @@
 @using PRAM_lib.Processor
 @inject PramMachine pramMachine
 @inject CodeEditorService codeEditorService
+@inject PramCodeViewService pramCodeViewService
+@inject RefreshService refreshService
+
+<style>
+    .compiled-code-container {
+        background-color: lightgray;
+        padding: 10px;
+        border-radius: 5px;
+        white-space: pre;
+    }
+
+    .current-line {
+        color: black;
+        background-color: dodgerblue;
+    }
+
+    .comment {
+        color: green;
+    }
+
+    .jump {
+        color: darkred;
+    }
+
+    .label-jump {
+        color: mediumblue;
+    }
+
+    .halted-card-body {
+    background-color: lightgray
+    }
+
+    .crashed-card-body{
+        background-color: darkred;
+    }
+</style>
 
 <PageTitle>PRAM view</PageTitle>
 
@@ -25,15 +61,29 @@
             <div class="row">
                 @for (int i = 0; i < GetParallelMachineCount(); i++)
                 {
+                    if(pramMachine.GetParallelMachineIsHalted(i))
+                    {
+                        continue;
+                    }
+
                     var machineMemory = GetMemoryOfMachine(i);
                     <div class="col-md-2 mb-3">
                         <div class="card h-100">
                             <div class="card-header">
                                 Machine @i
                             </div>
-                            <div class="card-body">
+                            <div class="card-body @GetCardClass(i)">
                                 <h5 class="card-title">Code</h5>
-                                <pre>@GetParallelMachineCode()</pre>
+                                
+                                <div class="compiled-code-container">
+                                    @foreach (var line in pramCodeViewService.PramLines)
+                                        {
+                                             <div class="@GetLineClass(line.Key, i)">
+                                                    @line.Value
+                                            </div>
+                                        }
+                                </div>
+
                                 <h5 class="card-title">Memory</h5>
                                 @if (machineMemory != null)
                                 {
@@ -63,6 +113,16 @@
 
 @code {
 
+    public void PramCodeRefreshed()
+    {
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        refreshService.PramCodeRefreshed += PramCodeRefreshed;
+    }
+
     public int GetParallelMachineCount()
     {
         return pramMachine.ParallelMachinesCount;
@@ -89,5 +149,50 @@
         {
             return "No code";
         }
+    }
+
+    private string GetLineClass(int lineIndex, int parallelIndex)
+    {
+        if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)
+        {
+            return "current-line";
+        }
+
+        if (pramMachine.InstructionRegex.Comment.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "comment";
+        }
+
+        if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "jump";
+        }
+
+        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "label-jump";
+        }
+
+        return "";
+    }
+
+    private string GetCardClass(int parallelIndex)
+    {
+        if (pramMachine.GetParallelMachineIsHalted(parallelIndex))
+        {
+            return "halted-card-body";
+        }
+
+        if (pramMachine.GetParallelMachineIsCrashed(parallelIndex))
+        {
+            return "crashed-card-body";
+        }
+
+        return "";
+    }
+
+    public void Dispose()
+    {
+        refreshService.PramCodeRefreshed -= PramCodeRefreshed;
     }
 }

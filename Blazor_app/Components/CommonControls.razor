@@ -4,6 +4,8 @@
 @inject GlobalService globalService
 @inject CodeEditorService codeEditorService
 @inject NavigationManager NavigationManager
+@inject RefreshService refreshService
+@inject PramCodeViewService pramCodeViewService
 
 <div class="text-center ms-1">
     <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
@@ -87,14 +89,19 @@
             codeEditorService.UpdateExecutingLine(currentLine);
         }
 
+        refreshService.RefreshMemory();
+
         if (pramMachine.IsRunningParallel)
         {
             if (globalService.IsRunningParallel == false)
             {
                 globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
                 globalService.IsRunningParallel = true;
+                pramCodeViewService.SetPramCode(pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                 NavigationManager.NavigateTo("/pramview");
             }
+
+            refreshService.RefreshPramCode();
         }
         else
         {
