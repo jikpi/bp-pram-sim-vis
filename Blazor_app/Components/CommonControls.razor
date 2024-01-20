@@ -4,7 +4,7 @@
 @inject GlobalService globalService
 @inject CodeEditorService codeEditorService
 @inject NavigationManager NavigationManager
-@inject RefreshService refreshService
+@inject ExecutionService execService
 @inject PramCodeViewService pramCodeViewService
 
 <div class="text-center ms-1">
@@ -32,6 +32,16 @@
 
 @code {
 
+    protected override void OnInitialized()
+    {
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        execService.ShowPopup += ShowPopup;
+    }
+
     // Popup
     private bool showPopup = false;
     private string popupMessage = "";
@@ -51,76 +61,30 @@
     {
         pramMachine.Restart();
         globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
-        globalService.ResetParallelRunningState();
+        execService.ResetParallelRunningState();
     }
 
     private void ClearMemories()
     {
         pramMachine.ClearMemory();
-        refreshService.RefreshMemory();
+        execService.RefreshMemory();
     }
 
     private void Clear()
     {
         pramMachine.Clear();
         globalService.SetLastState("Cleared all", GlobalService.LastStateUniform.Ok);
-        globalService.ResetParallelRunningState();
-        refreshService.RefreshMemory();
+        execService.ResetParallelRunningState();
+        execService.RefreshMemory();
     }
 
     private void NextExecutionStep()
     {
-        bool result = pramMachine.ExecuteNextInstruction();
-        if (!result)
-        {
-            if (pramMachine.IsCrashed)
-            {
-                ShowPopup(pramMachine.ExecutionErrorMessage);
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
-            }
-            else
-            {
-                //not shown if machine is halted, since the if for 'halt' will override
-                globalService.SetLastState($"Execution stop: {pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
-            }
-        }
-        else
-        {
-            globalService.SetLastState($"Next step: {pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
-            int currentLine = pramMachine.GetCurrentCodeLineIndex();
-            codeEditorService.UpdateExecutingLine(currentLine);
-        }
-
-        refreshService.RefreshMemory();
-
-        if (pramMachine.IsRunningParallel)
-        {
-            if (globalService.IsRunningParallel == false)
-            {
-                globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
-                globalService.IsRunningParallel = true;
-                pramCodeViewService.SetPramCode(pramMachine.GetCurrentParallelMachineCode() ?? "No code");
-                NavigationManager.NavigateTo("/pramview");
-            }
-
-            refreshService.RefreshPramCode();
-        }
-        else
-        {
-            if (globalService.IsRunningParallel == true)
-            {
-                globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
-                globalService.IsRunningParallel = false;
-                NavigationManager.NavigateTo("/");
-            }
-
-            if (pramMachine.IsHalted)
-            {
-                globalService.SetLastState("Execution finished", GlobalService.LastStateUniform.Note);
-            }
-        }
-
-
+        execService.StepMachine();
     }
 
+    public void Dispose()
+    {
+        execService.ShowPopup -= ShowPopup;
+    }
 }

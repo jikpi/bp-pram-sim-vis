@@ -2,7 +2,7 @@
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
-@inject RefreshService refreshService
+@inject ExecutionService execService
 
 <style>
     .compact-table {
@@ -98,7 +98,7 @@
             MemoryItems.CollectionChanged += MemoryItems_CollectionChanged;
         }
 
-        refreshService.MemoryRefreshed += MemoryChanged;
+        execService.MemoryRefreshed += MemoryChanged;
     }
 
     private void MemoryItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -118,7 +118,7 @@
             MemoryItems.CollectionChanged -= MemoryItems_CollectionChanged;
         }
 
-        refreshService.MemoryRefreshed -= MemoryChanged;
+        execService.MemoryRefreshed -= MemoryChanged;
     }
 
 }

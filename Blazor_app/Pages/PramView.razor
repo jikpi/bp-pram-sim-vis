@@ -6,7 +6,7 @@
 @inject PramMachine pramMachine
 @inject CodeEditorService codeEditorService
 @inject PramCodeViewService pramCodeViewService
-@inject RefreshService refreshService
+@inject ExecutionService execService
 
 <style>
     .halted-card-body {
@@ -96,7 +96,7 @@
 
     protected override void OnInitialized()
     {
-        refreshService.PramCodeRefreshed += PramCodeRefreshed;
+        execService.PramCodeRefreshed += PramCodeRefreshed;
     }
 
     public int GetParallelMachineCount()
@@ -169,6 +169,6 @@
 
     public void Dispose()
     {
-        refreshService.PramCodeRefreshed -= PramCodeRefreshed;
+        execService.PramCodeRefreshed -= PramCodeRefreshed;
     }
 }

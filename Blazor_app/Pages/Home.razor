@@ -4,7 +4,7 @@
 @using PRAM_lib.Memory
 @inject PramMachine pramMachine
 @inject GlobalService globalService
-@inject RefreshService refreshService
+@inject ExecutionService execService
 @inject CodeEditorService codeEditorService
 @inject NavigationManager NavigationManager
 
@@ -125,13 +125,13 @@
     private void testAdd()
     {
         pramMachine.GetSharedMemory()[2].Value = 5000;
-        refreshService.RefreshMemory();
+        execService.RefreshMemory();
     }
 
     private void CompileCode()
     {
         pramMachine.Compile(codeEditorService.Code);
-        globalService.ResetParallelRunningState();
+        execService.ResetParallelRunningState();
 
         if (pramMachine.IsCompiled)
         {

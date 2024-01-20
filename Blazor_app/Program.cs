@@ -22,14 +22,22 @@ namespace Blazor_app
             //dependency injection for the code editor
             builder.Services.AddSingleton<CodeEditorService>();
 
-            //dependency injection for the refresh service
-            builder.Services.AddSingleton<RefreshService>();
-
             //dependency injection for the global service
             builder.Services.AddSingleton<GlobalService>();
 
             //dependency injection for the pram code view service
             builder.Services.AddSingleton<PramCodeViewService>();
+
+            //dependency injection for the execution service
+            builder.Services.AddSingleton<ExecutionService>(sp =>
+            {
+                var pramMachine = sp.GetRequiredService<PramMachine>();
+                var codeEditorService = sp.GetRequiredService<CodeEditorService>();
+                var pramCodeViewService = sp.GetRequiredService<PramCodeViewService>();
+                var navigationManager = sp.GetRequiredService<NavigationManager>();
+                var globalService = sp.GetRequiredService<GlobalService>();
+                return new ExecutionService(pramMachine, codeEditorService, pramCodeViewService, navigationManager, globalService);
+            });
 
             await builder.Build().RunAsync();
         }
