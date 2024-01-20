@@ -62,32 +62,29 @@ namespace Blazor_app.Services
             PramCodeRefreshed?.Invoke();
         }
 
-        public void StepMachine()
+        // Logic for UI in machine step, only for manual stepping or after auto step is done
+        private void InteractiveMachineStep()
         {
-            bool result = _pramMachine.ExecuteNextInstruction();
-            if (!result)
+
+            int currentLine;
+            if (_pramMachine.IsCrashed)
             {
-                //Stop auto run if machine is in bad state
-                StopAutoRun();
-
-                if (_pramMachine.IsCrashed)
+                if (_pramMachine.ExecutionErrorLineIndex != null)
                 {
-                    ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
-
-                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
+                    currentLine = (int)_pramMachine.ExecutionErrorLineIndex;
                 }
                 else
                 {
-                    //not shown if machine is halted, since the if for 'halt' will override
-                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
+                    currentLine = -1;
                 }
             }
             else
             {
                 _globalService.SetLastState($"Next step: {_pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
-                int currentLine = _pramMachine.GetCurrentCodeLineIndex();
-                _codeEditorService.UpdateExecutingLine(currentLine);
+                currentLine = _pramMachine.GetCurrentCodeLineIndex();
             }
+
+            _codeEditorService.UpdateExecutingLine(currentLine);
 
             RefreshMemory();
 
@@ -119,6 +116,35 @@ namespace Blazor_app.Services
             }
         }
 
+        public bool StepMachine(bool manual = true)
+        {
+            bool result = _pramMachine.ExecuteNextInstruction();
+            if (!result)
+            {
+                //Stop auto run if machine is in bad state
+                StopAutoRun();
+
+                if (_pramMachine.IsCrashed)
+                {
+                    ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+
+                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
+                }
+                else
+                {
+                    //not shown if machine is halted, since the if for 'halt' will override
+                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
+                }
+            }
+
+            if (manual)
+            {
+                InteractiveMachineStep();
+            }
+
+            return result;
+        }
+
         public void ResetMachine()
         {
             _pramMachine.Restart();
@@ -134,6 +160,7 @@ namespace Blazor_app.Services
             _globalService.SetLastState("Memory cleared", GlobalService.LastStateUniform.Ok);
         }
 
+        //Unused
         public void Clear()
         {
             _pramMachine.Clear();
@@ -146,7 +173,7 @@ namespace Blazor_app.Services
         //## Auto run ########################################
         private void TimerCallback(object? state)
         {
-            if(!IsAutoRunning)
+            if (!IsAutoRunning)
             {
                 return;
             }
@@ -187,6 +214,29 @@ namespace Blazor_app.Services
             {
                 StartAutoRun();
             }
+        }
+        // ----------------------------------------------------
+
+        //## Instant run #####################################
+
+        public void RunUntilBreakpoint()
+        {
+            bool result;
+            for (int i = 0; i < 1000; i++)
+            {
+                result = StepMachine(false);
+                if (!result)
+                {
+                    break;
+                }
+
+                if (_codeEditorService.Breakpoints.Contains(_pramMachine.GetCurrentCodeLineIndex()))
+                {
+                    break;
+                }
+            }
+
+            InteractiveMachineStep();
         }
     }
 }

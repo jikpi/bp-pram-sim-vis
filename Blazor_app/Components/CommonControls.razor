@@ -11,9 +11,9 @@
     <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
     <button class="btn btn-primary" @onclick="Reset">Reset</button>
     <button class="btn btn-primary" @onclick="ToggleAutoRun">Toggle Auto Run</button>
+    <button class="btn btn-primary" @onclick="RunUntilBreakpoint">Run Until Breakpoint</button>
 
     <button class="btn btn-secondary" @onclick="ClearMemories">Clear Memory</button>
-    <button class="btn btn-warning" @onclick="Clear">Clear Machine</button>
 </div>
 
 @if (showPopup)
@@ -73,11 +73,6 @@
         execService.ClearMemories();
     }
 
-    private void Clear()
-    {
-        execService.Clear();
-    }
-
     private void NextExecutionStep()
     {
         execService.StepMachine();
@@ -86,6 +81,11 @@
     private void ToggleAutoRun()
     {
         execService.ToggleAutoRun();
+    }
+
+    private void RunUntilBreakpoint()
+    {
+        execService.RunUntilBreakpoint();
     }
 
     public void Dispose()

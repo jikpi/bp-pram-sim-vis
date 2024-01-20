@@ -4,6 +4,14 @@
 @inject PramMachine pramMachine
 
 <style>
+    .code-line {
+        display: flex;
+        align-items: center;
+    }
+
+        .code-line input[type="checkbox"] {
+            margin-right: 0.6rem;
+        }
 
 </style>
 
@@ -17,11 +25,24 @@ else
     <div class="code-compiled-code-container">
         @foreach (var line in codeEditor.CompiledLines)
         {
-            <div class="@GetLineClass(line.Key)">
+            var lineClass = GetLineClass(line.Key);
+            <div class="@lineClass code-line">
+                @if (lineClass.Equals("code-label-jump") || lineClass.Equals("code-comment") || string.IsNullOrWhiteSpace(line.Value))
+                {
+                    if (string.IsNullOrWhiteSpace(line.Value))
+                    {
+                        <pre><a> </a></pre>
+                    }
+                }
+                else
+                {
+                    <input type="checkbox" @onchange="() => ToggleBreakpoint(line.Key)" />
+                }
                 @line.Value
             </div>
         }
     </div>
+
 }
 
 @code {
@@ -30,6 +51,18 @@ else
     protected override void OnInitialized()
     {
         codeEditor.EditorStateChanged += StateHasChanged;
+    }
+
+    private void ToggleBreakpoint(int lineIndex)
+    {
+        if (codeEditor.Breakpoints.Contains(lineIndex))
+        {
+            codeEditor.Breakpoints.Remove(lineIndex);
+        }
+        else
+        {
+            codeEditor.Breakpoints.Add(lineIndex);
+        }
     }
 
     private string GetLineClass(int lineIndex)

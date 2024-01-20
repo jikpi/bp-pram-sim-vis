@@ -171,6 +171,7 @@ namespace PRAM_lib.Machine
             if (IsCrashed)
             {
                 ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                ExecutionErrorLineIndex = MasterCodeMemory.Instructions[MPIP.Value].CodeInstructionLineIndex;
                 return false;
             }
 
@@ -293,6 +294,10 @@ namespace PRAM_lib.Machine
             {
                 ExecutionErrorMessage = e.Message;
                 IsCrashed = true;
+                if(MasterCodeMemory != null)
+                {
+                    ExecutionErrorLineIndex = MasterCodeMemory.Instructions[MPIP.Value].CodeInstructionLineIndex;
+                }
                 return false;
             }
 
