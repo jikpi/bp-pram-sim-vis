@@ -16,6 +16,13 @@ namespace Blazor_app.Services
         public event Action<string> ShowPopup;
 
 
+        private Timer _timer;
+        public bool IsAutoRunning { get; private set; } = false;
+        private int _autoRunInterval = 1000;
+
+
+
+
 
         public ExecutionService(PramMachine pramMachine,
             CodeEditorService codeEditorService,
@@ -31,6 +38,8 @@ namespace Blazor_app.Services
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
             ShowPopup += (message) => { };
+
+            _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
         }
 
 
@@ -58,9 +67,13 @@ namespace Blazor_app.Services
             bool result = _pramMachine.ExecuteNextInstruction();
             if (!result)
             {
+                //Stop auto run if machine is in bad state
+                StopAutoRun();
+
                 if (_pramMachine.IsCrashed)
                 {
-                    ShowPopup(_pramMachine.ExecutionErrorMessage!);
+                    ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+
                     _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
                 }
                 else
@@ -106,21 +119,68 @@ namespace Blazor_app.Services
             }
         }
 
-        public bool IsRunning { get; private set; }
-
-        private void Step()
+        public void ResetMachine()
         {
-
+            _pramMachine.Restart();
+            _globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+            _codeEditorService.UpdateExecutingLine(-1);
+            ResetParallelRunningState();
         }
 
-        public void Start()
+        public void ClearMemories()
         {
-
+            _pramMachine.ClearMemory();
+            RefreshMemory();
+            _globalService.SetLastState("Memory cleared", GlobalService.LastStateUniform.Ok);
         }
 
-        public void Stop()
+        public void Clear()
         {
+            _pramMachine.Clear();
+            _globalService.SetLastState("Cleared all", GlobalService.LastStateUniform.Ok);
+            ResetParallelRunningState();
+            RefreshMemory();
+            _codeEditorService.UpdateExecutingLine(-1);
+        }
 
+        //## Auto run ########################################
+        private void TimerCallback(object? state)
+        {
+            StepMachine();
+        }
+
+        public void StartAutoRun()
+        {
+            if (IsAutoRunning)
+            {
+                return;
+            }
+
+            IsAutoRunning = true;
+            _timer.Change(0, _autoRunInterval);
+        }
+
+        public void StopAutoRun()
+        {
+            if (!IsAutoRunning)
+            {
+                return;
+            }
+
+            IsAutoRunning = false;
+            _timer.Change(Timeout.Infinite, _autoRunInterval);
+        }
+
+        public void ToggleAutoRun()
+        {
+            if (IsAutoRunning)
+            {
+                StopAutoRun();
+            }
+            else
+            {
+                StartAutoRun();
+            }
         }
     }
 }
