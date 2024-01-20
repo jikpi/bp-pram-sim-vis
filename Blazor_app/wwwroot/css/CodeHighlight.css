@@ -1,0 +1,23 @@
+﻿.code-compiled-code-container {
+    background-color: lightgray;
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre;
+}
+
+.code-current-line {
+    color: black;
+    background-color: dodgerblue;
+}
+
+.code-comment {
+    color: green;
+}
+
+.code-jump {
+    color: darkred;
+}
+
+.code-label-jump {
+    color: mediumblue;
+}

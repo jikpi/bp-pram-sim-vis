@@ -9,30 +9,6 @@
 @inject RefreshService refreshService
 
 <style>
-    .compiled-code-container {
-        background-color: lightgray;
-        padding: 10px;
-        border-radius: 5px;
-        white-space: pre;
-    }
-
-    .current-line {
-        color: black;
-        background-color: dodgerblue;
-    }
-
-    .comment {
-        color: green;
-    }
-
-    .jump {
-        color: darkred;
-    }
-
-    .label-jump {
-        color: mediumblue;
-    }
-
     .halted-card-body {
     background-color: lightgray
     }
@@ -67,7 +43,7 @@
                     }
 
                     var machineMemory = GetMemoryOfMachine(i);
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-3 mb-3">
                         <div class="card h-100">
                             <div class="card-header">
                                 Machine @i
@@ -75,7 +51,7 @@
                             <div class="card-body @GetCardClass(i)">
                                 <h5 class="card-title">Code</h5>
                                 
-                                <div class="compiled-code-container">
+                                <div class="code-compiled-code-container">
                                     @foreach (var line in pramCodeViewService.PramLines)
                                         {
                                              <div class="@GetLineClass(line.Key, i)">
@@ -155,22 +131,22 @@
     {
         if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)
         {
-            return "current-line";
+            return "code-current-line";
         }
 
         if (pramMachine.InstructionRegex.Comment.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
-            return "comment";
+            return "code-comment";
         }
 
         if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
-            return "jump";
+            return "code-jump";
         }
 
         if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
-            return "label-jump";
+            return "code-label-jump";
         }
 
         return "";

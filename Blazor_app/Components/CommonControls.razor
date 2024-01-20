@@ -11,7 +11,7 @@
     <button class="btn btn-primary ml-2" @onclick="NextExecutionStep">Next Execution Step</button>
     <button class="btn btn-primary" @onclick="Reset">Reset</button>
     <button class="btn btn-secondary" @onclick="ClearMemories">Clear memory</button>
-    <button class="btn btn-warning" @onclick="Clear">Clear all</button>
+    <button class="btn btn-warning" @onclick="Clear">Clear machine</button>
 </div>
 
 @if (showPopup)
@@ -57,13 +57,15 @@
     private void ClearMemories()
     {
         pramMachine.ClearMemory();
+        refreshService.RefreshMemory();
     }
 
     private void Clear()
     {
         pramMachine.Clear();
-        globalService.SetLastState("Clear", GlobalService.LastStateUniform.Ok);
+        globalService.SetLastState("Cleared all", GlobalService.LastStateUniform.Ok);
         globalService.ResetParallelRunningState();
+        refreshService.RefreshMemory();
     }
 
     private void NextExecutionStep()
