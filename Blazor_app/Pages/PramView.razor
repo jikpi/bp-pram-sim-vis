@@ -1,18 +1,174 @@
 ﻿@page "/pramview"
+@using Blazor_app.Services
+@using PRAM_lib.Machine
+@using System.Collections.ObjectModel
+@using PRAM_lib.Processor
+@inject PramMachine pramMachine
+@inject CodeEditorService codeEditorService
+@inject PramCodeViewService pramCodeViewService
+@inject RefreshService refreshService
 
-<PageTitle>Pram view</PageTitle>
+<style>
+    .halted-card-body {
+    background-color: lightgray
+    }
 
-<h1>Pram</h1>
+    .crashed-card-body{
+        background-color: darkred;
+    }
+</style>
 
-<p role="status">Current count: @currentCount</p>
+<PageTitle>PRAM view</PageTitle>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<Blazor_app.Components.CommonControls />
+
+<div class="container my-2">
+    <div class="row">
+        <!-- Shared Memory -->
+        <div class="col-md-2">
+            <div class="text-center">
+                <h4>Shared Memory</h4>
+            </div>
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+        </div>
+
+        <!-- Parallel Machines -->
+        <div class="col-md-10">
+            <div class="row">
+                @for (int i = 0; i < GetParallelMachineCount(); i++)
+                {
+                    if(pramMachine.GetParallelMachineIsHalted(i))
+                    {
+                        continue;
+                    }
+
+                    var machineMemory = GetMemoryOfMachine(i);
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                Machine @i
+                            </div>
+                            <div class="card-body @GetCardClass(i)">
+                                <h5 class="card-title">Code</h5>
+                                
+                                <div class="code-compiled-code-container">
+                                    @foreach (var line in pramCodeViewService.PramLines)
+                                        {
+                                             <div class="@GetLineClass(line.Key, i)">
+                                                    @line.Value
+                                            </div>
+                                        }
+                                </div>
+
+                                <h5 class="card-title">Memory</h5>
+                                @if (machineMemory != null)
+                                {
+                                    <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
+                                }
+                                else
+                                {
+                                    <p>No memory data</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    if ((i + 1) % 5 == 0 && i != GetParallelMachineCount() - 1)
+                    {
+                        @:</div><div class="row mt-2">
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 
 @code {
-    private int currentCount = 0;
 
-    private void IncrementCount()
+    public void PramCodeRefreshed()
     {
-        currentCount++;
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        refreshService.PramCodeRefreshed += PramCodeRefreshed;
+    }
+
+    public int GetParallelMachineCount()
+    {
+        return pramMachine.ParallelMachinesCount;
+    }
+
+    public ObservableCollection<PRAM_lib.Memory.MemoryCell>? GetMemoryOfMachine(int machineIndex)
+    {
+        return pramMachine.GetParallelMachinesMemory(machineIndex);
+    }
+
+    // private InParallelMachine? GetParallelMachine(int machineIndex)
+    // {
+    //     return pramMachine.GetParallelMachine(machineIndex);
+    // }
+
+    public string GetParallelMachineCode()
+    {
+        string? code = pramMachine.GetCurrentParallelMachineCode();
+        if (code != null)
+        {
+            return code;
+        }
+        else
+        {
+            return "No code";
+        }
+    }
+
+    private string GetLineClass(int lineIndex, int parallelIndex)
+    {
+        if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)
+        {
+            return "code-current-line";
+        }
+
+        if (pramMachine.InstructionRegex.Comment.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "code-comment";
+        }
+
+        if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "code-jump";
+        }
+
+        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            return "code-label-jump";
+        }
+
+        return "";
+    }
+
+    private string GetCardClass(int parallelIndex)
+    {
+        if (pramMachine.GetParallelMachineIsHalted(parallelIndex))
+        {
+            return "halted-card-body";
+        }
+
+        if (pramMachine.GetParallelMachineIsCrashed(parallelIndex))
+        {
+            return "crashed-card-body";
+        }
+
+        return "";
+    }
+
+    public void Dispose()
+    {
+        refreshService.PramCodeRefreshed -= PramCodeRefreshed;
     }
 }

@@ -4,29 +4,7 @@
 @inject PramMachine pramMachine
 
 <style>
-    .compiled-code-container {
-        background-color: lightgray;
-        padding: 10px;
-        border-radius: 5px;
-        white-space: pre;
-    }
 
-    .current-line {
-        color: black;
-        background-color: dodgerblue;
-    }
-
-    .comment {
-        color: green;
-    }
-
-    .jump {
-        color: darkred;
-    }
-
-    .label-jump {
-        color: mediumblue;
-    }
 </style>
 
 
@@ -36,7 +14,7 @@
 }
 else
 {
-    <div class="compiled-code-container">
+    <div class="code-compiled-code-container">
         @foreach (var line in codeEditor.CompiledLines)
         {
             <div class="@GetLineClass(line.Key)">
@@ -58,22 +36,22 @@ else
     {
         if (lineIndex == codeEditor.CurrentExecutingLine)
         {
-            return "current-line";
+            return "code-current-line";
         }
 
         if (pramMachine.InstructionRegex.Comment.IsMatch(codeEditor.CompiledLines[lineIndex]))
         {
-            return "comment";
+            return "code-comment";
         }
 
         if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(codeEditor.CompiledLines[lineIndex]))
         {
-            return "jump";
+            return "code-jump";
         }
 
         if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
         {
-            return "label-jump";
+            return "code-label-jump";
         }
 
 

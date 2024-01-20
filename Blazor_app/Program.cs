@@ -28,6 +28,9 @@ namespace Blazor_app
             //dependency injection for the global service
             builder.Services.AddSingleton<GlobalService>();
 
+            //dependency injection for the pram code view service
+            builder.Services.AddSingleton<PramCodeViewService>();
+
             await builder.Build().RunAsync();
         }
     }
