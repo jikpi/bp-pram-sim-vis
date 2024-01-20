@@ -146,7 +146,13 @@ namespace Blazor_app.Services
         //## Auto run ########################################
         private void TimerCallback(object? state)
         {
+            if(!IsAutoRunning)
+            {
+                return;
+            }
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
             StepMachine();
+            _timer.Change(_autoRunInterval, _autoRunInterval);
         }
 
         public void StartAutoRun()

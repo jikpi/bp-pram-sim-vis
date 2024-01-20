@@ -70,6 +70,14 @@
             int i = 0;
             foreach (var item in MemoryItems)
             {
+                if(i > 500)
+                {
+                    <tr>
+                        <td>MAX</td>
+                        <td><input class="compact-input" @bind="item.Value" /></td>
+                    </tr>
+                    break;
+                }
                 <tr>
                     <td>@i</td>
                     <td><input class="compact-input" @bind="item.Value" /></td>
