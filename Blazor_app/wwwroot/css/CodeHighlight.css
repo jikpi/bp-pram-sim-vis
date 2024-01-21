@@ -10,6 +10,11 @@
     background-color: dodgerblue;
 }
 
+.code-error-line {
+    color: black;
+    background-color: dodgerblue;
+}
+
 .code-comment {
     color: green;
 }

@@ -14,7 +14,7 @@
     }
 
     .crashed-card-body{
-        background-color: darkred;
+        background-color: lightgoldenrodyellow;
     }
 </style>
 
@@ -22,18 +22,18 @@
 
 <Blazor_app.Components.CommonControls />
 
-<div class="container my-2">
+<div class="container-fluid my-2">
+    <!-- Shared Memory -->
     <div class="row">
-        <!-- Shared Memory -->
-        <div class="col-md-2">
+        <div class="col-md-1">
             <div class="text-center">
                 <h4>Shared Memory</h4>
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
         </div>
 
-        <!-- Parallel Machines -->
-        <div class="col-md-10">
+    <!-- Parallel Machines -->
+        <div class="col-md-11">
             <div class="row">
                 @for (int i = 0; i < GetParallelMachineCount(); i++)
                 {
@@ -43,7 +43,7 @@
                     }
 
                     var machineMemory = GetMemoryOfMachine(i);
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-3 mb-4">
                         <div class="card h-100">
                             <div class="card-header">
                                 Machine @i
@@ -53,11 +53,11 @@
                                 
                                 <div class="code-compiled-code-container">
                                     @foreach (var line in pramCodeViewService.PramLines)
-                                        {
-                                             <div class="@GetLineClass(line.Key, i)">
-                                                    @line.Value
-                                            </div>
-                                        }
+                                    {
+                                        <div class="@GetLineClass(line.Key, i)">
+                                            @line.Value
+                                        </div>
+                                    }
                                 </div>
 
                                 <h5 class="card-title">Memory</h5>
@@ -72,7 +72,7 @@
                             </div>
                         </div>
                     </div>
-                    if ((i + 1) % 5 == 0 && i != GetParallelMachineCount() - 1)
+                    if ((i + 1) % 4 == 0 && i != GetParallelMachineCount() - 1)
                     {
                         @:</div><div class="row mt-2">
                     }
@@ -81,10 +81,6 @@
         </div>
     </div>
 </div>
-
-
-
-
 
 
 @code {
@@ -129,7 +125,12 @@
 
     private string GetLineClass(int lineIndex, int parallelIndex)
     {
-        if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)
+        if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)   
+        {
+            return "code-current-line";
+        }
+
+        if (pramMachine.GetParallelMachineExecutionErrorLineIndex(parallelIndex) == lineIndex)   
         {
             return "code-current-line";
         }

@@ -42,6 +42,7 @@ namespace PRAM_lib.Machine
         private bool XRXW { get => !XRCW; set => XRCW = !value; }
         public List<IllegalMemoryAccesInfo> IllegalMemoryAccesses { get; private set; }
         public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
+        public int PreviousCodeLineIndex => MPIP.Value > 0 ? MasterCodeMemory!.Instructions[MPIP.Value - 1].CodeInstructionLineIndex : -1;
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -134,19 +135,7 @@ namespace PRAM_lib.Machine
                 JumpMemory = newJumpMemory;
                 RefreshGateway();
 
-                MPIP.Value = 0;
-                IsHalted = false;
-                IsCrashed = false;
-                NextParallelDoIndex = 0;
-
-                //Restart all parallel machines
-                foreach (ParallelMachineContainer container in ContainedParallelMachines)
-                {
-                    foreach (InParallelMachine machine in container.ParallelMachines)
-                    {
-                        machine.Restart();
-                    }
-                }
+                Restart();
             }
         }
 
@@ -424,6 +413,18 @@ namespace PRAM_lib.Machine
             }
 
             return machine.IsHalted;
+        }
+
+        public int GetParallelMachineExecutionErrorLineIndex(int index)
+        {
+            InParallelMachine? machine = GetParallelMachine(index);
+
+            if (machine == null)
+            {
+                return -1;
+            }
+
+            return machine.ExecutionErrorLineIndex ?? -1;
         }
     }
 }

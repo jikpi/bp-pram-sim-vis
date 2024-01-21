@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PRAM_lib.Machine;
+using System.Reflection.PortableExecutable;
 
 namespace Blazor_app.Services
 {
@@ -67,26 +68,8 @@ namespace Blazor_app.Services
         {
 
             int currentLine;
-            if (_pramMachine.IsCrashed)
-            {
-                if (_pramMachine.ExecutionErrorLineIndex != null)
-                {
-                    currentLine = (int)_pramMachine.ExecutionErrorLineIndex;
-                }
-                else
-                {
-                    currentLine = -1;
-                }
-            }
-            else
-            {
-                _globalService.SetLastState($"Next step: {_pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
-                currentLine = _pramMachine.GetCurrentCodeLineIndex();
-            }
-
-            _codeEditorService.UpdateExecutingLine(currentLine);
-
-            RefreshMemory();
+            _globalService.SetLastState($"Next step: {_pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+            currentLine = _pramMachine.GetCurrentCodeLineIndex();
 
             if (_pramMachine.IsRunningParallel)
             {
@@ -114,6 +97,9 @@ namespace Blazor_app.Services
                     _globalService.SetLastState("Execution finished", GlobalService.LastStateUniform.Note);
                 }
             }
+
+            _codeEditorService.UpdateExecutingLine(currentLine);
+            RefreshMemory();
         }
 
         public bool StepMachine(bool manual = true)
@@ -126,7 +112,25 @@ namespace Blazor_app.Services
 
                 if (_pramMachine.IsCrashed)
                 {
-                    ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+                    //View switching logic
+                    if (IsRunningParallel && !_pramMachine.IsRunningParallel)
+                    {
+                        _navigationManager.NavigateTo("/");
+                        ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+                    }
+                    else if(!IsRunningParallel && _pramMachine.IsRunningParallel)
+                    {
+                        _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
+                        _navigationManager.NavigateTo("/pramview");
+                    }
+                    else if(IsRunningParallel && _pramMachine.IsRunningParallel)
+                    {
+                        RefreshPramCode();
+                    }
+                    else if (!IsRunningParallel)
+                    {
+                        ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+                    }
 
                     _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
                 }
@@ -135,9 +139,22 @@ namespace Blazor_app.Services
                     //not shown if machine is halted, since the if for 'halt' will override
                     _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
                 }
+
+                int currentLine;
+                if (_pramMachine.ExecutionErrorLineIndex != null)
+                {
+                    currentLine = (int)_pramMachine.ExecutionErrorLineIndex;
+                }
+                else
+                {
+                    currentLine = -1;
+                }
+
+                _codeEditorService.UpdateExecutingLine(currentLine);
+                RefreshMemory();
             }
 
-            if (manual)
+            if (manual && result)
             {
                 InteractiveMachineStep();
             }
@@ -151,6 +168,7 @@ namespace Blazor_app.Services
             _globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
             _codeEditorService.UpdateExecutingLine(-1);
             ResetParallelRunningState();
+            _navigationManager.NavigateTo("/");
         }
 
         public void ClearMemories()
@@ -221,22 +239,54 @@ namespace Blazor_app.Services
 
         public void RunUntilBreakpoint()
         {
-            bool result;
-            for (int i = 0; i < 1000; i++)
+            bool result = false;
+            for (int i = 0; i < 10000; i++)
             {
+                // Stop if machine is in bad state
                 result = StepMachine(false);
                 if (!result)
                 {
                     break;
                 }
 
-                if (_codeEditorService.Breakpoints.Contains(_pramMachine.GetCurrentCodeLineIndex()))
+                //Check if breakpoints exist
+                if (_codeEditorService.Breakpoints.Count > 0)
                 {
-                    break;
+                    //Stop if breakpoint in RAM is hit
+                    if (_codeEditorService.Breakpoints.Contains(_pramMachine.GetCurrentCodeLineIndex()))
+                    {
+                        break;
+                    }
+
+                    bool isParallelBreakpoint = false;
+                    if (_pramMachine.IsRunningParallel)
+                    {
+                        int lastRamCodeLineIndex = _pramMachine.PreviousCodeLineIndex;
+                        //Add all parallel machines code line indexes to the ram code line index
+                        for (int j = 0; j < _pramMachine.ParallelMachinesCount; j++)
+                        {
+                            int parallelMachineCodeLineIndex = _pramMachine.GetParallelMachineCodeLineIndex(j) ?? 0;
+                            int parallelMachineRamCodeLineIndex = parallelMachineCodeLineIndex + lastRamCodeLineIndex + 1;
+
+                            //Stop if breakpoint in parallel machine RAM is hit
+                            if (_codeEditorService.Breakpoints.Contains(parallelMachineRamCodeLineIndex))
+                            {
+                                isParallelBreakpoint = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isParallelBreakpoint)
+                    {
+                        break;
+                    }
                 }
             }
 
-            InteractiveMachineStep();
+            if (result)
+            {
+                InteractiveMachineStep();
+            }
         }
     }
 }

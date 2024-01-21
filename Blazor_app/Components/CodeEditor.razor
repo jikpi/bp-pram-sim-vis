@@ -36,7 +36,7 @@ else
                 }
                 else
                 {
-                    <input type="checkbox" @onchange="() => ToggleBreakpoint(line.Key)" />
+                    <input type="checkbox" @onchange="() => ToggleBreakpoint(line.Key)" checked="@codeEditor.Breakpoints.Contains(line.Key)" />
                 }
                 @line.Value
             </div>
