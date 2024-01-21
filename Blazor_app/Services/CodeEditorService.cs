@@ -10,6 +10,8 @@
 
         public event Action EditorStateChanged;
 
+        public HashSet<int> Breakpoints = new HashSet<int>();
+
         public void ChangeCode(string code)
         {
             Code = code;
@@ -25,6 +27,7 @@
 
             CompiledCode = new string(Code);
             CurrentExecutingLine = -1;
+            Breakpoints.Clear();
 
             EditorStateChanged?.Invoke();
         }

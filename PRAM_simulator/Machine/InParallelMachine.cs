@@ -97,6 +97,7 @@ namespace PRAM_lib.Processor
             {
                 ExecutionErrorMessage = e.Message;
                 IsCrashed = true;
+                ExecutionErrorLineIndex = CodeMemory!.Instructions[IP.Value].CodeInstructionLineIndex;
                 return false;
             }
 
@@ -121,6 +122,8 @@ namespace PRAM_lib.Processor
             IP.Value = 0;
             IsCrashed = false;
             IsHalted = false;
+            ExecutionErrorMessage = null;
+            ExecutionErrorLineIndex = null;
             ClearMemory();
         }
 
