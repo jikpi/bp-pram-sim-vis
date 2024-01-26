@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PRAM_lib.Machine;
+using System.Collections.ObjectModel;
 using System.Reflection.PortableExecutable;
 
 namespace Blazor_app.Services
@@ -11,6 +12,7 @@ namespace Blazor_app.Services
         private readonly PramCodeViewService _pramCodeViewService;
         private readonly NavigationManager _navigationManager;
         private readonly GlobalService _globalService;
+        private readonly HistoryMemoryService _historyMemoryService;
 
         public event Action MemoryRefreshed;
         public event Action PramCodeRefreshed;
@@ -29,13 +31,15 @@ namespace Blazor_app.Services
             CodeEditorService codeEditorService,
             PramCodeViewService pramCodeViewService,
             NavigationManager navigationManager,
-            GlobalService globalService)
+            GlobalService globalService,
+            HistoryMemoryService historyMemoryService)
         {
             _pramMachine = pramMachine;
             _codeEditorService = codeEditorService;
             _pramCodeViewService = pramCodeViewService;
             _navigationManager = navigationManager;
             _globalService = globalService;
+            _historyMemoryService = historyMemoryService;
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
             ShowPopup += (message) => { };
@@ -287,6 +291,25 @@ namespace Blazor_app.Services
             {
                 InteractiveMachineStep();
             }
+        }
+
+        // ----------------------------------------------------
+
+        // ## History #########################################
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextInput()
+        {
+            return _pramMachine.GetInputMemory();
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextOutput()
+        {
+            return _pramMachine.GetOutputMemory();
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextShared()
+        {
+            return _pramMachine.GetSharedMemory();
         }
     }
 }

@@ -29,7 +29,7 @@
             <div class="text-center">
                 <h4>Shared Memory</h4>
             </div>
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
         </div>
 
     <!-- Parallel Machines -->

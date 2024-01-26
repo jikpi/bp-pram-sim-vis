@@ -6,7 +6,6 @@
 @inject GlobalService globalService
 @inject ExecutionService execService
 @inject CodeEditorService codeEditorService
-@inject NavigationManager NavigationManager
 
 <PageTitle>PRAM Simulator</PageTitle>
 
@@ -66,7 +65,7 @@
                 <button class="btn btn-secondary" @onclick="ClearInputMemory">Clear</button>
             </div>
 
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetInputMemory()" />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextInput()" />
             <div class="text-center">
                 <button class="btn btn-primary" @onclick="AddInputCell">Add Cell</button>
             </div>
@@ -79,7 +78,7 @@
             <div class="text-center my-1">
                 <button class="btn btn-secondary" @onclick="ClearSharedMemory">Clear</button>
             </div>
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
             <div class="text-center">
                 <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
             </div>
@@ -92,7 +91,7 @@
             <div class="text-center">
                 <button class="btn btn-secondary my-1" @onclick="ClearOutputMemory">Clear</button>
             </div>
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetOutputMemory()" />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextOutput()" />
             <div class="text-center">
                 <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
             </div>
