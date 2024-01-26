@@ -7,6 +7,7 @@ namespace Blazor_app.Services
     public class HistoryMemoryService
     {
         public int HistoryIndex { get; private set; } = 0;
+        public int MaxHistoryIndex { get; private set; } = 1000;
 
         private List<ObservableCollection<MemoryCell>> InputHistory { get; set; } = [];
         private List<ObservableCollection<MemoryCell>> OutputHistory { get; set; } = [];
@@ -26,8 +27,13 @@ namespace Blazor_app.Services
             target.Add(newCollection);
         }
 
-        public void SaveNextStep(PRAM_lib.Machine.PramMachine machine)
+        public void SaveState(PRAM_lib.Machine.PramMachine machine)
         {
+            if(HistoryIndex >= MaxHistoryIndex)
+            {
+                return;
+            }
+
             SaveMemory(machine.GetInputMemory(), InputHistory);
             SaveMemory(machine.GetOutputMemory(), OutputHistory);
             SaveMemory(machine.GetSharedMemory(), SharedMemoryHistory);
@@ -90,6 +96,42 @@ namespace Blazor_app.Services
             parallelMemory = ParallelMemoryHistory[index];
             parallelCodeIndex = ParallelCodeIndexHistory[index];
             return true;
+        }
+
+        public ObservableCollection<MemoryCell>? GetInputAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return InputHistory[index];
+        }
+
+        public ObservableCollection<MemoryCell>? GetOutputAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return OutputHistory[index];
+        }
+
+        public ObservableCollection<MemoryCell>? GetSharedMemoryAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return SharedMemoryHistory[index];
+        }
+
+        public int? GetMasterCodeIndexAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return MasterCodeIndexHistory[index];
         }
 
         public void Reset()

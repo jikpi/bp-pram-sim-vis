@@ -106,7 +106,7 @@ namespace Blazor_app.Services
             RefreshMemory();
         }
 
-        public bool StepMachine(bool manual = true)
+        private bool ExecuteNext(bool manual = true)
         {
             bool result = _pramMachine.ExecuteNextInstruction();
             if (!result)
@@ -122,12 +122,12 @@ namespace Blazor_app.Services
                         _navigationManager.NavigateTo("/");
                         ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
-                    else if(!IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (!IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
                         _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                         _navigationManager.NavigateTo("/pramview");
                     }
-                    else if(IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
                         RefreshPramCode();
                     }
@@ -157,6 +157,10 @@ namespace Blazor_app.Services
                 _codeEditorService.UpdateExecutingLine(currentLine);
                 RefreshMemory();
             }
+            else
+            {
+                _historyMemoryService.SaveState(_pramMachine);
+            }
 
             if (manual && result)
             {
@@ -173,6 +177,8 @@ namespace Blazor_app.Services
             _codeEditorService.UpdateExecutingLine(-1);
             ResetParallelRunningState();
             _navigationManager.NavigateTo("/");
+            _historyMemoryService.Reset();
+            HistoryOffset = null;
         }
 
         public void ClearMemories()
@@ -190,6 +196,7 @@ namespace Blazor_app.Services
             ResetParallelRunningState();
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(-1);
+            _historyMemoryService.Reset();
         }
 
         //## Auto run ########################################
@@ -200,7 +207,7 @@ namespace Blazor_app.Services
                 return;
             }
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            StepMachine();
+            StepForward();
             _timer.Change(_autoRunInterval, _autoRunInterval);
         }
 
@@ -244,10 +251,11 @@ namespace Blazor_app.Services
         public void RunUntilBreakpoint()
         {
             bool result = false;
+            HistoryOffset = null;
             for (int i = 0; i < 10000; i++)
             {
                 // Stop if machine is in bad state
-                result = StepMachine(false);
+                result = ExecuteNext(false);
                 if (!result)
                 {
                     break;
@@ -297,19 +305,99 @@ namespace Blazor_app.Services
 
         // ## History #########################################
 
+        int? HistoryOffset = null;
+
         public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextInput()
         {
-            return _pramMachine.GetInputMemory();
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetInputMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetInputAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetInputMemory();
+            }
         }
 
         public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextOutput()
         {
-            return _pramMachine.GetOutputMemory();
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetOutputMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetOutputAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetOutputMemory();
+            }
         }
 
         public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextShared()
         {
-            return _pramMachine.GetSharedMemory();
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetSharedMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetSharedMemoryAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetSharedMemory();
+            }
+        }
+
+        public int GetMasterCodeIndex()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetCurrentCodeLineIndex();
+            }
+            else
+            {
+                return _historyMemoryService.GetMasterCodeIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetCurrentCodeLineIndex();
+            }
+        }
+
+        public void StepForward()
+        {
+            if (HistoryOffset >= -1)
+            {
+                HistoryOffset = null;
+                _globalService.SetLastState($"History reset: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            }
+            
+            if (HistoryOffset == null)
+            {
+                _ = ExecuteNext();
+            }
+            else
+            {
+                HistoryOffset++;
+                _globalService.SetLastState($"History going forward: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            }
+        }
+
+        public void StepBackward()
+        {
+            if (HistoryOffset == null)
+            {
+                HistoryOffset = -2;
+                _globalService.SetLastState($"Starting history: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            }
+            else if (_historyMemoryService.HistoryIndex + HistoryOffset <= 0)
+            {
+                _globalService.SetLastState($"Max history reached: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+            }
+            else
+            {
+                HistoryOffset--;
+                _globalService.SetLastState($"Going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            }
         }
     }
 }

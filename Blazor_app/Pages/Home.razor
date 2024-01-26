@@ -108,7 +108,18 @@
 
     protected override void OnInitialized()
     {
-        
+        base.OnInitialized();
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        execService.MemoryRefreshed += MemorySourcesRefreshed;
+    }
+
+    public void MemorySourcesRefreshed()
+    {
+        StateHasChanged();
     }
 
     private void AddSharedMemoryCell()
@@ -171,6 +182,6 @@
 
     public void Dispose()
     {
-        
+        execService.MemoryRefreshed -= MemorySourcesRefreshed;
     }
 }
