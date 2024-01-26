@@ -302,6 +302,7 @@ namespace PRAM_lib.Machine
             InputMemory.ResetMemoryPointer();
             OutputMemory.ResetMemoryPointer();
             IllegalMemoryAccesses.Clear();
+            ExecutionErrorLineIndex = null;
 
             NextParallelDoIndex = 0;
             LaunchedParallelMachines = null;
