@@ -62,7 +62,7 @@ namespace Blazor_app.Services
             MemoryRefreshed?.Invoke();
         }
 
-        public void RefreshPramCode()
+        public void RefreshPramView()
         {
             PramCodeRefreshed?.Invoke();
         }
@@ -85,7 +85,7 @@ namespace Blazor_app.Services
                     _navigationManager.NavigateTo("/pramview");
                 }
 
-                RefreshPramCode();
+                RefreshPramView();
             }
             else
             {
@@ -129,7 +129,7 @@ namespace Blazor_app.Services
                     }
                     else if (IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
-                        RefreshPramCode();
+                        RefreshPramView();
                     }
                     else if (!IsRunningParallel)
                     {
@@ -399,6 +399,18 @@ namespace Blazor_app.Services
             }
         }
 
+        public bool GetParallelMachineIsAfterHalted(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineIsAfterHalted(machineIndex);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public int GetParallelMachineCodeIndex(int machineIndex)
         {
             if (HistoryOffset == null)
@@ -423,7 +435,7 @@ namespace Blazor_app.Services
         {
             if (HistoryOffset == null)
             {
-                return _pramMachine.GetParallelMachineCodeLineIndex(machineIndex) ?? -1;
+                return _pramMachine.GetParallelMachineErrorLineIndex(machineIndex);
             }
             else
             {
@@ -431,7 +443,25 @@ namespace Blazor_app.Services
             }
         }
 
+        private void ResolveUIParallelHistory()
+        {
+            if (HistoryOffset == null)
+            {
+                return;
+            }
 
+            int batchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? -1;
+
+            if (batchIndex == -1)
+            {
+                return;
+            }
+
+            string code = _pramMachine.GetParallelMachineCode(batchIndex);
+
+            _pramCodeViewService.SetPramCode(code);
+            RefreshPramView();
+        }
 
         public void StepForward()
         {
@@ -453,6 +483,7 @@ namespace Blazor_app.Services
                 _globalService.SetLastState($"History going forward: {HistoryOffset}", GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
             }
         }
 
@@ -464,6 +495,7 @@ namespace Blazor_app.Services
                 _globalService.SetLastState($"Starting history: {HistoryOffset}", GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
             }
             else if (_historyMemoryService.HistoryIndex + HistoryOffset <= 0)
             {
@@ -475,6 +507,7 @@ namespace Blazor_app.Services
                 _globalService.SetLastState($"Going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
             }
         }
     }

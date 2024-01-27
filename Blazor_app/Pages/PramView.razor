@@ -37,7 +37,7 @@
             <div class="row">
                 @for (int i = 0; i < GetParallelMachineCount(); i++)
                 {
-                    if(GetParallelMachineIsHalted(i))
+                    if(GetParallelMachineIsAfterHalted(i))
                     {
                         continue;
                     }
@@ -46,7 +46,11 @@
                     <div class="col-md-3 mb-4">
                         <div class="card h-100">
                             <div class="card-header">
-                                Machine @i
+                                Machine @i :
+                                @if (GetParallelMachineIsHalted(i))
+                                {
+                                    <span class="badge bg-warning">Halted</span>
+                                }
                             </div>
                             <div class="card-body @GetCardClass(i)">
                                 <h5 class="card-title">Code</h5>
@@ -110,6 +114,11 @@
         return execService.GetParallelMachineIsHalted(machineIndex);
     }
 
+    public bool GetParallelMachineIsAfterHalted(int machineIndex)
+    {
+        return execService.GetParallelMachineIsAfterHalted(machineIndex);
+    }
+
     private string GetLineClass(int lineIndex, int machineIndex)
     {
 
@@ -122,7 +131,7 @@
 
         if (execService.GetParallelMachineErrorLineIndex(machineIndex) == lineIndex)   
         {
-            return "code-current-line";
+            return "code-error-line";
         }
 
         //Regex coloring

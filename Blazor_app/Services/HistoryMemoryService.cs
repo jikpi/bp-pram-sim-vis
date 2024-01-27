@@ -13,9 +13,10 @@ namespace Blazor_app.Services
         private List<ObservableCollection<MemoryCell>> OutputHistory { get; set; } = [];
         private List<ObservableCollection<MemoryCell>> SharedMemoryHistory { get; set; } = [];
         private List<int> MasterCodeIndexHistory { get; set; } = [];
+        private List<int?> ParallelBatchIndex { get; set; } = []; 
         private List<List<ObservableCollection<MemoryCell>>?> ParallelMemoryHistory { get; set; } = [];
         private List<List<int>?> ParallelCodeIndexHistory { get; set; } = [];
-        private List<List<bool>> ParallelMachineHaltHistory { get; set; } = [];
+        private List<List<bool>?> ParallelMachineHaltHistory { get; set; } = [];
 
 
         private static void SaveMemory(ObservableCollection<MemoryCell> input, List<ObservableCollection<MemoryCell>> target)
@@ -42,8 +43,10 @@ namespace Blazor_app.Services
 
             if (!machine.IsRunningParallel)
             {
+                ParallelBatchIndex.Add(null);
                 ParallelMemoryHistory.Add(null);
                 ParallelCodeIndexHistory.Add(null);
+                ParallelMachineHaltHistory.Add(null);
             }
             else
             {
@@ -59,6 +62,7 @@ namespace Blazor_app.Services
                     {
                         SaveMemory(currentParMachineMemory, parallelMemory);
                         parallelIP.Add(currentParMachineCodeLineIndex.Value);
+                        parallelMachineHalt.Add(currentParMachineHalt);
                     }
                     else
                     {
@@ -67,39 +71,13 @@ namespace Blazor_app.Services
                         break;
                     }
                 }
+                ParallelBatchIndex.Add(machine.ParallelBatchIndex);
                 ParallelMemoryHistory.Add(parallelMemory);
                 ParallelCodeIndexHistory.Add(parallelIP);
                 ParallelMachineHaltHistory.Add(parallelMachineHalt);
             }
 
             HistoryIndex++;
-        }
-
-        public bool GetAt(int index, out ObservableCollection<MemoryCell>? input,
-            out ObservableCollection<MemoryCell>? output,
-            out ObservableCollection<MemoryCell>? sharedMemory,
-            out int? masterCodeIndex,
-            out List<ObservableCollection<MemoryCell>>? parallelMemory,
-            out List<int>? parallelCodeIndex)
-        {
-            if (index < 0 || index >= HistoryIndex)
-            {
-                input = null;
-                output = null;
-                sharedMemory = null;
-                masterCodeIndex = null;
-                parallelMemory = null;
-                parallelCodeIndex = null;
-                return false;
-            }
-
-            input = InputHistory[index];
-            output = OutputHistory[index];
-            sharedMemory = SharedMemoryHistory[index];
-            masterCodeIndex = MasterCodeIndexHistory[index];
-            parallelMemory = ParallelMemoryHistory[index];
-            parallelCodeIndex = ParallelCodeIndexHistory[index];
-            return true;
         }
 
         public ObservableCollection<MemoryCell>? GetInputAt(int index)
@@ -162,7 +140,11 @@ namespace Blazor_app.Services
             {
                 return false;
             }
-            return ParallelMachineHaltHistory[index][machineIndex];
+            if (ParallelMachineHaltHistory[index] == null)
+            {
+                return false;
+            }
+            return ParallelMachineHaltHistory[index]![machineIndex];
         }
 
         public int GetParallelMachineCountAt(int index)
@@ -174,6 +156,15 @@ namespace Blazor_app.Services
             return ParallelMemoryHistory[index] != null ? ParallelMemoryHistory[index]!.Count : 0;
         }
 
+        public int? GetParallelBatchIndexAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return ParallelBatchIndex[index];
+        }
+
         public void Reset()
         {
             HistoryIndex = 0;
@@ -183,6 +174,8 @@ namespace Blazor_app.Services
             OutputHistory.Clear();
             SharedMemoryHistory.Clear();
             MasterCodeIndexHistory.Clear();
+            ParallelMachineHaltHistory.Clear();
+            ParallelBatchIndex.Clear();
         }
     }
 }

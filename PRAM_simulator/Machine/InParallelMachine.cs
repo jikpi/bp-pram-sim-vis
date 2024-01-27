@@ -23,6 +23,11 @@ namespace PRAM_lib.Processor
         public InstrPointer IP { get; private set; }
         public int ProcessorIndex { get; private set; }
 
+        //Logic for 'halt' state, a property that shows when a machine was attempted to be executed after it has halted
+
+        private bool previousHaltState = false;
+        public bool AfterHaltedExecution { get; private set; } = false;
+
 
         public InParallelMachine(int processorIndex, CodeMemory codeMemory, JumpMemory jumpMemory, ParallelGateway parallelGateway)
         {
@@ -62,6 +67,17 @@ namespace PRAM_lib.Processor
             {
                 IsHalted = true;
                 ExecutionErrorMessage = ExceptionMessages.HasHalted();
+
+                //AfterHalted logic
+                if (previousHaltState == false)
+                {
+                    previousHaltState = true;
+                }
+                else
+                {
+                    AfterHaltedExecution = true;
+                }
+
                 return false;
             }
 
@@ -124,6 +140,8 @@ namespace PRAM_lib.Processor
             IsHalted = false;
             ExecutionErrorMessage = null;
             ExecutionErrorLineIndex = null;
+            AfterHaltedExecution = false;
+            previousHaltState = false;
             ClearMemory();
         }
 
