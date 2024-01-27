@@ -298,6 +298,13 @@ namespace PRAM_lib.Code.Compiler
                     string pardoCode = string.Join("\r\n", pardoStrings);
                     int numberofprocessors = int.Parse(match.Groups[1].Value);
 
+                    if(numberofprocessors < 1)
+                    {
+                        errorMessage = "Number of processors must be at least 1";
+                        returnLineIndex = lineIndex;
+                        return null;
+                    }
+
                     List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
 
                     for (int j = 0; j < numberofprocessors; j++)

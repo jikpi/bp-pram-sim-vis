@@ -355,6 +355,84 @@ namespace Blazor_app.Services
             }
         }
 
+        public int GetParallelMachineCount()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.ParallelMachinesCount;
+            }
+            else
+            {
+                return _historyMemoryService.GetParallelMachineCountAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+            }
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell>? GetParallelMachineMemory(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachinesMemory(machineIndex);
+            }
+            else
+            {
+                var result = _historyMemoryService.GetParallelMemoryAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+                if (result == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return result[machineIndex];
+                }
+            }
+        }
+
+        public bool GetParallelMachineIsHalted(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineIsHalted(machineIndex);
+            }
+            else
+            {
+                return _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value, machineIndex);
+            }
+        }
+
+        public int GetParallelMachineCodeIndex(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineCodeLineIndex(machineIndex) ?? -1;
+            }
+            else
+            {
+                var result = _historyMemoryService.GetParallelCodeIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+                if (result == null)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return result[machineIndex];
+                }
+            }
+        }
+
+        public int GetParallelMachineErrorLineIndex(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineCodeLineIndex(machineIndex) ?? -1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+
+
         public void StepForward()
         {
             if (HistoryOffset >= -1)

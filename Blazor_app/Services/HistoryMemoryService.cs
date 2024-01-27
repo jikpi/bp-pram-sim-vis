@@ -15,6 +15,7 @@ namespace Blazor_app.Services
         private List<int> MasterCodeIndexHistory { get; set; } = [];
         private List<List<ObservableCollection<MemoryCell>>?> ParallelMemoryHistory { get; set; } = [];
         private List<List<int>?> ParallelCodeIndexHistory { get; set; } = [];
+        private List<List<bool>> ParallelMachineHaltHistory { get; set; } = [];
 
 
         private static void SaveMemory(ObservableCollection<MemoryCell> input, List<ObservableCollection<MemoryCell>> target)
@@ -48,10 +49,12 @@ namespace Blazor_app.Services
             {
                 List<ObservableCollection<MemoryCell>>? parallelMemory = [];
                 List<int>? parallelIP = new List<int>();
+                List<bool> parallelMachineHalt = new List<bool>();
                 for (int i = 0; i < machine.ParallelMachinesCount; i++)
                 {
                     ObservableCollection<MemoryCell>? currentParMachineMemory = machine.GetParallelMachinesMemory(i);
                     int? currentParMachineCodeLineIndex = machine.GetParallelMachineCodeLineIndex(i);
+                    bool currentParMachineHalt = machine.GetParallelMachineIsHalted(i);
                     if (currentParMachineMemory != null && currentParMachineCodeLineIndex != null)
                     {
                         SaveMemory(currentParMachineMemory, parallelMemory);
@@ -66,6 +69,7 @@ namespace Blazor_app.Services
                 }
                 ParallelMemoryHistory.Add(parallelMemory);
                 ParallelCodeIndexHistory.Add(parallelIP);
+                ParallelMachineHaltHistory.Add(parallelMachineHalt);
             }
 
             HistoryIndex++;
@@ -132,6 +136,42 @@ namespace Blazor_app.Services
                 return null;
             }
             return MasterCodeIndexHistory[index];
+        }
+
+        public List<ObservableCollection<MemoryCell>>? GetParallelMemoryAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return ParallelMemoryHistory[index];
+        }
+
+        public List<int>? GetParallelCodeIndexAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return null;
+            }
+            return ParallelCodeIndexHistory[index];
+        }
+
+        public bool GetParallelMachineHaltAt(int index, int machineIndex)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return false;
+            }
+            return ParallelMachineHaltHistory[index][machineIndex];
+        }
+
+        public int GetParallelMachineCountAt(int index)
+        {
+            if (index < 0 || index >= HistoryIndex)
+            {
+                return 0;
+            }
+            return ParallelMemoryHistory[index] != null ? ParallelMemoryHistory[index]!.Count : 0;
         }
 
         public void Reset()
