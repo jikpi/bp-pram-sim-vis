@@ -454,11 +454,13 @@ namespace Blazor_app.Services
 
             if (batchIndex == -1)
             {
+                _navigationManager.NavigateTo("/");
                 return;
             }
 
             string code = _pramMachine.GetParallelMachineCode(batchIndex);
 
+            _navigationManager.NavigateTo("/pramview");
             _pramCodeViewService.SetPramCode(code);
             RefreshPramView();
         }

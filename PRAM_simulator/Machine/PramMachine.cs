@@ -372,7 +372,7 @@ namespace PRAM_lib.Machine
 
         public string GetParallelMachineCode(int index)
         {
-            return ContainedParallelMachines[ParallelBatchIndex].ParallelMachineCode;
+            return ContainedParallelMachines[index].ParallelMachineCode;
         }
 
         private InParallelMachine? GetParallelMachine(int index)
