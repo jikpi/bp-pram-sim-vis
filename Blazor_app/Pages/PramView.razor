@@ -29,7 +29,7 @@
             <div class="text-center">
                 <h4>Shared Memory</h4>
             </div>
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@pramMachine.GetSharedMemory()" />
+            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
         </div>
 
     <!-- Parallel Machines -->
@@ -37,7 +37,7 @@
             <div class="row">
                 @for (int i = 0; i < GetParallelMachineCount(); i++)
                 {
-                    if(pramMachine.GetParallelMachineIsHalted(i))
+                    if(GetParallelMachineIsAfterHalted(i))
                     {
                         continue;
                     }
@@ -46,7 +46,11 @@
                     <div class="col-md-3 mb-4">
                         <div class="card h-100">
                             <div class="card-header">
-                                Machine @i
+                                Machine @i :
+                                @if (GetParallelMachineIsHalted(i))
+                                {
+                                    <span class="badge bg-warning">Halted</span>
+                                }
                             </div>
                             <div class="card-body @GetCardClass(i)">
                                 <h5 class="card-title">Code</h5>
@@ -97,43 +101,40 @@
 
     public int GetParallelMachineCount()
     {
-        return pramMachine.ParallelMachinesCount;
+        return execService.GetParallelMachineCount();
     }
 
     public ObservableCollection<PRAM_lib.Memory.MemoryCell>? GetMemoryOfMachine(int machineIndex)
     {
-        return pramMachine.GetParallelMachinesMemory(machineIndex);
+        return execService.GetParallelMachineMemory(machineIndex);
     }
 
-    // private InParallelMachine? GetParallelMachine(int machineIndex)
-    // {
-    //     return pramMachine.GetParallelMachine(machineIndex);
-    // }
-
-    public string GetParallelMachineCode()
+    public bool GetParallelMachineIsHalted(int machineIndex)
     {
-        string? code = pramMachine.GetCurrentParallelMachineCode();
-        if (code != null)
-        {
-            return code;
-        }
-        else
-        {
-            return "No code";
-        }
+        return execService.GetParallelMachineIsHalted(machineIndex);
     }
 
-    private string GetLineClass(int lineIndex, int parallelIndex)
+    public bool GetParallelMachineIsAfterHalted(int machineIndex)
     {
-        if (pramMachine.GetParallelMachineCodeLineIndex(parallelIndex) == lineIndex)   
+        return execService.GetParallelMachineIsAfterHalted(machineIndex);
+    }
+
+    private string GetLineClass(int lineIndex, int machineIndex)
+    {
+
+        //Current line coloring
+
+        if (execService.GetParallelMachineCodeIndex(machineIndex) == lineIndex)   
         {
             return "code-current-line";
         }
 
-        if (pramMachine.GetParallelMachineExecutionErrorLineIndex(parallelIndex) == lineIndex)   
+        if (execService.GetParallelMachineErrorLineIndex(machineIndex) == lineIndex)   
         {
-            return "code-current-line";
+            return "code-error-line";
         }
+
+        //Regex coloring
 
         if (pramMachine.InstructionRegex.Comment.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
@@ -153,14 +154,14 @@
         return "";
     }
 
-    private string GetCardClass(int parallelIndex)
+    private string GetCardClass(int machineIndex)
     {
-        if (pramMachine.GetParallelMachineIsHalted(parallelIndex))
+        if (execService.GetParallelMachineIsHalted(machineIndex))
         {
             return "halted-card-body";
         }
 
-        if (pramMachine.GetParallelMachineIsCrashed(parallelIndex))
+        if (pramMachine.GetParallelMachineIsCrashed(machineIndex))
         {
             return "crashed-card-body";
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PRAM_lib.Machine;
+using System.Collections.ObjectModel;
 using System.Reflection.PortableExecutable;
 
 namespace Blazor_app.Services
@@ -11,6 +12,7 @@ namespace Blazor_app.Services
         private readonly PramCodeViewService _pramCodeViewService;
         private readonly NavigationManager _navigationManager;
         private readonly GlobalService _globalService;
+        private readonly HistoryMemoryService _historyMemoryService;
 
         public event Action MemoryRefreshed;
         public event Action PramCodeRefreshed;
@@ -29,13 +31,15 @@ namespace Blazor_app.Services
             CodeEditorService codeEditorService,
             PramCodeViewService pramCodeViewService,
             NavigationManager navigationManager,
-            GlobalService globalService)
+            GlobalService globalService,
+            HistoryMemoryService historyMemoryService)
         {
             _pramMachine = pramMachine;
             _codeEditorService = codeEditorService;
             _pramCodeViewService = pramCodeViewService;
             _navigationManager = navigationManager;
             _globalService = globalService;
+            _historyMemoryService = historyMemoryService;
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
             ShowPopup += (message) => { };
@@ -58,7 +62,7 @@ namespace Blazor_app.Services
             MemoryRefreshed?.Invoke();
         }
 
-        public void RefreshPramCode()
+        public void RefreshPramView()
         {
             PramCodeRefreshed?.Invoke();
         }
@@ -81,7 +85,7 @@ namespace Blazor_app.Services
                     _navigationManager.NavigateTo("/pramview");
                 }
 
-                RefreshPramCode();
+                RefreshPramView();
             }
             else
             {
@@ -102,7 +106,7 @@ namespace Blazor_app.Services
             RefreshMemory();
         }
 
-        public bool StepMachine(bool manual = true)
+        private bool ExecuteNext(bool manual = true)
         {
             bool result = _pramMachine.ExecuteNextInstruction();
             if (!result)
@@ -118,14 +122,14 @@ namespace Blazor_app.Services
                         _navigationManager.NavigateTo("/");
                         ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
-                    else if(!IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (!IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
                         _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                         _navigationManager.NavigateTo("/pramview");
                     }
-                    else if(IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
-                        RefreshPramCode();
+                        RefreshPramView();
                     }
                     else if (!IsRunningParallel)
                     {
@@ -153,6 +157,10 @@ namespace Blazor_app.Services
                 _codeEditorService.UpdateExecutingLine(currentLine);
                 RefreshMemory();
             }
+            else
+            {
+                _historyMemoryService.SaveState(_pramMachine);
+            }
 
             if (manual && result)
             {
@@ -169,6 +177,8 @@ namespace Blazor_app.Services
             _codeEditorService.UpdateExecutingLine(-1);
             ResetParallelRunningState();
             _navigationManager.NavigateTo("/");
+            _historyMemoryService.Reset();
+            HistoryOffset = null;
         }
 
         public void ClearMemories()
@@ -186,6 +196,7 @@ namespace Blazor_app.Services
             ResetParallelRunningState();
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(-1);
+            _historyMemoryService.Reset();
         }
 
         //## Auto run ########################################
@@ -196,7 +207,7 @@ namespace Blazor_app.Services
                 return;
             }
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            StepMachine();
+            StepForward();
             _timer.Change(_autoRunInterval, _autoRunInterval);
         }
 
@@ -240,10 +251,11 @@ namespace Blazor_app.Services
         public void RunUntilBreakpoint()
         {
             bool result = false;
+            HistoryOffset = null;
             for (int i = 0; i < 10000; i++)
             {
                 // Stop if machine is in bad state
-                result = StepMachine(false);
+                result = ExecuteNext(false);
                 if (!result)
                 {
                     break;
@@ -286,6 +298,218 @@ namespace Blazor_app.Services
             if (result)
             {
                 InteractiveMachineStep();
+            }
+        }
+
+        // ----------------------------------------------------
+
+        // ## History #########################################
+
+        int? HistoryOffset = null;
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextInput()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetInputMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetInputAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetInputMemory();
+            }
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextOutput()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetOutputMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetOutputAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetOutputMemory();
+            }
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextShared()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetSharedMemory();
+            }
+            else
+            {
+                return _historyMemoryService.GetSharedMemoryAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetSharedMemory();
+            }
+        }
+
+        public int GetMasterCodeIndex()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetCurrentCodeLineIndex();
+            }
+            else
+            {
+                return _historyMemoryService.GetMasterCodeIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? _pramMachine.GetCurrentCodeLineIndex();
+            }
+        }
+
+        public int GetParallelMachineCount()
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.ParallelMachinesCount;
+            }
+            else
+            {
+                return _historyMemoryService.GetParallelMachineCountAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+            }
+        }
+
+        public ObservableCollection<PRAM_lib.Memory.MemoryCell>? GetParallelMachineMemory(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachinesMemory(machineIndex);
+            }
+            else
+            {
+                var result = _historyMemoryService.GetParallelMemoryAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+                if (result == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return result[machineIndex];
+                }
+            }
+        }
+
+        public bool GetParallelMachineIsHalted(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineIsHalted(machineIndex);
+            }
+            else
+            {
+                return _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value, machineIndex);
+            }
+        }
+
+        public bool GetParallelMachineIsAfterHalted(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineIsAfterHalted(machineIndex);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public int GetParallelMachineCodeIndex(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineCodeLineIndex(machineIndex) ?? -1;
+            }
+            else
+            {
+                var result = _historyMemoryService.GetParallelCodeIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+                if (result == null)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return result[machineIndex];
+                }
+            }
+        }
+
+        public int GetParallelMachineErrorLineIndex(int machineIndex)
+        {
+            if (HistoryOffset == null)
+            {
+                return _pramMachine.GetParallelMachineErrorLineIndex(machineIndex);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        private void ResolveUIParallelHistory()
+        {
+            if (HistoryOffset == null)
+            {
+                return;
+            }
+
+            int batchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? -1;
+
+            if (batchIndex == -1)
+            {
+                _navigationManager.NavigateTo("/");
+                return;
+            }
+
+            string code = _pramMachine.GetParallelMachineCode(batchIndex);
+
+            _navigationManager.NavigateTo("/pramview");
+            _pramCodeViewService.SetPramCode(code);
+            RefreshPramView();
+        }
+
+        public void StepForward()
+        {
+            if (HistoryOffset >= -1)
+            {
+                HistoryOffset = null;
+                _globalService.SetLastState($"History reset: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            }
+            
+            if (HistoryOffset == null)
+            {
+                _ = ExecuteNext();
+            }
+            else
+            {
+                HistoryOffset++;
+                _globalService.SetLastState($"History going forward: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
+            }
+        }
+
+        public void StepBackward()
+        {
+            if (HistoryOffset == null)
+            {
+                HistoryOffset = -2;
+                _globalService.SetLastState($"Starting history: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
+            }
+            else if (_historyMemoryService.HistoryIndex + HistoryOffset <= 0)
+            {
+                _globalService.SetLastState($"Max history reached: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+            }
+            else
+            {
+                HistoryOffset--;
+                _globalService.SetLastState($"Going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                RefreshMemory();
+                _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+                ResolveUIParallelHistory();
             }
         }
     }

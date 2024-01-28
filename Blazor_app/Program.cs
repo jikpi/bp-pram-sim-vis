@@ -28,6 +28,9 @@ namespace Blazor_app
             //dependency injection for the pram code view service
             builder.Services.AddSingleton<PramCodeViewService>();
 
+            //dependency injection for the history memory service
+            builder.Services.AddSingleton<HistoryMemoryService>();
+
             //dependency injection for the execution service
             builder.Services.AddSingleton<ExecutionService>(sp =>
             {
@@ -36,7 +39,13 @@ namespace Blazor_app
                 var pramCodeViewService = sp.GetRequiredService<PramCodeViewService>();
                 var navigationManager = sp.GetRequiredService<NavigationManager>();
                 var globalService = sp.GetRequiredService<GlobalService>();
-                return new ExecutionService(pramMachine, codeEditorService, pramCodeViewService, navigationManager, globalService);
+                var historyMemoryService = sp.GetRequiredService<HistoryMemoryService>();
+                return new ExecutionService(pramMachine, 
+                    codeEditorService, 
+                    pramCodeViewService, 
+                    navigationManager, 
+                    globalService, 
+                    historyMemoryService);
             });
 
             await builder.Build().RunAsync();
