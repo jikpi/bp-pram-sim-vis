@@ -25,6 +25,7 @@ namespace PRAM_lib.Code
         public Regex ResultSet_ParallelIndex { get; set; }
         public Regex IndirectMultiMemoryToResult { get; set; }
         public Regex Halt { get; set; }
+        public Regex NoOperation { get; set; }
 
 
         public InstructionRegex()
@@ -61,6 +62,8 @@ namespace PRAM_lib.Code
             ResultSet_ParallelIndex = new Regex(@"^{i}\s*$"); //1 group
 
             Halt = new Regex(@"^halt\s*$"); //0 groups
+
+            NoOperation = new Regex(@"^nop\s*$"); //0 groups
 
         }
     }

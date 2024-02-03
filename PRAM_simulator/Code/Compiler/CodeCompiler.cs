@@ -558,6 +558,13 @@ namespace PRAM_lib.Code.Compiler
                     continue;
                 }
 
+                //NoOperation
+                if (regex.NoOperation.IsMatch(strings[i]))
+                {
+                    newCodeMemory.Instructions.Add(new NoOperation(new GatewayIndexSet(localGateway, -1), instructionPointerIndex++, lineIndex));
+                    continue;
+                }
+
                 //Instruction not recognized
                 errorMessage = ExceptionMessages.CompilationInstructionNotRecognized(strings[i]);
                 returnLineIndex = lineIndex;
