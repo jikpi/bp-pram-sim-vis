@@ -8,66 +8,66 @@ namespace PRAM_lib.Code
     {
         public Regex Comment { get; private set; } //Not a real instruction
         private static readonly Regex DefComment = new Regex(@"^#.*$");
-        private static readonly int commentGroupCount = 0;
+        private static readonly int CommentGroupCount = 0;
         public Regex ReadInput { get; private set; }
         private static readonly Regex DefReadInput = new Regex(@"^[A-Z](\d+) := READ\((\d+|)\)\s*$");
-        private static readonly int readInputGroupCount = 2;
+        private static readonly int ReadInputGroupCount = 2;
         public Regex WriteOutput { get; private set; }
         private static readonly Regex DefWriteOutput = new Regex(@"^WRITE\((.*)\)\s*$");
-        private static readonly int writeOutputGroupCount = 1;
+        private static readonly int WriteOutputGroupCount = 1;
         public Regex SetMemoryToResult { get; private set; }
         private static readonly Regex DefSetMemoryToResult = new Regex(@"^([A-Z])(\d+) := (.*)\s*$");
-        private static readonly int setMemoryToResultGroupCount = 3;
+        private static readonly int SetMemoryToResultGroupCount = 3;
         public Regex ResultSet_Cell { get; private set; }
         private static readonly Regex DefResultSet_Cell = new Regex(@"^([A-Z])(\d+)\s*$");
-        private static readonly int resultSet_CellGroupCount = 2;
+        private static readonly int ResultSet_CellGroupCount = 2;
         public Regex ResultSet_CellOpCell { get; private set; }
         private static readonly Regex DefResultSet_CellOpCell = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
-        private static readonly int resultSet_CellOpCellGroupCount = 5;
+        private static readonly int ResultSet_CellOpCellGroupCount = 5;
         public Regex ResultSet_CellOpConstant { get; private set; }
         private static readonly Regex DefResultSet_CellOpConstant = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) (\d+)\s*$");
-        private static readonly int resultSet_CellOpConstantGroupCount = 4;
+        private static readonly int ResultSet_CellOpConstantGroupCount = 4;
         public Regex ResultSet_ConstantOpCell { get; private set; } //Supplemental regex for ResultSet_CellOpConstant alternative
         private static readonly Regex DefResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
-        private static readonly int resultSet_ConstantOpCellGroupCount = 4;
+        private static readonly int ResultSet_ConstantOpCellGroupCount = 4;
         public Regex ResultSet_Pointer { get; private set; }
         private static readonly Regex DefResultSet_Pointer = new Regex(@"^\[([A-Z])(\d+)\]\s*$");
-        private static readonly int resultSet_PointerGroupCount = 2;
+        private static readonly int ResultSet_PointerGroupCount = 2;
         public Regex ResultSet_Constant { get; private set; }
         private static readonly Regex DefResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$");
-        private static readonly int resultSet_ConstantGroupCount = 1;
+        private static readonly int ResultSet_ConstantGroupCount = 1;
         public Regex SetPointerToResult { get; private set; }
         private static readonly Regex DefSetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$");
-        private static readonly int setPointerToResultGroupCount = 3;
+        private static readonly int SetPointerToResultGroupCount = 3;
         public Regex JumpToInstruction { get; private set; }
         private static readonly Regex DefJumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$");
-        private static readonly int jumpToInstructionGroupCount = 1;
+        private static readonly int JumpToInstructionGroupCount = 1;
         public Regex JumpToLabel { get; private set; } //Not a real instruction
         private static readonly Regex DefJumpToLabel = new Regex(@"^:([0-z]*)\s*$");
-        private static readonly int jumpToLabelGroupCount = 1;
+        private static readonly int JumpToLabelGroupCount = 1;
         public Regex IfJumpTo { get; private set; }
         private static readonly Regex DefIfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$");
-        private static readonly int ifJumpToGroupCount = 6;
+        private static readonly int IfJumpToGroupCount = 6;
         public Regex ParallelStart { get; private set; }
         private static readonly Regex DefParallelStart = new Regex(@"^pardo (\d+)\s*$");
-        private static readonly int parallelStartGroupCount = 1;
+        private static readonly int ParallelStartGroupCount = 1;
         public readonly Regex ParallelEnd = new Regex(@"^parend\s*$"); //Cannot be changed by user
         public readonly string ParallelEndString = "parend"; //Cannot be changed by user
-        public string ParallelCell; //Not a real instruction
+        public string ParallelCell { get; private set; } //Not a real instruction
         public static readonly string DefParallelCell = "S";
-        private static readonly int parallelCellGroupCount = 0;
+        private static readonly int ParallelCellGroupCount = 0;
         public Regex ResultSet_ParallelIndex { get; private set; }
         private static readonly Regex DefResultSet_ParallelIndex = new Regex(@"^{i}\s*$");
-        private static readonly int resultSet_ParallelIndexGroupCount = 1;
+        private static readonly int ResultSet_ParallelIndexGroupCount = 1;
         public Regex IndirectMultiMemoryToResult { get; private set; }
         private static readonly Regex DefIndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$");
-        private static readonly int indirectMultiMemoryToResultGroupCount = 3;
+        private static readonly int IndirectMultiMemoryToResultGroupCount = 3;
         public Regex Halt { get; private set; }
         private static readonly Regex DefHalt = new Regex(@"^halt\s*$");
-        private static readonly int haltGroupCount = 0;
+        private static readonly int HaltGroupCount = 0;
         public Regex NoOperation { get; private set; }
         private static readonly Regex DefNoOperation = new Regex(@"^nop\s*$");
-        private static readonly int noOperationGroupCount = 0;
+        private static readonly int NoOperationGroupCount = 0;
 
 
         public InstructionRegex()
@@ -237,7 +237,7 @@ namespace PRAM_lib.Code
         }
 
         //Set a regex by name, and check if the group count is correct. Return true if the group count is correct, false otherwise
-        public bool SetRegex(string name, Regex regex)
+        public bool SetRegex(string name, string pattern)
         {
             try
             {
@@ -259,18 +259,25 @@ namespace PRAM_lib.Code
                 }
 
                 int expectedGroupCount = (int)groupCountValue;
+                var regex = new Regex(pattern);
 
-                if (regex.GetGroupNumbers().Length != expectedGroupCount)
+                //Does not account for the default group
+                if (regex.GetGroupNumbers().Length - 1 != expectedGroupCount)
                 {
                     return false;
                 }
 
                 if (propertyName == "ParallelCell")
                 {
-                    ParallelCell = regex.ToString();
+                    ParallelCell = pattern;
                 }
                 else if (propertyInfo.PropertyType == typeof(Regex))
                 {
+                    if (!pattern.StartsWith("^") || !pattern.EndsWith("*$"))
+                    {
+                        return false;
+                    }
+
                     propertyInfo.SetValue(this, regex);
                 }
 
