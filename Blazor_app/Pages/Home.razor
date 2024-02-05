@@ -67,7 +67,7 @@
 
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextInput()" />
             <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddInputCell">Add Cell</button>
+                <button class="btn btn-light" @onclick="AddInputCell">➕</button>
             </div>
         </div>
         <div class="col">
@@ -80,7 +80,7 @@
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
             <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
+                <button class="btn btn-light" @onclick="AddSharedMemoryCell">➕</button>
             </div>
         </div>
         <div class="col">
@@ -92,14 +92,11 @@
                 <button class="btn btn-secondary my-1" @onclick="ClearOutputMemory">Clear</button>
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextOutput()" />
-            <div class="text-center">
-                <button class="btn btn-primary" @onclick="AddSharedMemoryCell">Add Cell</button>
-            </div>
         </div>
     </div>
 </div>
 
-<button class="btn btn-primary" @onclick="testAdd">Test Set</button>
+<button class="btn btn-primary" @onclick="testAdd">Test Set / Crash</button>
 <button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
 
 

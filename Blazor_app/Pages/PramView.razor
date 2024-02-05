@@ -22,16 +22,24 @@
 
 <Blazor_app.Components.CommonControls />
 
+<!-- Pram controls -->
 <div class="container-fluid my-2">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="input-group mb-3">
+                <div class="input-group-prepend" style="margin-right: 10px;">
+                    <div class="input-group-text">
+                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Checkbox for following text input">
+                        <span class="ms-2">Show Halted</span>
+                    </div>
+                </div>
                 <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
                 <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
                 <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
             </div>
         </div>
     </div>
+</div>
     <!-- Shared Memory -->
     <div class="row">
         <div class="col-md-1">
@@ -44,61 +52,65 @@
         <!-- Parallel Machines -->
         <div class="col-md-11">
             <div class="row">
-                @for (int i = 0; i < GetParallelMachineCount(); i++)
-                {
-                    if(GetParallelMachineIsAfterHalted(i))
+             @{
+                int displayCount = 0;
+              }
+    @for (int i = 0; i < GetParallelMachineCount(); i++)
+    {
+        if(!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
+        {
+            continue;
+        }
+
+        if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
+        {
+            continue;
+        }
+
+        var machineMemory = GetMemoryOfMachine(i);
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    Machine @i :
+                    @if (GetParallelMachineIsHalted(i))
                     {
-                        continue;
+                        <span class="badge bg-warning">Halted</span>
                     }
-
-                    if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
-                    {
-                        continue;
-                    }
-
-                    var machineMemory = GetMemoryOfMachine(i);
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                Machine @i :
-                                @if (GetParallelMachineIsHalted(i))
-                                {
-                                    <span class="badge bg-warning">Halted</span>
-                                }
+                </div>
+                <div class="card-body @GetCardClass(i)">
+                    <h5 class="card-title">Code</h5>
+                    
+                    <div class="code-compiled-code-container">
+                        @foreach (var line in pramCodeViewService.PramLines)
+                        {
+                            <div class="@GetLineClass(line.Key, i)">
+                                @line.Value
                             </div>
-                            <div class="card-body @GetCardClass(i)">
-                                <h5 class="card-title">Code</h5>
-                                
-                                <div class="code-compiled-code-container">
-                                    @foreach (var line in pramCodeViewService.PramLines)
-                                    {
-                                        <div class="@GetLineClass(line.Key, i)">
-                                            @line.Value
-                                        </div>
-                                    }
-                                </div>
-
-                                <h5 class="card-title">Memory</h5>
-                                @if (machineMemory != null)
-                                {
-                                    <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
-                                }
-                                else
-                                {
-                                    <p>No memory data</p>
-                                }
-                            </div>
-                        </div>
+                        }
                     </div>
-                    if ((i + 1) % 4 == 0 && i != GetParallelMachineCount() - 1)
+
+                    <h5 class="card-title">Memory</h5>
+                    @if (machineMemory != null)
                     {
-                        @:</div><div class="row mt-2">
+                        <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
                     }
-                }
+                    else
+                    {
+                        <p>No memory data</p>
+                    }
+                </div>
             </div>
         </div>
+        displayCount++;
+        if (displayCount % 4 == 0 && i != GetParallelMachineCount() - 1)
+        {
+            @:</div><div class="row mt-2">
+        }
+    }
+            </div>
+
+        </div>
     </div>
-</div>
 
 
 @code {

@@ -13,6 +13,9 @@
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
+        //A property that decides whether to show halted parallel machines
+        public bool ShowHaltedParallelMachines { get; set; } = false;
+
         // ## Selective PRAM view 
         public SortedSet<int> SelectedViewParallelMachines { get; private set; } = new SortedSet<int>();
 
