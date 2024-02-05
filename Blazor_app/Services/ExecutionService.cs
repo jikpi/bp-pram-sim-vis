@@ -67,7 +67,7 @@ namespace Blazor_app.Services
             PramCodeRefreshed?.Invoke();
         }
 
-        // Logic for UI in machine step, only for manual stepping or after auto step is done
+        // Logic for UI in machine step, is used to update the UI, called after the machine has executed an instruction/s
         private void InteractiveMachineStep()
         {
 
@@ -106,6 +106,7 @@ namespace Blazor_app.Services
             RefreshMemory();
         }
 
+        // Method that executes the next instruction and optionally handles the UI
         private bool ExecuteNext(bool manual = true)
         {
             bool result = _pramMachine.ExecuteNextInstruction();
@@ -170,8 +171,14 @@ namespace Blazor_app.Services
             return result;
         }
 
+        //Called when user wants to reset the machine
         public void ResetMachine()
         {
+            if(IsAutoRunning)
+            {
+                StopAutoRun();
+            }
+
             _pramMachine.Restart();
             _globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
             _codeEditorService.UpdateExecutingLine(-1);
@@ -179,6 +186,32 @@ namespace Blazor_app.Services
             _navigationManager.NavigateTo("/");
             _historyMemoryService.Reset();
             HistoryOffset = null;
+        }
+
+        //Compiles the code in the code editor
+        public void CompileCode()
+        {
+            if(IsAutoRunning)
+            {
+                StopAutoRun();
+            }
+
+            _pramMachine.Compile(_codeEditorService.Code);
+            ResetParallelRunningState();
+            _historyMemoryService.Reset();
+            HistoryOffset = null;
+            
+
+            if (_pramMachine.IsCompiled)
+            {
+                _globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
+                _codeEditorService.CodeToCompiledMode();
+            }
+            else
+            {
+                _globalService.SetLastState($"Compilation failed: {_pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
+            }
+            RefreshMemory();
         }
 
         public void ClearMemories()
@@ -197,6 +230,7 @@ namespace Blazor_app.Services
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(-1);
             _historyMemoryService.Reset();
+            HistoryOffset = null;
         }
 
         //## Auto run ########################################
@@ -235,6 +269,7 @@ namespace Blazor_app.Services
 
         public void ToggleAutoRun()
         {
+            //HistoryOffset = null;
             if (IsAutoRunning)
             {
                 StopAutoRun();
@@ -306,6 +341,7 @@ namespace Blazor_app.Services
         // ## History #########################################
 
         int? HistoryOffset = null;
+        public bool IsInHistory => HistoryOffset != null;
 
         public ObservableCollection<PRAM_lib.Memory.MemoryCell> GetMemoryContextInput()
         {
@@ -443,6 +479,7 @@ namespace Blazor_app.Services
             }
         }
 
+        //Switches to parallel history view if the history offset is set
         private void ResolveUIParallelHistory()
         {
             if (HistoryOffset == null)
@@ -491,6 +528,17 @@ namespace Blazor_app.Services
 
         public void StepBackward()
         {
+            if(IsAutoRunning)
+            {
+                StopAutoRun();
+            }
+
+            if(_historyMemoryService.HistoryIndex == 0)
+            {
+                _globalService.SetLastState("No history", GlobalService.LastStateUniform.Warning);
+                return;
+            }
+
             if (HistoryOffset == null)
             {
                 HistoryOffset = -2;
@@ -511,6 +559,20 @@ namespace Blazor_app.Services
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
                 ResolveUIParallelHistory();
             }
+        }
+
+        public void StepToPresent()
+        {
+            if(IsAutoRunning)
+            {
+                StopAutoRun();
+            }
+
+            HistoryOffset = null;
+            _globalService.SetLastState($"History set to present.", GlobalService.LastStateUniform.Note);
+            RefreshMemory();
+            _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
+            ResolveUIParallelHistory();
         }
     }
 }
