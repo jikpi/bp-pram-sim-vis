@@ -1,70 +1,299 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace PRAM_lib.Code
 {
     public class InstructionRegex
     {
-        public Regex Comment { get; set; } //Not a real instruction
-        public Regex ReadInput { get; set; }
-        public Regex WriteOutput { get; set; }
-        public Regex SetMemoryToResult { get; set; }
-        public Regex ResultSet_Cell { get; set; }
-        public Regex ResultSet_CellOpCell { get; set; }
-        public Regex ResultSet_CellOpConstant { get; set; }
-        public Regex ResultSet_ConstantOpCell { get; set; } //Supplemental regex for ResultSet_CellOpConstant alternative
-        public Regex ResultSet_Pointer { get; set; }
-        public Regex ResultSet_Constant { get; set; }
-        public Regex SetPointerToResult { get; set; }
-        public Regex JumpToInstruction { get; set; }
-        public Regex JumpToLabel { get; set; } //Not a real instruction
-        public Regex IfJumpTo { get; set; }
-        public Regex ParallelStart { get; set; }
-        public Regex ParallelEnd { get; private set; } //Cannot be changed by user
-        public string ParallelEndString { get; private set; }
-        public string ParallelCell; //Not a real instruction
-        public Regex ResultSet_ParallelIndex { get; set; }
-        public Regex IndirectMultiMemoryToResult { get; set; }
-        public Regex Halt { get; set; }
-        public Regex NoOperation { get; set; }
-
+        public Regex Comment { get; private set; } //Not a real instruction
+        private static readonly Regex DefComment = new Regex(@"^#.*$");
+        public Regex ReadInput { get; private set; }
+        private static readonly Regex DefReadInput = new Regex(@"^[A-Z](\d+) := READ\((\d+|)\)\s*$");
+        public Regex WriteOutput { get; private set; }
+        private static readonly Regex DefWriteOutput = new Regex(@"^WRITE\((.*)\)\s*$");
+        public Regex SetMemoryToResult { get; private set; }
+        private static readonly Regex DefSetMemoryToResult = new Regex(@"^([A-Z])(\d+) := (.*)\s*$");
+        public Regex ResultSet_Cell { get; private set; }
+        private static readonly Regex DefResultSet_Cell = new Regex(@"^([A-Z])(\d+)\s*$");
+        public Regex ResultSet_CellOpCell { get; private set; }
+        private static readonly Regex DefResultSet_CellOpCell = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
+        public Regex ResultSet_CellOpConstant { get; private set; }
+        private static readonly Regex DefResultSet_CellOpConstant = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) (\d+)\s*$");
+        public Regex ResultSet_ConstantOpCell { get; private set; } //Supplemental regex for ResultSet_CellOpConstant alternative
+        private static readonly Regex DefResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
+        public Regex ResultSet_Pointer { get; private set; }
+        private static readonly Regex DefResultSet_Pointer = new Regex(@"^\[([A-Z])(\d+)\]\s*$");
+        public Regex ResultSet_Constant { get; private set; }
+        private static readonly Regex DefResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$");
+        public Regex SetPointerToResult { get; private set; }
+        private static readonly Regex DefSetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$");
+        public Regex JumpToInstruction { get; private set; }
+        private static readonly Regex DefJumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$");
+        public Regex JumpToLabel { get; private set; } //Not a real instruction
+        private static readonly Regex DefJumpToLabel = new Regex(@"^:([0-z]*)\s*$");
+        public Regex IfJumpTo { get; private set; }
+        private static readonly Regex DefIfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$");
+        public Regex ParallelStart { get; private set; }
+        private static readonly Regex DefParallelStart = new Regex(@"^pardo (\d+)\s*$");
+        public readonly Regex ParallelEnd = new Regex(@"^parend\s*$"); //Cannot be changed by user
+        public readonly string ParallelEndString = "parend"; //Cannot be changed by user
+        public string ParallelCell { get; private set; } //Not a real instruction
+        private static readonly string DefParallelCell = new string("S");
+        public Regex ResultSet_ParallelIndex { get; private set; }
+        private static readonly Regex DefResultSet_ParallelIndex = new Regex(@"^{i}\s*$");
+        public Regex IndirectMultiMemoryToResult { get; private set; }
+        private static readonly Regex DefIndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$");
+        public Regex Halt { get; private set; }
+        private static readonly Regex DefHalt = new Regex(@"^halt\s*$");
+        public Regex NoOperation { get; private set; }
+        private static readonly Regex DefNoOperation = new Regex(@"^nop\s*$");
 
         public InstructionRegex()
         {
-            Comment = new Regex(@"^#.*$"); //0 groups
-
-            ReadInput = new Regex(@"^[A-Z](\d+) := READ\((\d+|)\)\s*$"); //2 groups
-
-            WriteOutput = new Regex(@"^WRITE\((.*)\)\s*$"); //1 group
-            SetMemoryToResult = new Regex(@"^([A-Z])(\d+) := (.*)\s*$"); //3 groups
-            SetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$"); //3 groups
-            //Result sets for instructions that require it
-            ResultSet_Cell = new Regex(@"^([A-Z])(\d+)\s*$"); //2 groups
-            ResultSet_CellOpCell = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$"); //5 groups
-            ResultSet_CellOpConstant = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) (\d+)\s*$"); //4 groups
-            ResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$"); //4 groups
-            ResultSet_Pointer = new Regex(@"^\[([A-Z])(\d+)\]\s*$"); //2 groups
-            ResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$"); //1 group
-
-            JumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$"); //1 group
-            JumpToLabel = new Regex(@"^:([0-z]*)\s*$"); //1 group
-            IfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$"); // 6 groups
-
-            //Parallel instructions
-            ParallelStart = new Regex(@"^pardo (\d+)\s*$"); //1 group
-
-            ParallelEnd = new Regex(@"^parend\s*$"); //0 groups
-            ParallelEndString = "parend"; //Cannot be changed by user
-
-            ParallelCell = "S";
-            IndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$"); //3 groups
-
-            //Result set for parallel instructions
-            ResultSet_ParallelIndex = new Regex(@"^{i}\s*$"); //1 group
-
-            Halt = new Regex(@"^halt\s*$"); //0 groups
-
-            NoOperation = new Regex(@"^nop\s*$"); //0 groups
-
+            Comment = DefComment;
+            ReadInput = DefReadInput;
+            WriteOutput = DefWriteOutput;
+            SetMemoryToResult = DefSetMemoryToResult;
+            SetPointerToResult = DefSetPointerToResult;
+            ResultSet_Cell = DefResultSet_Cell;
+            ResultSet_CellOpCell = DefResultSet_CellOpCell;
+            ResultSet_CellOpConstant = DefResultSet_CellOpConstant;
+            ResultSet_ConstantOpCell = DefResultSet_ConstantOpCell;
+            ResultSet_Pointer = DefResultSet_Pointer;
+            ResultSet_Constant = DefResultSet_Constant;
+            JumpToInstruction = DefJumpToInstruction;
+            JumpToLabel = DefJumpToLabel;
+            IfJumpTo = DefIfJumpTo;
+            ParallelStart = DefParallelStart;
+            ParallelCell = DefParallelCell;
+            ResultSet_ParallelIndex = DefResultSet_ParallelIndex;
+            IndirectMultiMemoryToResult = DefIndirectMultiMemoryToResult;
+            Halt = DefHalt;
+            NoOperation = DefNoOperation;
         }
+
+        public void ResetToDefault()
+        {
+            Comment = DefComment;
+            ReadInput = DefReadInput;
+            WriteOutput = DefWriteOutput;
+            SetMemoryToResult = DefSetMemoryToResult;
+            SetPointerToResult = DefSetPointerToResult;
+            ResultSet_Cell = DefResultSet_Cell;
+            ResultSet_CellOpCell = DefResultSet_CellOpCell;
+            ResultSet_CellOpConstant = DefResultSet_CellOpConstant;
+            ResultSet_ConstantOpCell = DefResultSet_ConstantOpCell;
+            ResultSet_Pointer = DefResultSet_Pointer;
+            ResultSet_Constant = DefResultSet_Constant;
+            JumpToInstruction = DefJumpToInstruction;
+            JumpToLabel = DefJumpToLabel;
+            IfJumpTo = DefIfJumpTo;
+            ParallelStart = DefParallelStart;
+            ParallelCell = DefParallelCell;
+            ResultSet_ParallelIndex = DefResultSet_ParallelIndex;
+            IndirectMultiMemoryToResult = DefIndirectMultiMemoryToResult;
+            Halt = DefHalt;
+            NoOperation = DefNoOperation;
+        }
+
+        //Return a string with all the regexes, with property names on first line, and regex patterns on second line, in pairs.
+        public string SaveToText()
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            sb.AppendLine("Comment");
+            sb.AppendLine(Comment.ToString());
+            sb.AppendLine("ReadInput");
+            sb.AppendLine(ReadInput.ToString());
+            sb.AppendLine("WriteOutput");
+            sb.AppendLine(WriteOutput.ToString());
+            sb.AppendLine("SetMemoryToResult");
+            sb.AppendLine(SetMemoryToResult.ToString());
+            sb.AppendLine("ResultSet_Cell");
+            sb.AppendLine(ResultSet_Cell.ToString());
+            sb.AppendLine("ResultSet_CellOpCell");
+            sb.AppendLine(ResultSet_CellOpCell.ToString());
+            sb.AppendLine("ResultSet_CellOpConstant");
+            sb.AppendLine(ResultSet_CellOpConstant.ToString());
+            sb.AppendLine("ResultSet_ConstantOpCell");
+            sb.AppendLine(ResultSet_ConstantOpCell.ToString());
+            sb.AppendLine("ResultSet_Pointer");
+            sb.AppendLine(ResultSet_Pointer.ToString());
+            sb.AppendLine("ResultSet_Constant");
+            sb.AppendLine(ResultSet_Constant.ToString());
+            sb.AppendLine("SetPointerToResult");
+            sb.AppendLine(SetPointerToResult.ToString());
+            sb.AppendLine("JumpToInstruction");
+            sb.AppendLine(JumpToInstruction.ToString());
+            sb.AppendLine("JumpToLabel");
+            sb.AppendLine(JumpToLabel.ToString());
+            sb.AppendLine("IfJumpTo");
+            sb.AppendLine(IfJumpTo.ToString());
+            sb.AppendLine("ParallelStart");
+            sb.AppendLine(ParallelStart.ToString());
+            sb.AppendLine("ParallelCell");
+            sb.AppendLine(ParallelCell.ToString());
+            sb.AppendLine("ResultSet_ParallelIndex");
+            sb.AppendLine(ResultSet_ParallelIndex.ToString());
+            sb.AppendLine("IndirectMultiMemoryToResult");
+            sb.AppendLine(IndirectMultiMemoryToResult.ToString());
+            sb.AppendLine("Halt");
+            sb.AppendLine(Halt.ToString());
+            sb.AppendLine("NoOperation");
+            sb.AppendLine(NoOperation.ToString());
+
+            return sb.ToString();
+        }
+
+        //Load pairs of property name and regex pattern from a string, and set the properties to the regexes using reflection.
+        //Should anything go wrong, return false and set errorMessage.
+        public bool LoadFromJson(string plaintext, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (plaintext.Length > 10000)
+            {
+                errorMessage = "Input too long, no changes were made.";
+                return false;
+            }
+
+            string[] lines = plaintext.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length % 2 != 0)
+            {
+                errorMessage = "Input parse error, no changes were made.";
+                return false;
+            }
+
+            for (int i = 0; i < lines.Length; i += 2)
+            {
+                string name = lines[i];
+                string value = lines[i + 1];
+
+                PropertyInfo? propertyInfo = GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (propertyInfo == null)
+                {
+                    errorMessage = $"Unknown property at: {name}, stopping now.";
+                    return false;
+                }
+
+                if (propertyInfo.PropertyType == typeof(Regex))
+                {
+                    Regex regex;
+                    try
+                    {
+                        regex = new Regex(value);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        errorMessage = $"Invalid regex pattern for {name}: {ex.Message}, stopping now.";
+                        return false;
+                    }
+
+                    if(!value.StartsWith("^") || !value.EndsWith("*$"))
+                    {
+                        errorMessage = $"Invalid regex pattern for {name}: Must start with '^' and end with '*$', stopping now.";
+                        return false;
+                    }
+
+                    propertyInfo.SetValue(this, regex);
+                }
+                else if (propertyInfo.PropertyType == typeof(string))
+                {
+                    propertyInfo.SetValue(this, value);
+                }
+                else
+                {
+                    errorMessage = $"Property {name} has an unsupported type: {propertyInfo.PropertyType}, stopping now.";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+        //Return a dictionary of all regexes, with their names as keys
+        public System.Collections.Generic.Dictionary<string, Regex> GetRegexes()
+        {
+            return new System.Collections.Generic.Dictionary<string, Regex>
+            {
+                {"Comment", Comment},
+                {"ReadInput", ReadInput},
+                {"WriteOutput", WriteOutput},
+                {"SetMemoryToResult", SetMemoryToResult},
+                {"ResultSet_Cell", ResultSet_Cell},
+                {"ResultSet_CellOpCell", ResultSet_CellOpCell},
+                {"ResultSet_CellOpConstant", ResultSet_CellOpConstant},
+                {"ResultSet_ConstantOpCell", ResultSet_ConstantOpCell},
+                {"ResultSet_Pointer", ResultSet_Pointer},
+                {"ResultSet_Constant", ResultSet_Constant},
+                {"SetPointerToResult", SetPointerToResult},
+                {"JumpToInstruction", JumpToInstruction},
+                {"JumpToLabel", JumpToLabel},
+                {"IfJumpTo", IfJumpTo},
+                {"ParallelStart", ParallelStart},
+                {"ParallelCell", new Regex(ParallelCell)},
+                {"ResultSet_ParallelIndex", ResultSet_ParallelIndex},
+                {"IndirectMultiMemoryToResult", IndirectMultiMemoryToResult},
+                {"Halt", Halt},
+                {"NoOperation", NoOperation}
+            };
+        }
+
+        //Set a regex by name, and check if the group count is correct. Return true if the group count is correct, false otherwise
+        public bool SetRegex(string name, string pattern)
+        {
+            try
+            {
+                string propertyName = Char.ToUpper(name[0]) + name.Substring(1);
+                string fieldName = propertyName + "GroupCount";
+
+                PropertyInfo? propertyInfo = GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+                FieldInfo? groupCountField = GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
+
+                if (propertyInfo == null || groupCountField == null)
+                {
+                    return false;
+                }
+
+                object? groupCountValue = groupCountField.GetValue(null);
+                if (groupCountValue is null)
+                {
+                    return false;
+                }
+
+                int expectedGroupCount = (int)groupCountValue;
+                Regex regex = new Regex(pattern);
+
+                //Does not account for the default group
+                if (regex.GetGroupNumbers().Length - 1 != expectedGroupCount)
+                {
+                    return false;
+                }
+
+                if (propertyName == "ParallelCell")
+                {
+                    ParallelCell = pattern;
+                }
+                else if (propertyInfo.PropertyType == typeof(Regex))
+                {
+                    if (!pattern.StartsWith("^") || !pattern.EndsWith("*$"))
+                    {
+                        return false;
+                    }
+
+                    propertyInfo.SetValue(this, regex);
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace Blazor_app.Services
 {
+    //Service for settings and global state
     public class GlobalService
     {
         //## State text

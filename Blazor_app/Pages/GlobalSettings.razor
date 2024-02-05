@@ -1,0 +1,97 @@
+﻿@page "/settings"
+@using Blazor_app.Services
+@using PRAM_lib.Machine
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+@inject GlobalService globalService
+@inject PramMachine pramMachine
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Settings</h3>
+
+    <div class="d-flex flex-column align-items-center">
+
+        <div class="form-group w-50 mb-3">
+            <h3>Regex import/export</h3>
+            <input type="file" id="fileInput" style="display:none" onchange="uploadFileToBlazor()" />
+            <button type="button" class="btn btn-primary"
+                    @onclick="ImportRegex">
+                Import regex
+            </button>
+            <button type="button" class="btn btn-secondary"
+                    @onclick="ExportRegex">
+                Export regex
+            </button>
+            <button type="button" class="btn btn-warning"
+                    @onclick="ResetRegex">
+                Reset regex
+            </button>
+
+        </div>
+
+        <div class="form-group w-50 mb-3">
+            <h3>Regex edit</h3>
+            <p>Editing the instruction regex of the machine is not officially supported and may expose critical aspects of its internal functionality. Please proceed with caution.</p>
+            <button type="button" class="btn btn-primary"
+                    @onclick="NavigateToRegexSettings">
+                I understand, continue
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private void ResetRegex()
+    {
+        pramMachine.InstructionRegex.ResetToDefault();
+        globalService.SetLastState("Regex reset to default", GlobalService.LastStateUniform.Note);
+    }
+
+    private void NavigateToRegexSettings()
+    {
+        navigationManager.NavigateTo("/regexsettings");
+    }
+
+    private void ImportRegex()
+    {
+        var dotNetReference = DotNetObjectReference.Create(this);
+        JSRuntime.InvokeVoidAsync("initializeUpload", dotNetReference);
+    }
+
+    [JSInvokable]
+    public Task ReceiveFileContent(string fileContent)
+    {
+        if (string.IsNullOrEmpty(fileContent))
+        {
+            globalService.SetLastState("File refused, it might be too large.", GlobalService.LastStateUniform.Error);
+            return Task.CompletedTask;
+        }
+
+        bool result = pramMachine.InstructionRegex.LoadFromJson(fileContent, out string errorMessage);
+
+        if (!result)
+        {
+            globalService.SetLastState(errorMessage, GlobalService.LastStateUniform.Error);
+        }
+        else
+        {
+            globalService.SetLastState("Regex imported successfully", GlobalService.LastStateUniform.Note);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task ExportRegex()
+    {
+        try
+        {
+            string json = pramMachine.InstructionRegex.SaveToText();
+            await JSRuntime.InvokeVoidAsync("downloadFileFromBlazor", "regex.txt", "text/plain", json);
+        }
+        catch (Exception)
+        {
+            globalService.SetLastState("Failed to export regex", GlobalService.LastStateUniform.Error);
+        }
+    }
+}

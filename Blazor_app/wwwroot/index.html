@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blazor_app</title>
+    <title>PRAM Simulator</title>
     <base href="/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
@@ -29,5 +29,51 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
-
 </html>
+
+<!--JAVASCRIPT FUNCTIONS-->
+<script>
+    //DOWNLOAD REGEX FUNCTION
+    function downloadFileFromBlazor(fileName, contentType, content) {
+        var data = new Blob([content], { type: contentType });
+        var url = window.URL.createObjectURL(data);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+
+    //UPLOAD REGEX FILE FUNCTION
+    function initializeUpload(dotNetReference) {
+        const input = document.getElementById('fileInput');
+        input.onchange = () => uploadFileToBlazor(dotNetReference);
+        input.click();
+    }
+
+    //UPLOAD REGEX FILE FUNCTION
+    function uploadFileToBlazor(dotNetReference) {
+        const input = document.getElementById('fileInput');
+        if (input.files.length > 0) {
+            const file = input.files[0];
+
+            const maxFileSize = 2000;
+
+            if (file.size > maxFileSize) {
+                console.log("File too large.");
+                dotNetReference.invokeMethodAsync('ReceiveFileContent', '')
+                    .then(() => { console.log("Error: File too large, discarding."); });
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                dotNetReference.invokeMethodAsync('ReceiveFileContent', e.target.result)
+                    .then(() => { console.log("OK"); });
+            };
+            reader.readAsText(file);
+        }
+    }
+</script>

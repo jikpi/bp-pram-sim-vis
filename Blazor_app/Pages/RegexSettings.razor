@@ -1,0 +1,99 @@
+﻿@page "/regexsettings"
+@using PRAM_lib.Machine
+@using PRAM_lib.Code
+@using Blazor_app.Services
+@inject GlobalService globalService
+@inject PramMachine pramMachine
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Regex Settings</h3>
+    <p class="text-center mb-4"> Please edit carefully. </p>
+
+    @if (regexes != null && regexes.Count > 0)
+    {
+        <div class="text-center mb-3">
+            <button type="button" class="btn btn-warning" @onclick="() => ResetAllRegexes()">Reset all</button>
+        </div>
+
+        <div class="d-flex flex-column align-items-center">
+            @foreach (var regex in regexes.ToList())
+            {
+                <div class="form-group w-50 mb-3">
+                    <label for="@regex.Key" class="form-label">@regex.Key</label>
+                    <input type="text" id="@regex.Key" value="@regex.Value"
+                           @oninput="eventArgs => OnRegexChanged(eventArgs, regex.Key)" class="form-control mb-2" />
+                    <button type="button" class="btn btn-primary"
+                            @onclick="() => SaveSpecificRegex(regex.Key)">
+                        Save
+                    </button>
+                    <span>@saveStatus[regex.Key]</span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center">Loading...</p>
+    }
+</div>
+
+@code {
+    private Dictionary<string, string> regexes;
+    private Dictionary<string, string> saveStatus = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var regexPatterns = pramMachine.InstructionRegex.GetRegexes();
+        regexes = regexPatterns.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+
+        foreach (var key in regexes.Keys)
+        {
+            saveStatus[key] = "";
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private void OnRegexChanged(ChangeEventArgs e, string key)
+    {
+        var newValue = e.Value?.ToString();
+        if (regexes.ContainsKey(key) && newValue != null)
+        {
+            regexes[key] = newValue;
+        }
+    }
+
+    private void SaveSpecificRegex(string key)
+    {
+        if (regexes.ContainsKey(key))
+        {
+            var success = pramMachine.InstructionRegex.SetRegex(key, regexes[key]);
+            saveStatus[key] = success ? "OK" : "ERROR";
+
+            if (!success)
+            {
+                globalService.SetLastState($"Invalid regex pattern for {key}", GlobalService.LastStateUniform.Error);
+            }
+            else
+            {
+                globalService.SetLastState($"Regex pattern for {key} saved successfully", GlobalService.LastStateUniform.Ok);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private void ResetAllRegexes()
+    {
+        pramMachine.InstructionRegex.ResetToDefault();
+        regexes = pramMachine.InstructionRegex.GetRegexes().ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+
+        foreach (var key in regexes.Keys)
+        {
+            saveStatus[key] = "";
+        }
+
+        globalService.SetLastState("All regex patterns reset", GlobalService.LastStateUniform.Ok);
+        StateHasChanged();
+    }
+}
