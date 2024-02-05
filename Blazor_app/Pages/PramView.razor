@@ -23,6 +23,15 @@
 <Blazor_app.Components.CommonControls />
 
 <div class="container-fluid my-2">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
+                <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
+                <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
+            </div>
+        </div>
+    </div>
     <!-- Shared Memory -->
     <div class="row">
         <div class="col-md-1">
@@ -32,12 +41,17 @@
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
         </div>
 
-    <!-- Parallel Machines -->
+        <!-- Parallel Machines -->
         <div class="col-md-11">
             <div class="row">
                 @for (int i = 0; i < GetParallelMachineCount(); i++)
                 {
                     if(GetParallelMachineIsAfterHalted(i))
+                    {
+                        continue;
+                    }
+
+                    if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
                     {
                         continue;
                     }
@@ -97,6 +111,7 @@
     protected override void OnInitialized()
     {
         execService.PramCodeRefreshed += PramCodeRefreshed;
+        ResolveViewParallelMachines();
     }
 
     public int GetParallelMachineCount()
@@ -168,6 +183,47 @@
 
         return "";
     }
+
+    //## Parallel Machines selection view
+    private string selectViewParallelMachinesText = "";
+    private string selectViewPlaceHolder = "";
+    private void ResolveViewParallelMachines()
+    {
+        selectViewParallelMachinesText = "";
+
+        if(pramCodeViewService.SelectedViewParallelMachines.Count == 0)
+        {
+            selectViewPlaceHolder = "Displaying all. Enter indexes like '0,1,2,4-10,odd 10-20, even 20-30, ...'";
+            StateHasChanged();
+        }
+        else
+        {
+            selectViewPlaceHolder = "🟧 Displaying: " + string.Join(", ", pramCodeViewService.SelectedViewParallelMachines) + "; Begin with '+' to add.";
+            StateHasChanged();
+        }
+    }
+
+    private void SelectViewParallelMachines()
+    {
+        pramCodeViewService.SelectParallelMachines(selectViewParallelMachinesText);
+        ResolveViewParallelMachines();
+    }
+
+    private void ResetViewParallelMachines()
+    {
+        pramCodeViewService.SelectedViewParallelMachines.Clear();
+        ResolveViewParallelMachines();
+    }
+
+    private async Task SelectViewParallelMachinesKeyPressed(KeyboardEventArgs eventArgs)
+    {
+        if (eventArgs.Key == "Enter")
+        {
+            SelectViewParallelMachines();
+        }
+    }
+
+    //-----------------------------------------------
 
     public void Dispose()
     {
