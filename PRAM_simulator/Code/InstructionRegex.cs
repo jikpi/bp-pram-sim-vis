@@ -8,67 +8,46 @@ namespace PRAM_lib.Code
     {
         public Regex Comment { get; private set; } //Not a real instruction
         private static readonly Regex DefComment = new Regex(@"^#.*$");
-        private static readonly int CommentGroupCount = 0;
         public Regex ReadInput { get; private set; }
         private static readonly Regex DefReadInput = new Regex(@"^[A-Z](\d+) := READ\((\d+|)\)\s*$");
-        private static readonly int ReadInputGroupCount = 2;
         public Regex WriteOutput { get; private set; }
         private static readonly Regex DefWriteOutput = new Regex(@"^WRITE\((.*)\)\s*$");
-        private static readonly int WriteOutputGroupCount = 1;
         public Regex SetMemoryToResult { get; private set; }
         private static readonly Regex DefSetMemoryToResult = new Regex(@"^([A-Z])(\d+) := (.*)\s*$");
-        private static readonly int SetMemoryToResultGroupCount = 3;
         public Regex ResultSet_Cell { get; private set; }
         private static readonly Regex DefResultSet_Cell = new Regex(@"^([A-Z])(\d+)\s*$");
-        private static readonly int ResultSet_CellGroupCount = 2;
         public Regex ResultSet_CellOpCell { get; private set; }
         private static readonly Regex DefResultSet_CellOpCell = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
-        private static readonly int ResultSet_CellOpCellGroupCount = 5;
         public Regex ResultSet_CellOpConstant { get; private set; }
         private static readonly Regex DefResultSet_CellOpConstant = new Regex(@"^([A-Z])(\d+) (\+|\-|\*|\/|%) (\d+)\s*$");
-        private static readonly int ResultSet_CellOpConstantGroupCount = 4;
         public Regex ResultSet_ConstantOpCell { get; private set; } //Supplemental regex for ResultSet_CellOpConstant alternative
         private static readonly Regex DefResultSet_ConstantOpCell = new Regex(@"^(\d+) (\+|\-|\*|\/|%) ([A-Z])(\d+)\s*$");
-        private static readonly int ResultSet_ConstantOpCellGroupCount = 4;
         public Regex ResultSet_Pointer { get; private set; }
         private static readonly Regex DefResultSet_Pointer = new Regex(@"^\[([A-Z])(\d+)\]\s*$");
-        private static readonly int ResultSet_PointerGroupCount = 2;
         public Regex ResultSet_Constant { get; private set; }
         private static readonly Regex DefResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$");
-        private static readonly int ResultSet_ConstantGroupCount = 1;
         public Regex SetPointerToResult { get; private set; }
         private static readonly Regex DefSetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$");
-        private static readonly int SetPointerToResultGroupCount = 3;
         public Regex JumpToInstruction { get; private set; }
         private static readonly Regex DefJumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$");
-        private static readonly int JumpToInstructionGroupCount = 1;
         public Regex JumpToLabel { get; private set; } //Not a real instruction
         private static readonly Regex DefJumpToLabel = new Regex(@"^:([0-z]*)\s*$");
-        private static readonly int JumpToLabelGroupCount = 1;
         public Regex IfJumpTo { get; private set; }
         private static readonly Regex DefIfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$");
-        private static readonly int IfJumpToGroupCount = 6;
         public Regex ParallelStart { get; private set; }
         private static readonly Regex DefParallelStart = new Regex(@"^pardo (\d+)\s*$");
-        private static readonly int ParallelStartGroupCount = 1;
         public readonly Regex ParallelEnd = new Regex(@"^parend\s*$"); //Cannot be changed by user
         public readonly string ParallelEndString = "parend"; //Cannot be changed by user
         public string ParallelCell { get; private set; } //Not a real instruction
-        public static readonly string DefParallelCell = "S";
-        private static readonly int ParallelCellGroupCount = 0;
+        private static readonly string DefParallelCell = new string("S");
         public Regex ResultSet_ParallelIndex { get; private set; }
         private static readonly Regex DefResultSet_ParallelIndex = new Regex(@"^{i}\s*$");
-        private static readonly int ResultSet_ParallelIndexGroupCount = 1;
         public Regex IndirectMultiMemoryToResult { get; private set; }
         private static readonly Regex DefIndirectMultiMemoryToResult = new Regex(@"^([A-Z]){(.*)} := (.*)\s*$");
-        private static readonly int IndirectMultiMemoryToResultGroupCount = 3;
         public Regex Halt { get; private set; }
         private static readonly Regex DefHalt = new Regex(@"^halt\s*$");
-        private static readonly int HaltGroupCount = 0;
         public Regex NoOperation { get; private set; }
         private static readonly Regex DefNoOperation = new Regex(@"^nop\s*$");
-        private static readonly int NoOperationGroupCount = 0;
-
 
         public InstructionRegex()
         {
@@ -118,93 +97,120 @@ namespace PRAM_lib.Code
             NoOperation = DefNoOperation;
         }
 
-        public string SaveToJson()
+        //Return a string with all the regexes, with property names on first line, and regex patterns on second line, in pairs.
+        public string SaveToText()
         {
-            return "{" +
-                "\"Comment\":\"" + Comment + "\"," +
-                "\"ReadInput\":\"" + ReadInput + "\"," +
-                "\"WriteOutput\":\"" + WriteOutput + "\"," +
-                "\"SetMemoryToResult\":\"" + SetMemoryToResult + "\"," +
-                "\"ResultSet_Cell\":\"" + ResultSet_Cell + "\"," +
-                "\"ResultSet_CellOpCell\":\"" + ResultSet_CellOpCell + "\"," +
-                "\"ResultSet_CellOpConstant\":\"" + ResultSet_CellOpConstant + "\"," +
-                "\"ResultSet_ConstantOpCell\":\"" + ResultSet_ConstantOpCell + "\"," +
-                "\"ResultSet_Pointer\":\"" + ResultSet_Pointer + "\"," +
-                "\"ResultSet_Constant\":\"" + ResultSet_Constant + "\"," +
-                "\"SetPointerToResult\":\"" + SetPointerToResult + "\"," +
-                "\"JumpToInstruction\":\"" + JumpToInstruction + "\"," +
-                "\"JumpToLabel\":\"" + JumpToLabel + "\"," +
-                "\"IfJumpTo\":\"" + IfJumpTo + "\"," +
-                "\"ParallelStart\":\"" + ParallelStart + "\"," +
-                "\"ParallelCell\":\"" + ParallelCell + "\"," +
-                "\"ResultSet_ParallelIndex\":\"" + ResultSet_ParallelIndex + "\"," +
-                "\"IndirectMultiMemoryToResult\":\"" + IndirectMultiMemoryToResult + "\"," +
-                "\"Halt\":\"" + Halt + "\"," +
-                "\"NoOperation\":\"" + NoOperation + "\"" +
-                "}";
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            sb.AppendLine("Comment");
+            sb.AppendLine(Comment.ToString());
+            sb.AppendLine("ReadInput");
+            sb.AppendLine(ReadInput.ToString());
+            sb.AppendLine("WriteOutput");
+            sb.AppendLine(WriteOutput.ToString());
+            sb.AppendLine("SetMemoryToResult");
+            sb.AppendLine(SetMemoryToResult.ToString());
+            sb.AppendLine("ResultSet_Cell");
+            sb.AppendLine(ResultSet_Cell.ToString());
+            sb.AppendLine("ResultSet_CellOpCell");
+            sb.AppendLine(ResultSet_CellOpCell.ToString());
+            sb.AppendLine("ResultSet_CellOpConstant");
+            sb.AppendLine(ResultSet_CellOpConstant.ToString());
+            sb.AppendLine("ResultSet_ConstantOpCell");
+            sb.AppendLine(ResultSet_ConstantOpCell.ToString());
+            sb.AppendLine("ResultSet_Pointer");
+            sb.AppendLine(ResultSet_Pointer.ToString());
+            sb.AppendLine("ResultSet_Constant");
+            sb.AppendLine(ResultSet_Constant.ToString());
+            sb.AppendLine("SetPointerToResult");
+            sb.AppendLine(SetPointerToResult.ToString());
+            sb.AppendLine("JumpToInstruction");
+            sb.AppendLine(JumpToInstruction.ToString());
+            sb.AppendLine("JumpToLabel");
+            sb.AppendLine(JumpToLabel.ToString());
+            sb.AppendLine("IfJumpTo");
+            sb.AppendLine(IfJumpTo.ToString());
+            sb.AppendLine("ParallelStart");
+            sb.AppendLine(ParallelStart.ToString());
+            sb.AppendLine("ParallelCell");
+            sb.AppendLine(ParallelCell.ToString());
+            sb.AppendLine("ResultSet_ParallelIndex");
+            sb.AppendLine(ResultSet_ParallelIndex.ToString());
+            sb.AppendLine("IndirectMultiMemoryToResult");
+            sb.AppendLine(IndirectMultiMemoryToResult.ToString());
+            sb.AppendLine("Halt");
+            sb.AppendLine(Halt.ToString());
+            sb.AppendLine("NoOperation");
+            sb.AppendLine(NoOperation.ToString());
+
+            return sb.ToString();
         }
 
-        public bool LoadFromJson(string json, out string errorMessage)
+        //Load pairs of property name and regex pattern from a string, and set the properties to the regexes using reflection.
+        //Should anything go wrong, return false and set errorMessage.
+        public bool LoadFromJson(string plaintext, out string errorMessage)
         {
-            try
-            {
-                errorMessage = string.Empty;
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            errorMessage = string.Empty;
 
-                JsonElement jsonObject;
-                try
+            if (plaintext.Length > 10000)
+            {
+                errorMessage = "Input too long, no changes were made.";
+                return false;
+            }
+
+            string[] lines = plaintext.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length % 2 != 0)
+            {
+                errorMessage = "Input parse error, no changes were made.";
+                return false;
+            }
+
+            for (int i = 0; i < lines.Length; i += 2)
+            {
+                string name = lines[i];
+                string value = lines[i + 1];
+
+                PropertyInfo? propertyInfo = GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (propertyInfo == null)
                 {
-                    jsonObject = JsonSerializer.Deserialize<JsonElement>(json, options);
-                }
-                catch (JsonException je)
-                {
-                    errorMessage = $"Failed to parse JSON: {je.Message}";
+                    errorMessage = $"Unknown property at: {name}, stopping now.";
                     return false;
                 }
 
-                foreach (var property in jsonObject.EnumerateObject())
+                if (propertyInfo.PropertyType == typeof(Regex))
                 {
-                    var name = property.Name;
-                    var regexPattern = property.Value.GetString();
-                    if (regexPattern == null) continue;
-
-                    //Find default regex field
-                    var defFieldName = $"Def{name}";
-                    var defField = this.GetType().GetField(defFieldName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-
-                    if (defField != null)
+                    Regex regex;
+                    try
                     {
-                        var defRegex = (Regex)defField.GetValue(null);
-                        var expectedGroupCount = defRegex.GetGroupNumbers().Length;
-
-                        var regex = new Regex(regexPattern);
-                        if (regex.GetGroupNumbers().Length != expectedGroupCount)
-                        {
-                            errorMessage = $"Invalid group count for {name}. Expected: {expectedGroupCount}, Found: {regex.GetGroupNumbers().Length}";
-                            return false;
-                        }
-
-                        //Set property with reflection
-                        var propertyInfo = this.GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-
-                        if (propertyInfo != null && propertyInfo.PropertyType == typeof(Regex))
-                        {
-                            propertyInfo.SetValue(this, regex);
-                        }
+                        regex = new Regex(value);
                     }
-                    else if (name.Equals("ParallelCell", StringComparison.OrdinalIgnoreCase))
+                    catch (ArgumentException ex)
                     {
-                        this.ParallelCell = regexPattern;
+                        errorMessage = $"Invalid regex pattern for {name}: {ex.Message}, stopping now.";
+                        return false;
                     }
+
+                    if(!value.StartsWith("^") || !value.EndsWith("*$"))
+                    {
+                        errorMessage = $"Invalid regex pattern for {name}: Must start with '^' and end with '*$', stopping now.";
+                        return false;
+                    }
+
+                    propertyInfo.SetValue(this, regex);
                 }
+                else if (propertyInfo.PropertyType == typeof(string))
+                {
+                    propertyInfo.SetValue(this, value);
+                }
+                else
+                {
+                    errorMessage = $"Property {name} has an unsupported type: {propertyInfo.PropertyType}, stopping now.";
+                    return false;
+                }
+            }
 
-                return true;
-            }
-            catch (Exception)
-            {
-                errorMessage = "Unknown exception occurred. Possible JSON format error.";
-                return false;
-            }
+            return true;
         }
 
 
@@ -244,8 +250,8 @@ namespace PRAM_lib.Code
                 string propertyName = Char.ToUpper(name[0]) + name.Substring(1);
                 string fieldName = propertyName + "GroupCount";
 
-                PropertyInfo? propertyInfo = this.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
-                FieldInfo? groupCountField = this.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
+                PropertyInfo? propertyInfo = GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+                FieldInfo? groupCountField = GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
 
                 if (propertyInfo == null || groupCountField == null)
                 {
@@ -259,7 +265,7 @@ namespace PRAM_lib.Code
                 }
 
                 int expectedGroupCount = (int)groupCountValue;
-                var regex = new Regex(pattern);
+                Regex regex = new Regex(pattern);
 
                 //Does not account for the default group
                 if (regex.GetGroupNumbers().Length - 1 != expectedGroupCount)

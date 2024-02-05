@@ -13,7 +13,7 @@ namespace PRAM_lib.Memory
         public MachineMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
-            MaxCellSize = 2_147_000_000;
+            MaxCellSize = 1_000_000;
         }
 
         public void AddressSanityCheck(int memoryAddress)

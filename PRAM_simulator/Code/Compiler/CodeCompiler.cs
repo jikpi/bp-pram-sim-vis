@@ -261,6 +261,13 @@ namespace PRAM_lib.Code.Compiler
             parallelMachines = new List<ParallelMachineContainer>();
 
             List<string> strings = code.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
+            if(strings.Count >= 100_000)
+            {
+                errorMessage = $"Code is too long: {strings.Count}.";
+                returnLineIndex = 0;
+                return null;
+            }
+
             StringBuilder potentialErrorMessage = new StringBuilder();
 
             // An index for lines, where even comments count as lines

@@ -23,7 +23,7 @@
 else
 {
     <div class="code-compiled-code-container">
-        @foreach (var line in codeEditor.CompiledLines)
+        @foreach (var line in codeEditor.CompiledLines.Take(2000))
         {
             var lineClass = GetLineClass(line.Key);
             <div class="@lineClass code-line">
@@ -42,7 +42,6 @@ else
             </div>
         }
     </div>
-
 }
 
 @code {
