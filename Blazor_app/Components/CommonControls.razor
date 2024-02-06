@@ -7,16 +7,30 @@
 @inject ExecutionService execService
 @inject PramCodeViewService pramCodeViewService
 
-<div class="text-center ms-1">
-    <button class="btn btn-primary ml-2" @onclick="StepBackward">🔺 Step back</button>
-    <button class="btn btn-primary ml-2" @onclick="StepForward">🟢 Step forward</button>
+<style>
+
+    .button-group {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .button-group .btn:not(:last-child) {
+        margin-right: 3px;
+    }
+</style>
+
+<div class="button-group">
+    @if (globalService.SaveHistory)
+    {
+        <button class="btn btn-primary" @onclick="StepBackward">🔺 Step back</button>
+    }
+    <button class="btn btn-primary" @onclick="StepForward">🟢 Step forward</button>
     <button class="btn btn-primary" @onclick="RunUntilBreakpoint">🔴 Run Until Breakpoint</button>
     <button class="btn btn-primary" @onclick="ToggleAutoRun">⏯ Auto Run</button>
     <button class="btn btn-primary" @onclick="Reset">🧹 Reset</button>
-
-
-    <button class="btn btn-secondary" @onclick="ClearMemories">Clear Memory</button>
 </div>
+
 
 @code {
 
