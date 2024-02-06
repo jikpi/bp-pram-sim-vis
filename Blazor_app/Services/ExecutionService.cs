@@ -16,7 +16,6 @@ namespace Blazor_app.Services
 
         public event Action MemoryRefreshed;
         public event Action PramCodeRefreshed;
-        public event Action<string> ShowPopup;
 
 
         private Timer _timer;
@@ -42,7 +41,6 @@ namespace Blazor_app.Services
             _historyMemoryService = historyMemoryService;
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
-            ShowPopup += (message) => { };
 
             _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
         }
@@ -121,7 +119,7 @@ namespace Blazor_app.Services
                     if (IsRunningParallel && !_pramMachine.IsRunningParallel)
                     {
                         _navigationManager.NavigateTo("/");
-                        ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+                        _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
                     else if (!IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
@@ -134,7 +132,7 @@ namespace Blazor_app.Services
                     }
                     else if (!IsRunningParallel)
                     {
-                        ShowPopup?.Invoke(_pramMachine.ExecutionErrorMessage ?? string.Empty);
+                        _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
 
                     _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
@@ -160,7 +158,10 @@ namespace Blazor_app.Services
             }
             else
             {
-                _historyMemoryService.SaveState(_pramMachine);
+                if(_globalService.SaveHistory)
+                {
+                    _historyMemoryService.SaveState(_pramMachine);
+                }
             }
 
             if (manual && result)
@@ -252,6 +253,7 @@ namespace Blazor_app.Services
                 return;
             }
 
+            _autoRunInterval = _globalService.AutoStepSpeed;
             IsAutoRunning = true;
             _timer.Change(0, _autoRunInterval);
         }
@@ -512,7 +514,7 @@ namespace Blazor_app.Services
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             }
             
-            if (HistoryOffset == null)
+            if (!_globalService.SaveHistory || HistoryOffset == null)
             {
                 _ = ExecuteNext();
             }
@@ -533,7 +535,7 @@ namespace Blazor_app.Services
                 StopAutoRun();
             }
 
-            if(_historyMemoryService.HistoryIndex == 0)
+            if(!_globalService.SaveHistory || _historyMemoryService.HistoryIndex == 0)
             {
                 _globalService.SetLastState("No history", GlobalService.LastStateUniform.Warning);
                 return;
@@ -554,7 +556,7 @@ namespace Blazor_app.Services
             else
             {
                 HistoryOffset--;
-                _globalService.SetLastState($"Going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState($"History going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
                 ResolveUIParallelHistory();

@@ -148,7 +148,7 @@ namespace PRAM_lib.Code
 
         //Load pairs of property name and regex pattern from a string, and set the properties to the regexes using reflection.
         //Should anything go wrong, return false and set errorMessage.
-        public bool LoadFromJson(string plaintext, out string errorMessage)
+        public bool LoadFromText(string plaintext, out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -191,7 +191,7 @@ namespace PRAM_lib.Code
                         return false;
                     }
 
-                    if(!value.StartsWith("^") || !value.EndsWith("*$"))
+                    if (!value.StartsWith("^") || !value.EndsWith("*$"))
                     {
                         errorMessage = $"Invalid regex pattern for {name}: Must start with '^' and end with '*$', stopping now.";
                         return false;
@@ -248,27 +248,9 @@ namespace PRAM_lib.Code
             try
             {
                 string propertyName = Char.ToUpper(name[0]) + name.Substring(1);
-                string fieldName = propertyName + "GroupCount";
 
                 PropertyInfo? propertyInfo = GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
-                FieldInfo? groupCountField = GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
-
-                if (propertyInfo == null || groupCountField == null)
-                {
-                    return false;
-                }
-
-                object? groupCountValue = groupCountField.GetValue(null);
-                if (groupCountValue is null)
-                {
-                    return false;
-                }
-
-                int expectedGroupCount = (int)groupCountValue;
-                Regex regex = new Regex(pattern);
-
-                //Does not account for the default group
-                if (regex.GetGroupNumbers().Length - 1 != expectedGroupCount)
+                if (propertyInfo == null)
                 {
                     return false;
                 }
@@ -279,6 +261,14 @@ namespace PRAM_lib.Code
                 }
                 else if (propertyInfo.PropertyType == typeof(Regex))
                 {
+                    Regex regex = new Regex(pattern);
+
+                    int expectedGroupCount = regex.GetGroupNumbers().Length;
+                    if (regex.GetGroupNumbers().Length != expectedGroupCount)
+                    {
+                        return false;
+                    }
+
                     if (!pattern.StartsWith("^") || !pattern.EndsWith("*$"))
                     {
                         return false;

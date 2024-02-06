@@ -18,55 +18,17 @@
     <button class="btn btn-secondary" @onclick="ClearMemories">Clear Memory</button>
 </div>
 
-@if (showPopup)
-{
-    <div class="overlay_popup"></div>
-    <div class="popup">
-        <div class="text-center font-weight-bold mb-2">
-            <span>Exception:</span>
-        </div>
-        <div class="text-center mb-2">
-            <span>@popupMessage</span>
-        </div>
-        <div class="text-center mt-2">
-            <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
-        </div>
-    </div>
-}
-
 @code {
-
-    private Action<string> showPopupHandler;
 
     protected override void OnInitialized()
     {
-        showPopupHandler = message => InvokeAsync(() => ShowPopup(message));
         SubscribeToEvents();
         ResolveResetHistorySteps();
     }
 
     private void SubscribeToEvents()
     {
-        execService.ShowPopup += showPopupHandler;
     }
-
-    // Popup
-    private bool showPopup = false;
-    private string popupMessage = "";
-    private void ShowPopup(string message)
-    {
-        popupMessage = message;
-        showPopup = true;
-        StateHasChanged();
-    }
-
-    private void ClosePopup()
-    {
-        showPopup = false;
-    }
-    // -----------------------------
-
-
 
     // UNUSED Reset history steps
     bool showResetHistorySteps = false;
@@ -133,6 +95,5 @@
 
     public void Dispose()
     {
-        execService.ShowPopup -= showPopupHandler;
     }
 }

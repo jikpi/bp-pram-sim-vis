@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@using Blazor_app.Services
+@inject GlobalService globalService
 
 <style>
     .page-layout {
@@ -16,6 +18,32 @@
         width: 100%;
         padding: 20px;
     }
+
+    .overlay_popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1001;
+    }
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1001;
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .popup-text-black {
+        color: black;
+    }
 </style>
 
 <div class="page-layout">
@@ -28,3 +56,53 @@
         </article>
     </main>
 </div>
+
+@if (showPopup)
+{
+    <div class="overlay_popup"></div>
+    <div class="popup">
+        <div class="text-center mb-2">
+            <span class="popup-text-black">@popupMessage</span>
+        </div>
+        <div class="text-center mt-2">
+            <button class="btn btn-primary" @onclick="ClosePopup">Close</button>
+        </div>
+    </div>
+}
+
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        showPopupHandler = message => InvokeAsync(() => ShowPopup(message));
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        globalService.ShowPopup += showPopupHandler;
+    }
+
+    //##### Popup
+    private Action<string> showPopupHandler;
+    private bool showPopup = false;
+    private string popupMessage = "";
+    private void ShowPopup(string message = "none")
+    {
+        popupMessage = message;
+        showPopup = true;
+        StateHasChanged();
+    }
+
+    private void ClosePopup()
+    {
+        showPopup = false;
+    }
+    // -----------------------------
+
+    public void Dispose()
+    {
+        globalService.ShowPopup -= showPopupHandler;
+    }
+}

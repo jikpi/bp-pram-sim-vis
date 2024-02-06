@@ -73,6 +73,7 @@
             if (!success)
             {
                 globalService.SetLastState($"Invalid regex pattern for {key}", GlobalService.LastStateUniform.Error);
+                globalService.ShowPopupMessage("Invalid regex pattern for " + key);
             }
             else
             {
@@ -93,7 +94,7 @@
             saveStatus[key] = "";
         }
 
-        globalService.SetLastState("All regex patterns reset", GlobalService.LastStateUniform.Ok);
+        globalService.SetLastState("All regex have been reset", GlobalService.LastStateUniform.Ok);
         StateHasChanged();
     }
 }

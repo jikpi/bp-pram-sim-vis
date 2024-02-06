@@ -5,6 +5,7 @@ namespace PRAM_lib.Memory
     public class MemoryCell : INotifyPropertyChanged
     {
         private int _value;
+        public bool HasBeenWrittenTo { get; set; } = false;
 
         public int Value
         {
@@ -16,17 +17,15 @@ namespace PRAM_lib.Memory
                     _value = value;
                     OnPropertyChanged(nameof(Value));
                 }
+
+                HasBeenWrittenTo = true;
             }
         }
 
-        public MemoryCell()
+        public MemoryCell(int value = 0)
         {
-            Value = 0;
-        }
-
-        public MemoryCell(int value)
-        {
-            Value = value;
+            _value = value;
+            OnPropertyChanged(nameof(Value));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

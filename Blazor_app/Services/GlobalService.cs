@@ -17,6 +17,49 @@
         }
         //---------------------------------------------
 
+        // ## Popup
+        public event Action<string> ShowPopup;
+        public void ShowPopupMessage(string message)
+        {
+            ShowPopup?.Invoke(message);
+        }
+
+        public GlobalService()
+        {
+            ShowPopup += (message) => { };
+            LastStateUpdated += () => { };
+        }
+
+        // ## Auto step speed
+        public int AutoStepSpeed { get; private set; } = 1000;
+        public int MinAutoStepSpeed { get; private set; } = 200;
+        public int MaxAutoStepSpeed { get; private set; } = 2000;
+        public void SetAutoStepSpeed(int speed)
+        {
+            int adjustedSpeed = (int)(Math.Round(speed / 100.0) * 100);
+
+            if (adjustedSpeed < MinAutoStepSpeed)
+            {
+                AutoStepSpeed = MinAutoStepSpeed;
+            }
+            else if (adjustedSpeed > MaxAutoStepSpeed)
+            {
+                AutoStepSpeed = MaxAutoStepSpeed;
+            }
+            else
+            {
+                AutoStepSpeed = adjustedSpeed;
+            }
+        }
+
+        //---------------------------------------------
+
+        //Memory cell hiding
+        public bool HideMemoryCells { get; set; } = false;
+
+        //History toggle
+        public bool SaveHistory { get; set; } = true;
+
 
 
         //## Test code

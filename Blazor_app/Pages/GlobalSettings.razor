@@ -12,6 +12,30 @@
     <div class="d-flex flex-column align-items-center">
 
         <div class="form-group w-50 mb-3">
+            <h3>Run configuration</h3>
+
+            <div class="form-group mb-1">
+                <label for="autoStepSpeedSlider">Auto Step Speed</label>
+                <input type="range" class="form-control-range" id="autoStepSpeedSlider"
+                       min="@globalService.MinAutoStepSpeed" max="@globalService.MaxAutoStepSpeed" value="@globalService.AutoStepSpeed"
+                       @onchange="AutoStepSpeedChanged">
+                <span>@globalService.AutoStepSpeed</span>
+            </div>
+
+            <div class="form-group mb-1">
+                <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="Hide unset memory cells">
+                <label for="hideMemoryCellsCheckbox" class="ms-2">Hide unset memory cells</label>
+            </div>
+
+            <div class="form-group mb-1">
+                <input type="checkbox" @bind="globalService.SaveHistory" id="savehistorycheckbox" aria-label="Save history">
+                <label for="savehistorycheckbox" class="ms-2">Save history</label>
+            </div>
+        </div>
+
+
+
+        <div class="form-group w-50 mb-3">
             <h3>Regex import/export</h3>
             <input type="file" id="fileInput" style="display:none" onchange="uploadFileToBlazor()" />
             <button type="button" class="btn btn-primary"
@@ -42,10 +66,18 @@
 
 @code {
 
+    private void AutoStepSpeedChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newValue))
+        {
+            globalService.SetAutoStepSpeed(newValue);
+        }
+    }
+
     private void ResetRegex()
     {
         pramMachine.InstructionRegex.ResetToDefault();
-        globalService.SetLastState("Regex reset to default", GlobalService.LastStateUniform.Note);
+        globalService.SetLastState("All regex have been reset", GlobalService.LastStateUniform.Note);
     }
 
     private void NavigateToRegexSettings()
@@ -68,7 +100,7 @@
             return Task.CompletedTask;
         }
 
-        bool result = pramMachine.InstructionRegex.LoadFromJson(fileContent, out string errorMessage);
+        bool result = pramMachine.InstructionRegex.LoadFromText(fileContent, out string errorMessage);
 
         if (!result)
         {

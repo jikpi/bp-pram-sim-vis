@@ -3,6 +3,7 @@
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
 @inject ExecutionService execService
+@inject GlobalService globalService
 
 <style>
     .compact-table {
@@ -70,7 +71,17 @@
             int i = 0;
             foreach (var item in MemoryItems)
             {
-                if(i > 500)
+
+                if (globalService.HideMemoryCells && !item.HasBeenWrittenTo)
+                {
+                    if (i < MemoryItems.Count - 1)
+                    {
+                        i++;
+                        continue;
+                    }
+                }
+
+                if (i > 500)
                 {
                     <tr>
                         <td>MAX</td>
