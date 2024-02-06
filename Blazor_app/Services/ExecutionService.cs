@@ -158,7 +158,7 @@ namespace Blazor_app.Services
             }
             else
             {
-                if(_globalService.SaveHistory)
+                if (_globalService.SaveHistory)
                 {
                     _historyMemoryService.SaveState(_pramMachine);
                 }
@@ -175,7 +175,7 @@ namespace Blazor_app.Services
         //Called when user wants to reset the machine
         public void ResetMachine()
         {
-            if(IsAutoRunning)
+            if (IsAutoRunning)
             {
                 StopAutoRun();
             }
@@ -192,16 +192,17 @@ namespace Blazor_app.Services
         //Compiles the code in the code editor
         public void CompileCode()
         {
-            if(IsAutoRunning)
+            if (IsAutoRunning)
             {
                 StopAutoRun();
             }
 
             _pramMachine.Compile(_codeEditorService.Code);
+            CRCWChanged();
             ResetParallelRunningState();
             _historyMemoryService.Reset();
             HistoryOffset = null;
-            
+
 
             if (_pramMachine.IsCompiled)
             {
@@ -513,7 +514,7 @@ namespace Blazor_app.Services
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             }
-            
+
             if (!_globalService.SaveHistory || HistoryOffset == null)
             {
                 _ = ExecuteNext();
@@ -530,12 +531,12 @@ namespace Blazor_app.Services
 
         public void StepBackward()
         {
-            if(IsAutoRunning)
+            if (IsAutoRunning)
             {
                 StopAutoRun();
             }
 
-            if(!_globalService.SaveHistory || _historyMemoryService.HistoryIndex == 0)
+            if (!_globalService.SaveHistory || _historyMemoryService.HistoryIndex == 0)
             {
                 _globalService.SetLastState("No history", GlobalService.LastStateUniform.Warning);
                 return;
@@ -565,7 +566,7 @@ namespace Blazor_app.Services
 
         public void StepToPresent()
         {
-            if(IsAutoRunning)
+            if (IsAutoRunning)
             {
                 StopAutoRun();
             }
@@ -575,6 +576,36 @@ namespace Blazor_app.Services
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             ResolveUIParallelHistory();
+        }
+
+        //## Exclusive write / read control
+
+        private void CRCWChanged()
+        {
+            _pramMachine.SetCRXW(_concurrentRead);
+            _pramMachine.SetXRCW(_concurrentWrite);
+            bool asd = true;
+        }
+
+        private bool _concurrentRead = true;
+        public bool ConcurrentRead
+        {
+            get => _concurrentRead;
+            set
+            {
+                _concurrentRead = value;
+                CRCWChanged();
+            }
+        }
+        private bool _concurrentWrite = true;
+        public bool ConcurrentWrite
+        {
+            get => _concurrentWrite;
+            set
+            {
+                _concurrentWrite = value;
+                CRCWChanged();
+            }
         }
     }
 }

@@ -28,6 +28,15 @@
         <div class="col-md-6">
             <div class="input-group mb-3">
                 <div class="input-group-prepend" style="margin-right: 10px;">
+
+                    <div class="input-group-text">
+                        <input type="checkbox" @bind="execService.ConcurrentRead" aria-label="Concurrent Read">
+                        <span class="ms-2">Concurrent Read</span>
+
+                        <input type="checkbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
+                        <span class="ms-2">Concurrent Write</span>
+                    </div>
+
                     <div class="input-group-text">
                         <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
                         <span class="ms-2">Show Halted</span>
