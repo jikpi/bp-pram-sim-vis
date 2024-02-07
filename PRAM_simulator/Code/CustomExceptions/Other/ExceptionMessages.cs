@@ -82,5 +82,10 @@
             return "Illegal memory write.";
         }
 
+        internal static string IllegalMemoryAccess()
+        {
+            return "Illegal memory access.";
+        }
+
     }
 }

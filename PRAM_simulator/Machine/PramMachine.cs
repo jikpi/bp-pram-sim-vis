@@ -214,7 +214,6 @@ namespace PRAM_lib.Machine
                         LaunchedParallelMachines[i].GetMemory(), previousCodeLineIndex,
                         readIndex: illegalReadIndex));
 
-                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryRead();
                     illegalMemoryAccess = true;
                 }
 
@@ -226,7 +225,6 @@ namespace PRAM_lib.Machine
                         LaunchedParallelMachines[i].GetMemory(), previousCodeLineIndex,
                         writeIndex: illegalWriteIndex));
 
-                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryWrite();
                     illegalMemoryAccess = true;
                 }
 
@@ -272,6 +270,7 @@ namespace PRAM_lib.Machine
 
                 if (illegalMemoryAccess != null && illegalMemoryAccess.Value)
                 {
+                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryAccess();
                     IsCrashed = true;
                     return false;
                 }
