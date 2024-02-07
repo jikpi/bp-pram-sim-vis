@@ -206,9 +206,12 @@ namespace WPF_app
             if (DataResources.PRAM.IllegalMemoryAccess)
             {
                 MessageBox.Show("Illegal memory access");
-                MessageBox.Show($"A parallel machine with indexes {string.Join(", ", DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryParallelMachineIndexes)} tried to access memory illegally");
-                MessageBox.Show($"Illegal read index: {DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryReadIndex ?? -1}");
-                MessageBox.Show($"Illegal write index: {DataResources.PRAM.IllegalMemoryAccesses[0].IllegalMemoryWriteIndex ?? -1}");
+                foreach (var access in DataResources.PRAM.IllegalMemoryAccesses)
+                {
+                    MessageBox.Show($"Global type: {(DataResources.PRAM.IllegalMemoryAccessType == PRAM_lib.Machine.Container.ParallelAccessType.Write ? " Write " : " Read ")}     Machine index: {access.ParallelMachineIndex}" + Environment.NewLine +
+                        $"Memory index: {access.MemoryIndex}" + Environment.NewLine + $"Type: {(access.Type == PRAM_lib.Machine.Container.ParallelAccessType.Write ? " Write " : " Read ")}" + Environment.NewLine +
+                    $"Parallel machine relevant code index: {access.CodeLineIndex}");
+                }
             }
         }
 

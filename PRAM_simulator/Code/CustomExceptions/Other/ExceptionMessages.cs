@@ -7,6 +7,11 @@
             return "Code is not compiled.";
         }
 
+        internal static string BugCompilationError()
+        {
+            return "Unknown compilation error.";
+        }
+
         internal static string HasHalted()
         {
             return "Machine has halted.";
