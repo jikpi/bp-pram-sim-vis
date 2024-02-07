@@ -159,7 +159,10 @@ namespace PRAM_lib.Machine
             //Check if crashed
             if (IsCrashed)
             {
-                ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                if(ExecutionErrorMessage == null)
+                {
+                    ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                }
                 ExecutionErrorLineIndex = MasterCodeMemory.Instructions[MPIP.Value].CodeInstructionLineIndex;
                 return false;
             }
@@ -174,9 +177,9 @@ namespace PRAM_lib.Machine
             MasterGateway.AccessingParallelStart();
         }
 
-        internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
+        internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine, out bool? illegalMemoryAccess)
         {
-
+            illegalMemoryAccess = null;
             for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
             {
                 if (LaunchedParallelMachines[i].IsHalted)
@@ -184,11 +187,7 @@ namespace PRAM_lib.Machine
                     continue;
                 }
 
-                //if (LaunchedParallelMachines[i].IsCrashed)
-                //{
-                //    relParallelMachine = LaunchedParallelMachines[i];
-                //}
-
+                int previousCodeLineIndex = LaunchedParallelMachines[i].GetCurrentCodeLineIndex();
                 if (!LaunchedParallelMachines[i].ExecuteNextInstruction())
                 {
                     if (LaunchedParallelMachines[i].IsCrashed)
@@ -212,8 +211,11 @@ namespace PRAM_lib.Machine
                     int illegalReadIndex = MasterGateway.IllegalMemoryReadIndex.Value;
 
                     IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.ReadAccessed[illegalReadIndex].AccessingParallelMachineIndex,
-                        LaunchedParallelMachines[i].GetMemory(),
+                        LaunchedParallelMachines[i].GetMemory(), previousCodeLineIndex,
                         readIndex: illegalReadIndex));
+
+                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryRead();
+                    illegalMemoryAccess = true;
                 }
 
                 if (MasterGateway.IllegalMemoryWriteIndex != null)
@@ -221,8 +223,11 @@ namespace PRAM_lib.Machine
                     int illegalWriteIndex = MasterGateway.IllegalMemoryWriteIndex.Value;
 
                     IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.WriteAccessed[illegalWriteIndex].AccessingParallelMachineIndex,
-                        LaunchedParallelMachines[i].GetMemory(),
+                        LaunchedParallelMachines[i].GetMemory(), previousCodeLineIndex,
                         writeIndex: illegalWriteIndex));
+
+                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryWrite();
+                    illegalMemoryAccess = true;
                 }
 
             }
@@ -256,11 +261,17 @@ namespace PRAM_lib.Machine
             //Check if there are any parallel machines to handle
             if (LaunchedParallelMachines != null)
             {
-                ExecuteNextParallel(out InParallelMachine? relParallelMachine);
+                ExecuteNextParallel(out InParallelMachine? relParallelMachine, out bool? illegalMemoryAccess);
                 if (relParallelMachine != null)
                 {
                     ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage;
                     ExecutionErrorLineIndex = relParallelMachine.GetCurrentCodeLineIndex() + GetCurrentCodeLineIndex();
+                    IsCrashed = true;
+                    return false;
+                }
+
+                if (illegalMemoryAccess != null && illegalMemoryAccess.Value)
+                {
                     IsCrashed = true;
                     return false;
                 }
@@ -313,10 +324,8 @@ namespace PRAM_lib.Machine
                 foreach (InParallelMachine machine in container.ParallelMachines)
                 {
                     machine.Restart();
-
                 }
             }
-
         }
 
         public void Clear()

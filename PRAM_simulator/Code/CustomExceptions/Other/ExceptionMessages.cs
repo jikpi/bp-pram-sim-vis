@@ -72,5 +72,15 @@
             return $"Operation \"{operation}\" is not recognized.";
         }
 
+        internal static string IllegalMemoryRead()
+        {
+            return "Illegal memory read.";
+        }
+
+        internal static string IllegalMemoryWrite()
+        {
+            return "Illegal memory write.";
+        }
+
     }
 }

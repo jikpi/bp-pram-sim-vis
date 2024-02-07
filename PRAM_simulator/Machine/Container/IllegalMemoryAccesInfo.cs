@@ -11,14 +11,16 @@ namespace PRAM_lib.Machine.Container
         public bool IllegalRead { get; private set; }
         public bool IllegalWrite { get => !IllegalRead; }
         public ObservableCollection<MemoryCell> IllegalMemoryWhereAccessed { get; private set; }
+        public int ParallelMachineRelevantCodeIndex { get; private set; }
 
-        public IllegalMemoryAccesInfo(List<int> machineIndexes, ObservableCollection<MemoryCell> whereAccessed, int? readIndex = null, int? writeIndex = null)
+        public IllegalMemoryAccesInfo(List<int> machineIndexes, ObservableCollection<MemoryCell> whereAccessed, int parallelMachineRelevantCodeIndex, int? readIndex = null, int? writeIndex = null)
         {
             IllegalMemoryParallelMachineIndexes = machineIndexes;
             IllegalMemoryWhereAccessed = whereAccessed;
             IllegalRead = readIndex != null;
             IllegalMemoryReadIndex = readIndex;
             IllegalMemoryWriteIndex = writeIndex;
+            ParallelMachineRelevantCodeIndex = parallelMachineRelevantCodeIndex;
         }
     }
 }

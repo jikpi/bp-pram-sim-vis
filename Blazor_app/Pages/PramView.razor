@@ -25,7 +25,7 @@
 <!-- Pram controls -->
 <div class="container-fluid my-2">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-9">
             <div class="input-group mb-3">
                 <div class="input-group-prepend" style="margin-right: 10px;">
 
@@ -36,15 +36,16 @@
                         <input type="checkbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
                         <span class="ms-2">Concurrent Write</span>
                     </div>
-
-                    <div class="input-group-text">
-                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
-                        <span class="ms-2">Show Halted</span>
-                    </div>
+                    
                 </div>
                 <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
                 <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
                 <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
+
+                <div class="input-group-text">
+                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
+                        <span class="ms-2">Show Halted</span>
+                </div>        
             </div>
         </div>
     </div>
@@ -66,10 +67,10 @@
               }
     @for (int i = 0; i < GetParallelMachineCount(); i++)
     {
-        if(!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
-        {
-            continue;
-        }
+                if (!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
+                {
+                    continue;
+                }
 
         if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
         {
@@ -84,6 +85,10 @@
                     @if (GetParallelMachineIsHalted(i))
                     {
                         <span class="badge bg-warning">Halted</span>
+                    }
+                    @if (!execService.IsInHistory && pramMachine.GetParallelMachineIsCrashed(i))
+                    {
+                        <span class="badge bg-danger">Crashed</span>
                     }
                 </div>
                 <div class="card-body @GetCardClass(i)">
@@ -197,7 +202,7 @@
             return "halted-card-body";
         }
 
-        if (pramMachine.GetParallelMachineIsCrashed(machineIndex))
+        if (pramMachine.GetParallelMachineIsCrashed(machineIndex) && !execService.IsInHistory)
         {
             return "crashed-card-body";
         }

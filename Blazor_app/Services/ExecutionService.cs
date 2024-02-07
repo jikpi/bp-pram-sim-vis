@@ -125,6 +125,7 @@ namespace Blazor_app.Services
                     {
                         _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                         _navigationManager.NavigateTo("/pramview");
+                        RefreshPramView();
                     }
                     else if (IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
@@ -446,7 +447,17 @@ namespace Blazor_app.Services
             }
             else
             {
-                return false;
+                bool wasHalted = _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value - 1, machineIndex);
+                bool isHalted = _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value, machineIndex);
+               
+                if(!wasHalted && isHalted)
+                {
+                    return false;
+                }
+                else
+                {
+                    return isHalted;
+                }
             }
         }
 
@@ -584,7 +595,6 @@ namespace Blazor_app.Services
         {
             _pramMachine.SetCRXW(_concurrentRead);
             _pramMachine.SetXRCW(_concurrentWrite);
-            bool asd = true;
         }
 
         private bool _concurrentRead = true;
@@ -597,7 +607,7 @@ namespace Blazor_app.Services
                 CRCWChanged();
             }
         }
-        private bool _concurrentWrite = true;
+        private bool _concurrentWrite = false;
         public bool ConcurrentWrite
         {
             get => _concurrentWrite;
