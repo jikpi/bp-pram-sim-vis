@@ -66,7 +66,7 @@ namespace PRAM_lib.Machine
             XRCW = true;
             IllegalMemoryAccesses = new List<ParallelAccessInfo>();
 
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
             MasterGateway.ParallelDoLaunch += ParallelDo;
             MasterGateway.HaltNotify += delegate { IsHalted = true; };
 
@@ -110,7 +110,7 @@ namespace PRAM_lib.Machine
 
         private void RefreshGateway()
         {
-            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW, XRCW);
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
@@ -191,6 +191,7 @@ namespace PRAM_lib.Machine
 
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
+            relParallelMachine = null;
             for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
             {
                 if (LaunchedParallelMachines[i].IsHalted)
@@ -203,14 +204,14 @@ namespace PRAM_lib.Machine
                 bool result = LaunchedParallelMachines[i].ExecuteNextInstruction();
 
                 //Note single instruction in parallel access
-                MasterGateway.SingleParallelInstructionExecuted(i, previousCodeLineIndex);
+                MasterGateway.AccessingParallelStepInCycle(i, previousCodeLineIndex);
 
                 if (!result)
                 {
                     if (LaunchedParallelMachines[i].IsCrashed)
                     {
-                        relParallelMachine = LaunchedParallelMachines[i];
-                        return;
+                        relParallelMachine ??= LaunchedParallelMachines[i];
+                        continue;
                     }
 
                     if (LaunchedParallelMachines[i].IsHalted)
@@ -218,6 +219,11 @@ namespace PRAM_lib.Machine
                         continue;
                     }
                 }
+            }
+
+            if (relParallelMachine != null)
+            {
+                return;
             }
 
             //Check memory access of the last cycle, based on the current memory access rules
@@ -260,7 +266,7 @@ namespace PRAM_lib.Machine
             }
 
             //If no illegal memory access, mark new cycle
-            MasterGateway.AccessingParallelStep();
+            MasterGateway.AccessingParallelFinishCycle();
 
             if (LaunchedParallelMachines == null)
             {
@@ -294,7 +300,7 @@ namespace PRAM_lib.Machine
                 ExecuteNextParallel(out InParallelMachine? relParallelMachine);
                 if (relParallelMachine != null)
                 {
-                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage;
+                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage + $"(Machine index: {relParallelMachine.ProcessorIndex})";
                     ExecutionErrorLineIndex = relParallelMachine.GetCurrentCodeLineIndex() + GetCurrentCodeLineIndex();
                     IsCrashed = true;
                     return false;

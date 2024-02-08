@@ -17,26 +17,7 @@ namespace PRAM_lib.Code.Gateway
         public event Action ParallelDoLaunch;
         public event Action HaltNotify;
 
-        public GatewayParallelMemoryAccessInfo? IllegalMemoryReadIndex { get; private set; }
-        public GatewayParallelMemoryAccessInfo? IllegalMemoryWriteIndex { get; private set; }
-        public bool CRXW { get; set; }
-        public bool ERXW { get { return !CRXW; } set { CRXW = !value; } }
-        public bool XRCW { get; set; }
-        public bool XREW { get { return !XRCW; } set { XRCW = !value; } }
-
         private bool AccessingParallel;
-
-        internal class GatewayParallelMemoryAccessInfo
-        {
-            public bool IsAccessed { get; set; }
-            public List<int> AccessingParallelMachineIndex { get; set; }
-
-            public GatewayParallelMemoryAccessInfo()
-            {
-                IsAccessed = false;
-                AccessingParallelMachineIndex = new List<int>();
-            }
-        }
 
         //Dictionary with memory cell as index, and a list of accesses to that cell by parallel processors
         public Dictionary<int, List<ParallelAccessInfo>> ParallelAccessCycle { get; private set; }
@@ -48,15 +29,13 @@ namespace PRAM_lib.Code.Gateway
             IOMemory refInputMemory,
             IOMemory refOutputMemory,
             InstrPointer refInstructionPointer,
-            Jumps.JumpMemory refJumpMemory,
-            bool CREW)
+            Jumps.JumpMemory refJumpMemory)
         {
             SharedMemory = refSharedMemory;
             InputMemory = refInputMemory;
             OutputMemory = refOutputMemory;
             InstructionPointer = refInstructionPointer;
             JumpMemory = refJumpMemory;
-            this.CRXW = CREW;
             ParallelDoLaunch = delegate { };
             HaltNotify = delegate { };
 
@@ -65,35 +44,25 @@ namespace PRAM_lib.Code.Gateway
             ParallelAccessCycle = new Dictionary<int, List<ParallelAccessInfo>>();
 
             AccessingParallel = false;
-
-            IllegalMemoryReadIndex = null;
-            IllegalMemoryWriteIndex = null;
         }
 
         public void Refresh(MachineMemory refSharedMemory,
             IOMemory refInputMemory,
             IOMemory refOutputMemory,
             InstrPointer refInstructionPointer,
-            Jumps.JumpMemory refJumpMemory,
-            bool CRXW = true,
-            bool XRCW = true)
+            Jumps.JumpMemory refJumpMemory)
         {
             SharedMemory = refSharedMemory;
             InputMemory = refInputMemory;
             OutputMemory = refOutputMemory;
             InstructionPointer = refInstructionPointer;
             JumpMemory = refJumpMemory;
-            this.CRXW = CRXW;
-            this.XRCW = XRCW;
 
             ParallelAccessCycle.Clear();
             ReadSingleInstructionAccess.Clear();
             WriteSingleInstructionAccess.Clear();
 
             AccessingParallel = false;
-
-            IllegalMemoryReadIndex = null;
-            IllegalMemoryWriteIndex = null;
         }
 
         // Parallel processors were launched, and will now be accessing memory
@@ -147,8 +116,8 @@ namespace PRAM_lib.Code.Gateway
             }
         }
 
-        // A parallel processor has accessed memory, now check if it is legal
-        public void SingleParallelInstructionExecuted(int parallelMachineIndex, int parallelMachineRelevantCodeIndex)
+        //A single parallel processor has finished in the cycle, summarize the memory access
+        public void AccessingParallelStepInCycle(int parallelMachineIndex, int parallelMachineRelevantCodeIndex)
         {
             if (AccessingParallel)
             {
@@ -159,7 +128,8 @@ namespace PRAM_lib.Code.Gateway
             }
         }
 
-        public void AccessingParallelStep()
+        //A cycle of parallel processors has finished, clear the memory access information
+        public void AccessingParallelFinishCycle()
         {
             if (AccessingParallel)
             {
