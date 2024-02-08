@@ -191,7 +191,7 @@ namespace PRAM_lib.Code.Compiler
                 IGateway rightSelectedGateway = masterGateway;
 
                 string leftMemoryAddressContext = groups[0];
-                string rightMemoryAddressContext = groups[4];
+                string rightMemoryAddressContext = groups[3];
 
                 if (IsLocalMemoryAccess(leftMemoryAddressContext))
                 {

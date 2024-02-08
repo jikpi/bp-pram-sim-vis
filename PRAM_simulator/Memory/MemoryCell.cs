@@ -22,10 +22,14 @@ namespace PRAM_lib.Memory
             }
         }
 
-        public MemoryCell(int value = 0)
+        public MemoryCell()
+        {
+            _value = 0;
+        }
+
+        public MemoryCell(int value)
         {
             _value = value;
-            OnPropertyChanged(nameof(Value));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

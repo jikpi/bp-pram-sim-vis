@@ -25,17 +25,27 @@
 <!-- Pram controls -->
 <div class="container-fluid my-2">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-9">
             <div class="input-group mb-3">
                 <div class="input-group-prepend" style="margin-right: 10px;">
+
                     <div class="input-group-text">
-                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
-                        <span class="ms-2">Show Halted</span>
+                        <input type="checkbox" @bind="execService.ConcurrentRead" aria-label="Concurrent Read">
+                        <span class="ms-2">Concurrent Read</span>
+
+                        <input type="checkbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
+                        <span class="ms-2">Concurrent Write</span>
                     </div>
+                    
                 </div>
                 <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
                 <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
                 <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
+
+                <div class="input-group-text">
+                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
+                        <span class="ms-2">Show Halted</span>
+                </div>        
             </div>
         </div>
     </div>
@@ -57,10 +67,20 @@
               }
     @for (int i = 0; i < GetParallelMachineCount(); i++)
     {
-        if(!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
-        {
-            continue;
-        }
+                if (!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
+                {
+                    if(pramMachine.IllegalMemoryAccess)
+                    {
+                        if(execService.IsInHistory)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
 
         if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
         {
@@ -72,21 +92,88 @@
             <div class="card h-100">
                 <div class="card-header">
                     Machine @i :
-                    @if (GetParallelMachineIsHalted(i))
+                                    @{
+                    bool foundMachine = false;
+
+                    if(pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
                     {
-                        <span class="badge bg-warning">Halted</span>
+                        foreach (var item in pramMachine.IllegalMemoryAccesses)
+                        {
+                            if (item.ParallelMachineIndex == i)
+                            {
+                                <span class="badge bg-info">IMA</span>
+                                foundMachine = true;
+                                break;
+                            }
+                        }
                     }
-                </div>
+
+                    if (!foundMachine)
+                    {
+                        if(GetParallelMachineIsHalted(i))
+                        {
+                            <span class="badge bg-warning">Halted</span>
+                        }
+                        else if (execService.IsHistoryInLatestParallelBatch() && pramMachine.GetParallelMachineIsCrashed(i))
+                        {
+                            <span class="badge bg-danger">Crashed</span>
+                        }
+                    }
+                }
+
+                        </div>
                 <div class="card-body @GetCardClass(i)">
                     <h5 class="card-title">Code</h5>
                     
                     <div class="code-compiled-code-container">
-                        @foreach (var line in pramCodeViewService.PramLines)
+                @{
+                    foundMachine = true;
+                    if(!execService.IsInHistory && pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
+                    {
+                        foundMachine = false;
+
+                        int lineIndex = -1;
+                        try
+                        {
+                            lineIndex = pramMachine.IllegalMemoryAccesses.Where(x => x.ParallelMachineIndex == i).First().CodeLineIndex;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            foundMachine = true;
+                        }
+
+                        if(!foundMachine)
+                        {
+                        foreach (var line in pramCodeViewService.PramLines)
+                        {
+                            if(line.Key == lineIndex)
+                            {
+                                <div class="code-error-line">
+                                    @line.Value
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="@GetLineClass(line.Key, i)">
+                                @line.Value
+                                </div>
+                            }
+                        }
+                        }
+
+                                        
+                    }
+                    if(foundMachine)
+                    {
+                        foreach (var line in pramCodeViewService.PramLines)
                         {
                             <div class="@GetLineClass(line.Key, i)">
                                 @line.Value
                             </div>
                         }
+                    }
+                    }
+
                     </div>
 
                     <h5 class="card-title">Memory</h5>
@@ -188,7 +275,7 @@
             return "halted-card-body";
         }
 
-        if (pramMachine.GetParallelMachineIsCrashed(machineIndex))
+        if (pramMachine.GetParallelMachineIsCrashed(machineIndex) && !execService.IsInHistory)
         {
             return "crashed-card-body";
         }

@@ -7,6 +7,11 @@
             return "Code is not compiled.";
         }
 
+        internal static string BugCompilationError()
+        {
+            return "Unknown compilation error.";
+        }
+
         internal static string HasHalted()
         {
             return "Machine has halted.";
@@ -70,6 +75,21 @@
         internal static string CompilerOperationNotRecognized(string operation)
         {
             return $"Operation \"{operation}\" is not recognized.";
+        }
+
+        internal static string IllegalMemoryRead()
+        {
+            return "Illegal memory read.";
+        }
+
+        internal static string IllegalMemoryWrite()
+        {
+            return "Illegal memory write.";
+        }
+
+        internal static string IllegalMemoryAccess()
+        {
+            return "Illegal memory access.";
         }
 
     }

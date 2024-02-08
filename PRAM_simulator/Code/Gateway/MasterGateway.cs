@@ -1,6 +1,8 @@
 ﻿using PRAM_lib.Code.Gateway.Interface;
+using PRAM_lib.Machine.Container;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
+using System.Reflection.Metadata.Ecma335;
 
 namespace PRAM_lib.Code.Gateway
 {
@@ -15,180 +17,94 @@ namespace PRAM_lib.Code.Gateway
         public event Action ParallelDoLaunch;
         public event Action HaltNotify;
 
-        public int? IllegalMemoryReadIndex { get; private set; }
-        public int? IllegalMemoryWriteIndex { get; private set; }
-        public bool CRXW { get; set; }
-        public bool ERXW { get { return !CRXW; } set { CRXW = !value; } }
-        public bool XRCW { get; set; }
-        public bool XRXW { get { return !XRCW; } set { XRCW = !value; } }
-
         private bool AccessingParallel;
 
-        internal class GatewayParallelMemoryAccessInfo
-        {
-            public bool IsAccessed { get; set; }
-            public List<int> AccessingParallelMachineIndex { get; set; }
-
-            public GatewayParallelMemoryAccessInfo()
-            {
-                IsAccessed = false;
-                AccessingParallelMachineIndex = new List<int>();
-            }
-        }
-        public List<GatewayParallelMemoryAccessInfo> ReadAccessed { get; private set; }
-        private List<bool> ReadSingleInstructionAccess;
-
-        public List<GatewayParallelMemoryAccessInfo> WriteAccessed { get; private set; }
-        private List<bool> WriteSingleInstructionAccess;
+        //Dictionary with memory cell as index, and a list of accesses to that cell by parallel processors
+        public Dictionary<int, List<ParallelAccessInfo>> ParallelAccessCycle { get; private set; }
+        //Hashset with memory cell index that was accessed, always for a single parallel machine
+        private HashSet<int> ReadSingleInstructionAccess;
+        private HashSet<int> WriteSingleInstructionAccess;
 
         public MasterGateway(MachineMemory refSharedMemory,
             IOMemory refInputMemory,
             IOMemory refOutputMemory,
             InstrPointer refInstructionPointer,
-            Jumps.JumpMemory refJumpMemory,
-            bool CREW)
+            Jumps.JumpMemory refJumpMemory)
         {
             SharedMemory = refSharedMemory;
             InputMemory = refInputMemory;
             OutputMemory = refOutputMemory;
             InstructionPointer = refInstructionPointer;
             JumpMemory = refJumpMemory;
-            this.CRXW = CREW;
             ParallelDoLaunch = delegate { };
             HaltNotify = delegate { };
 
-            ReadAccessed = new List<GatewayParallelMemoryAccessInfo>();
-            ReadSingleInstructionAccess = new List<bool>();
-
-            WriteAccessed = new List<GatewayParallelMemoryAccessInfo>();
-            WriteSingleInstructionAccess = new List<bool>();
+            ReadSingleInstructionAccess = new HashSet<int>();
+            WriteSingleInstructionAccess = new HashSet<int>();
+            ParallelAccessCycle = new Dictionary<int, List<ParallelAccessInfo>>();
 
             AccessingParallel = false;
-
-            IllegalMemoryReadIndex = null;
-            IllegalMemoryWriteIndex = null;
         }
 
         public void Refresh(MachineMemory refSharedMemory,
             IOMemory refInputMemory,
             IOMemory refOutputMemory,
             InstrPointer refInstructionPointer,
-            Jumps.JumpMemory refJumpMemory,
-            bool CRXW = true,
-            bool XRCW = true)
+            Jumps.JumpMemory refJumpMemory)
         {
             SharedMemory = refSharedMemory;
             InputMemory = refInputMemory;
             OutputMemory = refOutputMemory;
             InstructionPointer = refInstructionPointer;
             JumpMemory = refJumpMemory;
-            this.CRXW = CRXW;
-            this.XRCW = XRCW;
 
-            ReadAccessed.Clear();
-            ReadSingleInstructionAccess = new List<bool>();
-
-            WriteAccessed.Clear();
-            WriteSingleInstructionAccess = new List<bool>();
+            ParallelAccessCycle.Clear();
+            ReadSingleInstructionAccess.Clear();
+            WriteSingleInstructionAccess.Clear();
 
             AccessingParallel = false;
-
-            IllegalMemoryReadIndex = null;
-            IllegalMemoryWriteIndex = null;
         }
 
         // Parallel processors were launched, and will now be accessing memory
         public void AccessingParallelStart()
         {
             AccessingParallel = true;
-            ReadAccessed.Clear();
+            ParallelAccessCycle.Clear();
             ReadSingleInstructionAccess.Clear();
+            WriteSingleInstructionAccess.Clear();
         }
 
-
-        //Check read access
-        private bool CheckReadAccess(int parallelMachineIndex)
+        // Summarize the memory access of a single parallel processor
+        private void SummarizeParallelMemoryAccess(int parallelMachineIndex, int relevantParallelMachineCodeIndex)
         {
-            if (ReadAccessed.Count < ReadSingleInstructionAccess.Count)
+            //Add read accesses
+            foreach (int index in ReadSingleInstructionAccess)
             {
-                ReadAccessed.Capacity = ReadSingleInstructionAccess.Count + 1;
-                for (int i = ReadAccessed.Count; i < ReadSingleInstructionAccess.Count; i++)
+                if(ParallelAccessCycle.ContainsKey(index) == false)
                 {
-                    ReadAccessed.Add(new GatewayParallelMemoryAccessInfo());
+                    ParallelAccessCycle.Add(index, new List<ParallelAccessInfo>());
                 }
+
+                ParallelAccessCycle[index].Add(new ParallelAccessInfo(ParallelAccessType.Read, index, parallelMachineIndex, relevantParallelMachineCodeIndex));
             }
 
-            for (int i = 0; i < ReadAccessed.Count; i++)
+            //Add write accesses
+            foreach (int index in WriteSingleInstructionAccess)
             {
-                if (ReadAccessed[i].IsAccessed && ReadSingleInstructionAccess[i])
+                if(ParallelAccessCycle.ContainsKey(index) == false)
                 {
-                    IllegalMemoryReadIndex = i;
-                    ReadAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
-                    return false;
+                    ParallelAccessCycle.Add(index, new List<ParallelAccessInfo>());
                 }
-                else
-                {
-                    // If the index is out of range, then it is not accessed, since no entry was made for it in the last execution
-                    if (i >= ReadAccessed.Count)
-                    {
-                        continue;
-                    }
 
-                    ReadAccessed[i].IsAccessed = ReadSingleInstructionAccess[i];
-                    ReadAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
-                }
+                ParallelAccessCycle[index].Add(new ParallelAccessInfo(ParallelAccessType.Write, index, parallelMachineIndex, relevantParallelMachineCodeIndex));
             }
-
-            return true;
-        }
-
-        // Check write access
-        private bool CheckWriteAccess(int parallelMachineIndex)
-        {
-            if (WriteAccessed.Count < WriteSingleInstructionAccess.Count)
-            {
-                for (int i = WriteAccessed.Count; i < WriteSingleInstructionAccess.Count; i++)
-                {
-                    WriteAccessed.Add(new GatewayParallelMemoryAccessInfo());
-                }
-            }
-
-            for (int i = 0; i < WriteAccessed.Count; i++)
-            {
-                if (WriteAccessed[i].IsAccessed && WriteSingleInstructionAccess[i])
-                {
-                    IllegalMemoryWriteIndex = i;
-                    WriteAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
-                    return false;
-                }
-                else
-                {
-                    if (i >= WriteAccessed.Count)
-                    {
-                        continue;
-                    }
-
-                    WriteAccessed[i].IsAccessed = WriteSingleInstructionAccess[i];
-                    WriteAccessed[i].AccessingParallelMachineIndex.Add(parallelMachineIndex);
-                }
-            }
-
-            return true;
         }
 
         private void NoteSingleReadAccess(int index)
         {
             if (AccessingParallel)
             {
-                if (ReadSingleInstructionAccess.Count <= index)
-                {
-                    for (int i = ReadSingleInstructionAccess.Count; i <= index; i++)
-                    {
-                        ReadSingleInstructionAccess.Add(default);
-                    }
-                }
-
-                ReadSingleInstructionAccess[index] = true;
+                ReadSingleInstructionAccess.Add(index);
             }
         }
 
@@ -196,33 +112,28 @@ namespace PRAM_lib.Code.Gateway
         {
             if (AccessingParallel)
             {
-                if (WriteSingleInstructionAccess.Count <= index)
-                {
-                    for (int i = WriteSingleInstructionAccess.Count; i <= index; i++)
-                    {
-                        WriteSingleInstructionAccess.Add(default);
-                    }
-                }
-
-                WriteSingleInstructionAccess[index] = true;
+                WriteSingleInstructionAccess.Add(index);
             }
         }
 
-        // A parallel processor has accessed memory, now check if it is legal
-        public void SingleParallelInstructionExecuted(int parallelMachineIndex)
+        //A single parallel processor has finished in the cycle, summarize the memory access
+        public void AccessingParallelStepInCycle(int parallelMachineIndex, int parallelMachineRelevantCodeIndex)
         {
             if (AccessingParallel)
             {
-                if (!CRXW)
-                {
-                    CheckReadAccess(parallelMachineIndex);
-                }
+                SummarizeParallelMemoryAccess(parallelMachineIndex, parallelMachineRelevantCodeIndex);
 
-                if (!XRCW)
-                {
-                    CheckWriteAccess(parallelMachineIndex);
-                }
+                ReadSingleInstructionAccess.Clear();
+                WriteSingleInstructionAccess.Clear();
+            }
+        }
 
+        //A cycle of parallel processors has finished, clear the memory access information
+        public void AccessingParallelFinishCycle()
+        {
+            if (AccessingParallel)
+            {
+                ParallelAccessCycle.Clear();
                 ReadSingleInstructionAccess.Clear();
                 WriteSingleInstructionAccess.Clear();
             }
@@ -232,10 +143,6 @@ namespace PRAM_lib.Code.Gateway
         public void AccessingParallelEnd()
         {
             AccessingParallel = false;
-            ReadAccessed.Clear();
-            ReadSingleInstructionAccess.Clear();
-            WriteAccessed.Clear();
-            WriteSingleInstructionAccess.Clear();
         }
 
         // Primary read access

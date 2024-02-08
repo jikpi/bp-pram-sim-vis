@@ -39,9 +39,10 @@ namespace PRAM_lib.Machine
         private bool CRXW { get; set; }
         private bool ERXW { get => !CRXW; set => CRXW = !value; }
         private bool XRCW { get; set; }
-        private bool XRXW { get => !XRCW; set => XRCW = !value; }
-        public List<IllegalMemoryAccesInfo> IllegalMemoryAccesses { get; private set; }
+        private bool XREW { get => !XRCW; set => XRCW = !value; }
+        public List<ParallelAccessInfo> IllegalMemoryAccesses { get; private set; }
         public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
+        public ParallelAccessType? IllegalMemoryAccessType { get; private set; }
         public int PreviousCodeLineIndex => MPIP.Value > 0 ? MasterCodeMemory!.Instructions[MPIP.Value - 1].CodeInstructionLineIndex : -1;
 
 
@@ -63,11 +64,13 @@ namespace PRAM_lib.Machine
             ParallelBatchIndex = 0;
             CRXW = true;
             XRCW = true;
-            IllegalMemoryAccesses = new List<IllegalMemoryAccesInfo>();
+            IllegalMemoryAccesses = new List<ParallelAccessInfo>();
 
-            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW);
+            MasterGateway = new MasterGateway(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
             MasterGateway.ParallelDoLaunch += ParallelDo;
             MasterGateway.HaltNotify += delegate { IsHalted = true; };
+
+            IllegalMemoryAccessType = null;
         }
 
         public int GetCurrentCodeLineIndex()
@@ -107,7 +110,7 @@ namespace PRAM_lib.Machine
 
         private void RefreshGateway()
         {
-            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory, CRXW, XRCW);
+            MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
         //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
@@ -116,27 +119,36 @@ namespace PRAM_lib.Machine
             string ErrorMessage;
             int ErrorLineIndex;
 
-            MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
+            try
+            {
+                MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
 
-            if (MasterCodeMemory == null) //Compilation failed
-            {
-                CompilationErrorMessage = ErrorMessage;
-                CompilationErrorLineIndex = ErrorLineIndex;
+                if (MasterCodeMemory == null) //Compilation failed
+                {
+                    CompilationErrorMessage = ErrorMessage;
+                    CompilationErrorLineIndex = ErrorLineIndex;
+                }
+                else //Compilation successful
+                {
+                    CompilationErrorMessage = null;
+                    CompilationErrorLineIndex = null;
+
+                    //Save the parallel machine containers
+                    ContainedParallelMachines = parallelMachines;
+
+                    //Set the new jump memory
+                    JumpMemory = newJumpMemory;
+                    RefreshGateway();
+
+                    Restart();
+                }
             }
-            else //Compilation successful
+            catch (Exception)
             {
-                CompilationErrorMessage = null;
+                CompilationErrorMessage = ExceptionMessages.BugCompilationError();
                 CompilationErrorLineIndex = null;
-
-                //Save the parallel machine containers
-                ContainedParallelMachines = parallelMachines;
-
-                //Set the new jump memory
-                JumpMemory = newJumpMemory;
-                RefreshGateway();
-
-                Restart();
             }
+
         }
 
         private bool CheckIfCanContinue()
@@ -159,7 +171,10 @@ namespace PRAM_lib.Machine
             //Check if crashed
             if (IsCrashed)
             {
-                ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                if (ExecutionErrorMessage == null)
+                {
+                    ExecutionErrorMessage = ExceptionMessages.HasCrashed();
+                }
                 ExecutionErrorLineIndex = MasterCodeMemory.Instructions[MPIP.Value].CodeInstructionLineIndex;
                 return false;
             }
@@ -176,7 +191,7 @@ namespace PRAM_lib.Machine
 
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
-
+            relParallelMachine = null;
             for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
             {
                 if (LaunchedParallelMachines[i].IsHalted)
@@ -184,17 +199,19 @@ namespace PRAM_lib.Machine
                     continue;
                 }
 
-                //if (LaunchedParallelMachines[i].IsCrashed)
-                //{
-                //    relParallelMachine = LaunchedParallelMachines[i];
-                //}
+                int previousCodeLineIndex = LaunchedParallelMachines[i].GetCurrentCodeLineIndex();
 
-                if (!LaunchedParallelMachines[i].ExecuteNextInstruction())
+                bool result = LaunchedParallelMachines[i].ExecuteNextInstruction();
+
+                //Note single instruction in parallel access
+                MasterGateway.AccessingParallelStepInCycle(i, previousCodeLineIndex);
+
+                if (!result)
                 {
                     if (LaunchedParallelMachines[i].IsCrashed)
                     {
-                        relParallelMachine = LaunchedParallelMachines[i];
-                        return;
+                        relParallelMachine ??= LaunchedParallelMachines[i];
+                        continue;
                     }
 
                     if (LaunchedParallelMachines[i].IsHalted)
@@ -202,30 +219,54 @@ namespace PRAM_lib.Machine
                         continue;
                     }
                 }
-
-                //Note single instruction in parallel access
-                MasterGateway.SingleParallelInstructionExecuted(i);
-
-                //Check memory access
-                if (MasterGateway.IllegalMemoryReadIndex != null)
-                {
-                    int illegalReadIndex = MasterGateway.IllegalMemoryReadIndex.Value;
-
-                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.ReadAccessed[illegalReadIndex].AccessingParallelMachineIndex,
-                        LaunchedParallelMachines[i].GetMemory(),
-                        readIndex: illegalReadIndex));
-                }
-
-                if (MasterGateway.IllegalMemoryWriteIndex != null)
-                {
-                    int illegalWriteIndex = MasterGateway.IllegalMemoryWriteIndex.Value;
-
-                    IllegalMemoryAccesses.Add(new IllegalMemoryAccesInfo(MasterGateway.WriteAccessed[illegalWriteIndex].AccessingParallelMachineIndex,
-                        LaunchedParallelMachines[i].GetMemory(),
-                        writeIndex: illegalWriteIndex));
-                }
-
             }
+
+            if (relParallelMachine != null)
+            {
+                return;
+            }
+
+            //Check memory access of the last cycle, based on the current memory access rules
+            if (ERXW)
+            {
+                foreach (var access in MasterGateway.ParallelAccessCycle)
+                {
+                    int readCount = access.Value.Count(x => x.Type == ParallelAccessType.Read);
+                    if (readCount > 1)
+                    {
+                        IllegalMemoryAccesses.AddRange(access.Value.Where(x => x.Type == ParallelAccessType.Read));
+                        IllegalMemoryAccessType = ParallelAccessType.Read;
+                        relParallelMachine = null;
+                        return;
+                    }
+                }
+            }
+
+            if (XREW)
+            {
+                foreach (var access in MasterGateway.ParallelAccessCycle)
+                {
+                    int writeCount = access.Value.Count(x => x.Type == ParallelAccessType.Write);
+                    if (writeCount > 1)
+                    {
+                        IllegalMemoryAccesses.AddRange(access.Value);
+                        IllegalMemoryAccessType = ParallelAccessType.Write;
+                        relParallelMachine = null;
+                        return;
+                    }
+
+                    if (writeCount > 0 && access.Value.Count(x => x.Type == ParallelAccessType.Read) > 0)
+                    {
+                        IllegalMemoryAccesses.AddRange(access.Value);
+                        IllegalMemoryAccessType = ParallelAccessType.Write;
+                        relParallelMachine = null;
+                        return;
+                    }
+                }
+            }
+
+            //If no illegal memory access, mark new cycle
+            MasterGateway.AccessingParallelFinishCycle();
 
             if (LaunchedParallelMachines == null)
             {
@@ -259,8 +300,28 @@ namespace PRAM_lib.Machine
                 ExecuteNextParallel(out InParallelMachine? relParallelMachine);
                 if (relParallelMachine != null)
                 {
-                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage;
+                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage + $" (Machine index: {relParallelMachine.ProcessorIndex})";
                     ExecutionErrorLineIndex = relParallelMachine.GetCurrentCodeLineIndex() + GetCurrentCodeLineIndex();
+                    IsCrashed = true;
+                    return false;
+                }
+
+                if (IllegalMemoryAccess)
+                {
+                    if (IllegalMemoryAccessType == null)
+                    {
+                        throw new Exception("Debug error: Bug in code.");
+                    }
+
+                    if (IllegalMemoryAccessType == ParallelAccessType.Read)
+                    {
+                        ExecutionErrorMessage = ExceptionMessages.IllegalMemoryRead();
+                    }
+                    else
+                    {
+                        ExecutionErrorMessage = ExceptionMessages.IllegalMemoryWrite();
+                    }
+
                     IsCrashed = true;
                     return false;
                 }
@@ -283,7 +344,7 @@ namespace PRAM_lib.Machine
             {
                 ExecutionErrorMessage = e.Message;
                 IsCrashed = true;
-                if(MasterCodeMemory != null)
+                if (MasterCodeMemory != null)
                 {
                     ExecutionErrorLineIndex = MasterCodeMemory.Instructions[MPIP.Value].CodeInstructionLineIndex;
                 }
@@ -307,16 +368,16 @@ namespace PRAM_lib.Machine
             ParallelBatchIndex = 0;
             LaunchedParallelMachines = null;
 
+            IllegalMemoryAccessType = null;
+
             //Restart all parallel machines
             foreach (ParallelMachineContainer container in ContainedParallelMachines)
             {
                 foreach (InParallelMachine machine in container.ParallelMachines)
                 {
                     machine.Restart();
-
                 }
             }
-
         }
 
         public void Clear()
@@ -332,6 +393,7 @@ namespace PRAM_lib.Machine
             LaunchedParallelMachines = null;
             RefreshGateway();
             MasterCodeMemory = null;
+            IllegalMemoryAccessType = null;
         }
 
         public void ClearMemory()
