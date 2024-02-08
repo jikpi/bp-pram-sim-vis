@@ -494,6 +494,7 @@ namespace Blazor_app.Services
         }
 
         //Switches to parallel history view if the history offset is set
+        private int? _lastBatchIndex = -1;
         private void ResolveUIParallelHistory()
         {
             if (HistoryOffset == null)
@@ -506,13 +507,21 @@ namespace Blazor_app.Services
             if (batchIndex == -1)
             {
                 _navigationManager.NavigateTo("/");
+                _lastBatchIndex = batchIndex;
                 return;
             }
 
             string code = _pramMachine.GetParallelMachineCode(batchIndex);
 
-            _navigationManager.NavigateTo("/pramview");
+
+            if (_lastBatchIndex != batchIndex)
+            {
+                _navigationManager.NavigateTo("/pramview");
+            }
+
+
             _pramCodeViewService.SetPramCode(code);
+            _lastBatchIndex = batchIndex;
             RefreshPramView();
         }
 
@@ -587,6 +596,30 @@ namespace Blazor_app.Services
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             ResolveUIParallelHistory();
+        }
+
+        //Returns true if the current history offset is the latest parallel batch, or if the history offset is null
+        public bool IsHistoryInLatestParallelBatch()
+        {
+            if(HistoryOffset == null)
+            {
+                return true;
+            }
+
+            int? batchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+            if (batchIndex == null)
+            {
+                return false;
+            }
+
+            int? lastBatchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex - 1);
+
+            if(lastBatchIndex == null)
+            {
+                return false;
+            }
+            
+            return batchIndex == lastBatchIndex;
         }
 
         //## Exclusive write / read control

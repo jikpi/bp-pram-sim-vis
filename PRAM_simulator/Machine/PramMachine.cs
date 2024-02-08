@@ -300,7 +300,7 @@ namespace PRAM_lib.Machine
                 ExecuteNextParallel(out InParallelMachine? relParallelMachine);
                 if (relParallelMachine != null)
                 {
-                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage + $"(Machine index: {relParallelMachine.ProcessorIndex})";
+                    ExecutionErrorMessage = relParallelMachine.ExecutionErrorMessage + $" (Machine index: {relParallelMachine.ProcessorIndex})";
                     ExecutionErrorLineIndex = relParallelMachine.GetCurrentCodeLineIndex() + GetCurrentCodeLineIndex();
                     IsCrashed = true;
                     return false;
@@ -308,7 +308,20 @@ namespace PRAM_lib.Machine
 
                 if (IllegalMemoryAccess)
                 {
-                    ExecutionErrorMessage = ExceptionMessages.IllegalMemoryAccess();
+                    if (IllegalMemoryAccessType == null)
+                    {
+                        throw new Exception("Debug error: Bug in code.");
+                    }
+
+                    if (IllegalMemoryAccessType == ParallelAccessType.Read)
+                    {
+                        ExecutionErrorMessage = ExceptionMessages.IllegalMemoryRead();
+                    }
+                    else
+                    {
+                        ExecutionErrorMessage = ExceptionMessages.IllegalMemoryWrite();
+                    }
+
                     IsCrashed = true;
                     return false;
                 }
