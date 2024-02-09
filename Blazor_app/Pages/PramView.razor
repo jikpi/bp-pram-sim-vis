@@ -28,25 +28,36 @@
     <div class="row justify-content-center">
         <div class="col-md-9">
             <div class="input-group mb-3">
-                <div class="input-group-prepend" style="margin-right: 10px;">
+                <div class="input-group-text d-flex align-items-center mx-2" style="gap: 20px;">
 
-                    <div class="input-group-text">
-                        <input type="checkbox" @bind="execService.ConcurrentRead" aria-label="Concurrent Read">
-                        <span class="ms-2">Concurrent Read</span>
-
-                        <input type="checkbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
-                        <span class="ms-2">Concurrent Write</span>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="concurrentReadCheckbox" @bind="execService.ConcurrentRead" aria-label="Concurrent Read">
+                        <label class="form-check-label" for="concurrentReadCheckbox">
+                            Concurrent Read
+                        </label>
                     </div>
-                    
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="concurrentWriteCheckbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
+                        <label class="form-check-label" for="concurrentWriteCheckbox">
+                            Concurrent Write
+                        </label>
+                    </div>
+
                 </div>
+
                 <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
                 <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
                 <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
 
-                <div class="input-group-text">
-                        <input type="checkbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
-                        <span class="ms-2">Show Halted</span>
-                </div>        
+                <div class="input-group-text d-flex align-items-center mx-2" style="gap: 20px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showHaltedCheckbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
+                        <label class="form-check-label" for="showHaltedCheckbox">
+                            Show Halted
+                        </label>
+                    </div>   
+                </div>
             </div>
         </div>
     </div>
@@ -140,7 +151,6 @@
                     int lineCountDown = globalService.FixedCodeLength;
                     bool startedCountDown = false;
                     const string fillerLine = " ";
-                    bool hadToBreak = false;
                     foreach (var line in pramCodeViewService.PramLines)
                     {
 
@@ -161,7 +171,6 @@
 
                         if(lineCountDown == 0)
                         {
-                            hadToBreak = true;
                             break;
                         }
                         }

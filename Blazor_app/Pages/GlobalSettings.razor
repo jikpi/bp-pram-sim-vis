@@ -1,76 +1,99 @@
 ﻿@page "/settings"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
+@using System.Text
+@using System.Collections.ObjectModel
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navigationManager
 @inject GlobalService globalService
 @inject PramMachine pramMachine
+@inject CodeEditorService codeEditorService
+
 
 <div class="container mt-5">
     <h3 class="text-center mb-4">Settings</h3>
 
     <div class="d-flex flex-column align-items-center">
 
-        <div class="form-group w-50 mb-3">
-            <h3>Run configuration</h3>
+        <div class="card mb-3" style="width: 50%;">
+            <div class="card-body">
+                <h3 class="card-title">🟢 Run configuration</h3>
 
-            <div class="form-group mb-1">
-                <label for="autoStepSpeedSlider">Auto Step Speed</label>
-                <input type="range" class="form-control-range" id="autoStepSpeedSlider"
-                       min="@globalService.MinAutoStepSpeed" max="@globalService.MaxAutoStepSpeed" value="@globalService.AutoStepSpeed"
-                       @onchange="AutoStepSpeedChanged">
-                <span>@globalService.AutoStepSpeed</span>
-            </div>
+                <div class="form-group mb-1">
+                    <label for="autoStepSpeedSlider">Auto Step Speed</label>
+                    <input type="range" class="form-control-range" id="autoStepSpeedSlider"
+                           min="@globalService.MinAutoStepSpeed" max="@globalService.MaxAutoStepSpeed" value="@globalService.AutoStepSpeed"
+                           @onchange="AutoStepSpeedChanged">
+                    <span>@globalService.AutoStepSpeed</span>
+                </div>
 
-            <div class="form-group mb-1">
-                <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="Hide unset memory cells">
-                <label for="hideMemoryCellsCheckbox" class="ms-2">Hide unset memory cells</label>
-            </div>
+                <div class="form-group mb-1">
+                    <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="Hide unset memory cells">
+                    <label for="hideMemoryCellsCheckbox" class="ms-2">Hide unset memory cells</label>
+                </div>
 
-            <div class="form-group mb-1">
-                <input type="checkbox" @bind="globalService.SaveHistory" id="savehistorycheckbox" aria-label="Save history">
-                <label for="savehistorycheckbox" class="ms-2">Save history</label>
-            </div>
+                <div class="form-group mb-1">
+                    <input type="checkbox" @bind="globalService.SaveHistory" id="savehistorycheckbox" aria-label="Save history">
+                    <label for="savehistorycheckbox" class="ms-2">Save history</label>
+                </div>
 
-            <div class="form-group mb-1">
-                <input type="checkbox" @bind="globalService.FixedCode" id="fixedcodecheckbox" aria-label="Fix code in place">
-                <label for="fixedcodecheckbox" class="ms-2">Fix code in place</label>
-                <label for="fixedCodeLinesSlider">Length:</label>
-                <input type="range" class="form-control-range" id="fixedCodeLinesSlider"
-                       min="@globalService.MinFixedCodeLength" max="@globalService.MaxFixedCodeLength" value="@globalService.FixedCodeLength"
-                       @onchange="FixedCodeLengthChanged">
-                <span>@globalService.FixedCodeLength</span>
+                <div class="form-group mb-1">
+                    <input type="checkbox" @bind="globalService.FixedCode" id="fixedcodecheckbox" aria-label="Fix code in place">
+                    <label for="fixedcodecheckbox" class="ms-2">Fix code in place</label>
+                    <label for="fixedCodeLinesSlider">Length:</label>
+                    <input type="range" class="form-control-range" id="fixedCodeLinesSlider"
+                           min="@globalService.MinFixedCodeLength" max="@globalService.MaxFixedCodeLength" value="@globalService.FixedCodeLength"
+                           @onchange="FixedCodeLengthChanged">
+                    <span>@globalService.FixedCodeLength</span>
+                </div>
             </div>
         </div>
 
+        <div class="card mb-3" style="width: 50%;">
+            <div class="card-body">
+                <h3 class="card-title">💾 Machine import/export</h3>
+                <input type="file" id="fileInput" style="display:none" />
+                <button type="button" class="btn btn-primary" @onclick="ImportMachine">
+                    Import machine
+                </button>
 
-
-        <div class="form-group w-50 mb-3">
-            <h3>Regex import/export</h3>
-            <input type="file" id="fileInput" style="display:none" onchange="uploadFileToBlazor()" />
-            <button type="button" class="btn btn-primary"
-                    @onclick="ImportRegex">
-                Import regex
-            </button>
-            <button type="button" class="btn btn-secondary"
-                    @onclick="ExportRegex">
-                Export regex
-            </button>
-            <button type="button" class="btn btn-warning"
-                    @onclick="ResetRegex">
-                Reset regex
-            </button>
-
+                <button type="button" class="btn btn-secondary"
+                        @onclick="ExportMachine">
+                    Export machine
+                </button>
+            </div>
         </div>
 
-        <div class="form-group w-50 mb-3">
-            <h3>Regex edit</h3>
-            <p>Editing the instruction regex of the machine is not officially supported and may expose critical aspects of its internal functionality. Please proceed with caution.</p>
-            <button type="button" class="btn btn-primary"
-                    @onclick="NavigateToRegexSettings">
-                I understand, continue
-            </button>
+        <div class="card mb-3" style="width: 50%;">
+            <div class="card-body">
+                <h3 class="card-title">🔠 Regex import/export</h3>
+                <input type="file" id="fileInput" style="display:none" />
+                <button type="button" class="btn btn-primary" @onclick="ImportRegex">
+                    Import regex
+                </button>
+
+                <button type="button" class="btn btn-secondary"
+                        @onclick="ExportRegex">
+                    Export regex
+                </button>
+                <button type="button" class="btn btn-warning"
+                        @onclick="ResetRegex">
+                    Reset regex
+                </button>
+
+            </div>
         </div>
+
+        <div class="card mb-3" style="width: 50%;">
+            <div class="card-body">
+                <h3 class="card-title">📝 Regex edit</h3>
+                <p class="card-text">Editing the instruction regex of the machine is not officially supported and may expose critical aspects of its internal functionality. Please proceed with caution.</p>
+                <button type="button" class="btn btn-primary" @onclick="NavigateToRegexSettings">
+                    I understand, continue
+                </button>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -103,14 +126,136 @@
         navigationManager.NavigateTo("/regexsettings");
     }
 
-    private void ImportRegex()
+    public void ExportMachine()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("MACHINECODE");
+        sb.AppendLine(codeEditorService.Code);
+        sb.AppendLine("MEMORYINPUT");
+        for (int i = 0; i < pramMachine.GetInputMemory().Count; i++)
+        {
+            if (pramMachine.GetInputMemory()[i].HasBeenWrittenTo)
+            {
+                sb.AppendLine($"{i}:{pramMachine.GetInputMemory()[i].Value.ToString()}");
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        sb.AppendLine("MEMORYSHARED");
+        for (int i = 0; i < pramMachine.GetSharedMemory().Count; i++)
+        {
+            if (pramMachine.GetSharedMemory()[i].HasBeenWrittenTo)
+            {
+                sb.AppendLine($"{i}:{pramMachine.GetSharedMemory()[i].Value.ToString()}");
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        string fileName = codeEditorService.Code.Split('\n')[0];
+        //check if firstCodeLine is a valid file name and if it is a comment, if not, use default name
+        if (!(fileName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) == -1 && pramMachine.InstructionRegex.Comment.IsMatch(fileName)))
+        {
+            fileName = $"machine {DateTime.Now:yyyyMMddHHmmss}.txt";
+        }
+
+        try
+        {
+            JSRuntime.InvokeVoidAsync("downloadFileFromBlazor", $"{fileName}", "text/plain", sb.ToString());
+        }
+        catch (Exception)
+        {
+            globalService.SetLastState("Failed to export machine", GlobalService.LastStateUniform.Error);
+        }
+    }
+
+    private void ImportMachine()
     {
         var dotNetReference = DotNetObjectReference.Create(this);
-        JSRuntime.InvokeVoidAsync("initializeUpload", dotNetReference);
+        JSRuntime.InvokeVoidAsync("initializeUpload", dotNetReference, "fileInput", "ReceiveMachineFileContent");
     }
 
     [JSInvokable]
-    public Task ReceiveFileContent(string fileContent)
+    public Task ReceiveMachineFileContent(string fileContent)
+    {
+        if (string.IsNullOrEmpty(fileContent))
+        {
+            globalService.SetLastState("File refused, it might be too large.", GlobalService.LastStateUniform.Error);
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            var sections = fileContent.Split(new[] { "MACHINECODE", "MEMORYINPUT", "MEMORYSHARED" }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (sections.Length < 3)
+            {
+                throw new FormatException("File format is incorrect or file is corrupted.");
+            }
+
+            //sections[0] is code, sections[1] is input memory, sections[2] is shared memory
+            codeEditorService.Code = sections[0].Trim();
+
+            string? errorMessage = null;
+            UpdateMemoryFromText(sections[1].Trim(), pramMachine.GetInteractiveInputMemory, out errorMessage);
+            UpdateMemoryFromText(sections[2].Trim(), pramMachine.GetInteractiveSharedMemory, out errorMessage);
+
+            if (errorMessage != null)
+            {
+                throw new FormatException(errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            globalService.SetLastState($"Failed to import machine: {ex.Message}", GlobalService.LastStateUniform.Error);
+            return Task.CompletedTask;
+        }
+
+        codeEditorService.EditCode();
+        if (pramMachine.InstructionRegex.SaveToText() != globalService.DefaultRegex)
+        {
+            globalService.SetLastState("Machine imported successfully. Warning: The regex of the machine is not default.", GlobalService.LastStateUniform.Warning);
+        }
+        else
+        {
+            globalService.SetLastState("Machine imported successfully", GlobalService.LastStateUniform.Note);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void UpdateMemoryFromText(string memoryText, PRAM_lib.Memory.Interface.IMemory memory, out string? errorMessage)
+    {
+        var lines = memoryText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var line in lines)
+        {
+            var parts = line.Split(':');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int index) && int.TryParse(parts[1], out int value))
+            {
+                memory.Write(index, value);
+            }
+            else
+            {
+                errorMessage = "Memory format is incorrect or file is corrupted.";
+                return;
+            }
+        }
+        errorMessage = null;
+    }
+
+    private void ImportRegex()
+    {
+        var dotNetReference = DotNetObjectReference.Create(this);
+        JSRuntime.InvokeVoidAsync("initializeUpload", dotNetReference, "fileInput", "ReceiveRegexFileContent");
+    }
+
+    [JSInvokable]
+    public Task ReceiveRegexFileContent(string fileContent)
     {
         if (string.IsNullOrEmpty(fileContent))
         {

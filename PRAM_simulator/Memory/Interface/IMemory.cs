@@ -2,7 +2,7 @@
 
 namespace PRAM_lib.Memory.Interface
 {
-    internal interface IMemory
+    public interface IMemory
     {
         public ObservableCollection<MemoryCell> Cells { get; set; }
 

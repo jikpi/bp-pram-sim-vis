@@ -59,8 +59,17 @@ namespace PRAM_lib.Memory
 
         public void Write(int address, int value)
         {
-            //An exception that occurs only, when there is bug in code
-            throw new Exception("Cannot write to specific address in IO memory");
+            MachineMemory.AddressSanityCheck(address);
+
+            if (Cells.Count <= address)
+            {
+                for (int i = Cells.Count; i <= address; i++)
+                {
+                    Cells.Add(new MemoryCell());
+                }
+            }
+
+            Cells[address].Value = value;
         }
 
         public void Clear()

@@ -8,6 +8,7 @@ using PRAM_lib.Code.Jumps;
 using PRAM_lib.Machine.Container;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
+using PRAM_lib.Memory.Interface;
 using PRAM_lib.Processor;
 using PRAM_lib.Processor.Interface;
 using System.Collections.ObjectModel;
@@ -506,5 +507,8 @@ namespace PRAM_lib.Machine
 
             return machine.AfterHaltedExecution;
         }
+
+        public IMemory GetInteractiveInputMemory => InputMemory;
+        public IMemory GetInteractiveSharedMemory => SharedMemory;
     }
 }

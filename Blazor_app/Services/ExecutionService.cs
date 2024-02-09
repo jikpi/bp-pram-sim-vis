@@ -44,6 +44,8 @@ namespace Blazor_app.Services
             _globalService.HistoryToggled += HistoryToggled;
 
             _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
+
+            _globalService.SetDefaultRegex(_pramMachine.InstructionRegex.SaveToText());
         }
 
 

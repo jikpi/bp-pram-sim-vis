@@ -8,15 +8,14 @@ namespace PRAM_lib.Memory
     internal class MachineMemory : IMemory
     {
         public ObservableCollection<MemoryCell> Cells { get; set; }
-        public int MaxCellSize { get; set; }
+        public static int MaxCellSize { get; set; } = 1_000_000;
 
         public MachineMemory()
         {
             Cells = new ObservableCollection<MemoryCell>();
-            MaxCellSize = 1_000_000;
         }
 
-        public void AddressSanityCheck(int memoryAddress)
+        public static void AddressSanityCheck(int memoryAddress)
         {
             if (memoryAddress < 0)
                 throw new LocalException(ExceptionMessages.AddressIsNegative(memoryAddress));
