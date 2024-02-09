@@ -15,6 +15,11 @@
     background-color: mediumvioletred;
 }
 
+.code-ima-line {
+    color: black;
+    background-color: darkgoldenrod;
+}
+
 .code-comment {
     color: green;
 }

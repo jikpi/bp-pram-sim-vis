@@ -7,7 +7,7 @@ namespace Blazor_app.Services
     public class HistoryMemoryService
     {
         public int HistoryIndex { get; private set; } = 0;
-        public int MaxHistoryIndex { get; private set; } = 1000;
+        public int MaxHistoryIndex { get; private set; } = 500;
 
         private List<ObservableCollection<MemoryCell>> InputHistory { get; set; } = [];
         private List<ObservableCollection<MemoryCell>> OutputHistory { get; set; } = [];
@@ -33,7 +33,15 @@ namespace Blazor_app.Services
         {
             if(HistoryIndex >= MaxHistoryIndex)
             {
-                return;
+                InputHistory.RemoveAt(0);
+                OutputHistory.RemoveAt(0);
+                SharedMemoryHistory.RemoveAt(0);
+                MasterCodeIndexHistory.RemoveAt(0);
+                ParallelBatchIndex.RemoveAt(0);
+                ParallelMemoryHistory.RemoveAt(0);
+                ParallelCodeIndexHistory.RemoveAt(0);
+                ParallelMachineHaltHistory.RemoveAt(0);
+                HistoryIndex--;
             }
 
             SaveMemory(machine.GetInputMemory(), InputHistory);

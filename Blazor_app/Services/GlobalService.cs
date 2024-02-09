@@ -54,11 +54,45 @@
 
         //---------------------------------------------
 
+        // Fixed code toggle
+        public bool FixedCode { get; set; } = false;
+
+        public int FixedCodeLength { get; private set; } = 10;
+        public int MaxFixedCodeLength { get; private set; } = 20;
+        public int MinFixedCodeLength { get; private set; } = 5;
+        public void SetFixedCodeLength(int length)
+        {
+            if (length < MinFixedCodeLength)
+            {
+                FixedCodeLength = MinFixedCodeLength;
+            }
+            else if (length > MaxFixedCodeLength)
+            {
+                FixedCodeLength = MaxFixedCodeLength;
+            }
+            else
+            {
+                FixedCodeLength = length;
+            }
+        }
+
+        //
+
         //Memory cell hiding
         public bool HideMemoryCells { get; set; } = false;
 
         //History toggle
-        public bool SaveHistory { get; set; } = true;
+        public event Action<bool> HistoryToggled;
+        private bool _saveHistory = true;
+        public bool SaveHistory
+        {
+            get => _saveHistory;
+            set
+            {
+                _saveHistory = value;
+                HistoryToggled?.Invoke(value);
+            }
+        }
 
 
 

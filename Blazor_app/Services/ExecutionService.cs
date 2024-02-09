@@ -41,6 +41,7 @@ namespace Blazor_app.Services
             _historyMemoryService = historyMemoryService;
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
+            _globalService.HistoryToggled += HistoryToggled;
 
             _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
         }
@@ -449,8 +450,8 @@ namespace Blazor_app.Services
             {
                 bool wasHalted = _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value - 1, machineIndex);
                 bool isHalted = _historyMemoryService.GetParallelMachineHaltAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value, machineIndex);
-               
-                if(!wasHalted && isHalted)
+
+                if (!wasHalted && isHalted)
                 {
                     return false;
                 }
@@ -506,7 +507,11 @@ namespace Blazor_app.Services
 
             if (batchIndex == -1)
             {
-                _navigationManager.NavigateTo("/");
+                if (batchIndex != _lastBatchIndex)
+                {
+                    _navigationManager.NavigateTo("/");
+                }
+
                 _lastBatchIndex = batchIndex;
                 return;
             }
@@ -598,10 +603,18 @@ namespace Blazor_app.Services
             ResolveUIParallelHistory();
         }
 
+        private void HistoryToggled(bool value)
+        {
+            if (!value)
+            {
+                _historyMemoryService.Reset();
+            }
+        }
+
         //Returns true if the current history offset is the latest parallel batch, or if the history offset is null
         public bool IsHistoryInLatestParallelBatch()
         {
-            if(HistoryOffset == null)
+            if (HistoryOffset == null)
             {
                 return true;
             }
@@ -614,11 +627,11 @@ namespace Blazor_app.Services
 
             int? lastBatchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex - 1);
 
-            if(lastBatchIndex == null)
+            if (lastBatchIndex == null)
             {
                 return false;
             }
-            
+
             return batchIndex == lastBatchIndex;
         }
 

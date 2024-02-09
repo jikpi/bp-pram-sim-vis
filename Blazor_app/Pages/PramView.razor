@@ -7,6 +7,7 @@
 @inject CodeEditorService codeEditorService
 @inject PramCodeViewService pramCodeViewService
 @inject ExecutionService execService
+@inject GlobalService globalService
 
 <style>
     .halted-card-body {
@@ -127,50 +128,79 @@
                     
                     <div class="code-compiled-code-container">
                 @{
-                    foundMachine = true;
+                    bool imaMachine = false;
+                    int? lineIndex = -1;
                     if(!execService.IsInHistory && pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
                     {
-                        foundMachine = false;
-
-                        int lineIndex = -1;
-                        try
-                        {
-                            lineIndex = pramMachine.IllegalMemoryAccesses.Where(x => x.ParallelMachineIndex == i).First().CodeLineIndex;
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            foundMachine = true;
-                        }
-
-                        if(!foundMachine)
-                        {
-                        foreach (var line in pramCodeViewService.PramLines)
-                        {
-                            if(line.Key == lineIndex)
-                            {
-                                <div class="code-error-line">
-                                    @line.Value
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="@GetLineClass(line.Key, i)">
-                                @line.Value
-                                </div>
-                            }
-                        }
-                        }
-
-                                        
+                        lineIndex = pramMachine.IllegalMemoryAccesses.Where(x => x.ParallelMachineIndex == i).FirstOrDefault()?.CodeLineIndex;
+                        imaMachine = lineIndex != null;
                     }
-                    if(foundMachine)
+
+                    bool primaryLineIndicator = false;
+                    int lineCountDown = globalService.FixedCodeLength;
+                    bool startedCountDown = false;
+                    const string fillerLine = " ";
+                    bool hadToBreak = false;
+                    foreach (var line in pramCodeViewService.PramLines)
                     {
-                        foreach (var line in pramCodeViewService.PramLines)
+
+                        if(globalService.FixedCode)
                         {
-                            <div class="@GetLineClass(line.Key, i)">
+                        if(primaryLineIndicator && !startedCountDown)
+                        {
+                            startedCountDown = true;
+                        }
+
+                        if(startedCountDown)
+                        {
+                            if(lineCountDown > 0)
+                            {
+                                lineCountDown--;
+                            }
+                        }
+
+                        if(lineCountDown == 0)
+                        {
+                            hadToBreak = true;
+                            break;
+                        }
+                        }
+
+                        if (imaMachine && (line.Key == lineIndex))
+                        {
+                            <div class="code-ima-line">
                                 @line.Value
                             </div>
+                            primaryLineIndicator = true;
                         }
+                        else
+                        {
+                            string lineClass = GetLineClass(line.Key, i, out primaryLineIndicator);
+
+                            if(globalService.FixedCode)
+                            {
+                                if(!primaryLineIndicator && !startedCountDown)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            <div class="@lineClass">
+                                    @line.Value
+                            </div>
+                        }
+                    }  
+
+                    if(globalService.FixedCode)
+                    {
+                        int j = 0;
+                        for(; j < lineCountDown - 1; j++)
+                        {
+                            <div class="code-comment">
+                                @fillerLine
+                            </div>
+                        }
+
                     }
                     }
 
@@ -233,18 +263,20 @@
         return execService.GetParallelMachineIsAfterHalted(machineIndex);
     }
 
-    private string GetLineClass(int lineIndex, int machineIndex)
+    private string GetLineClass(int lineIndex, int machineIndex, out bool primaryLineIndicator)
     {
 
         //Current line coloring
 
         if (execService.GetParallelMachineCodeIndex(machineIndex) == lineIndex)   
         {
+            primaryLineIndicator = true;
             return "code-current-line";
         }
 
         if (execService.GetParallelMachineErrorLineIndex(machineIndex) == lineIndex)   
         {
+            primaryLineIndicator = true;
             return "code-error-line";
         }
 
@@ -252,19 +284,23 @@
 
         if (pramMachine.InstructionRegex.Comment.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
+            primaryLineIndicator = false;
             return "code-comment";
         }
 
         if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
+            primaryLineIndicator = false;
             return "code-jump";
         }
 
         if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
+            primaryLineIndicator = false;
             return "code-label-jump";
         }
 
+        primaryLineIndicator = false;
         return "";
     }
 
