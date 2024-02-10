@@ -496,9 +496,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToInstruction
-                if (regex.JumpToInstruction.IsMatch(strings[i]))
+                if (regex.JumpToLabel.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToInstruction.Match(strings[i]);
+                    match = regex.JumpToLabel.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -510,9 +510,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToLabel
-                if (regex.JumpToLabel.IsMatch(strings[i]))
+                if (regex.JumpLabel.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToLabel.Match(strings[i]);
+                    match = regex.JumpLabel.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -522,9 +522,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //IfJumpTo
-                if (regex.IfJumpTo.IsMatch(strings[i]))
+                if (regex.IfJumpToLabel.IsMatch(strings[i]))
                 {
-                    match = regex.IfJumpTo.Match(strings[i]);
+                    match = regex.IfJumpToLabel.Match(strings[i]);
 
                     string potentialLeftCell = match.Groups[1].Value; //A cell identifier or empty string, if it's a constant on the left
                     string leftValue = match.Groups[2].Value; //Cell address or constant value

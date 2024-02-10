@@ -31,3 +31,13 @@
 .code-label-jump {
     color: mediumblue;
 }
+
+.code-pardo {
+    color: orangered;
+    font-weight: bold;
+}
+
+.code-parend {
+    color: darkorange;
+    font-weight: bold;
+}

@@ -97,5 +97,10 @@
             return "Illegal memory access.";
         }
 
+        internal static string BadNumberOfParallelProcessors(int count)
+        {
+            return $"Bad number of parallel processors: {count}.";
+        }
+
     }
 }

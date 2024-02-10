@@ -76,14 +76,29 @@ else
             return "code-comment";
         }
 
-        if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        if (pramMachine.InstructionRegex.IfJumpToLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
         {
             return "code-jump";
         }
 
-        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        if (pramMachine.InstructionRegex.JumpLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
         {
             return "code-label-jump";
+        }
+
+        if(pramMachine.InstructionRegex.JumpToLabel.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "code-jump";
+        }
+
+        if (pramMachine.InstructionRegex.ParallelStart.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "code-pardo";
+        }
+
+        if (pramMachine.InstructionRegex.ParallelEnd.IsMatch(codeEditor.CompiledLines[lineIndex]))
+        {
+            return "code-parend";
         }
 
 
