@@ -316,20 +316,17 @@ namespace PRAM_lib.Code.Compiler
 
                     List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
 
-                    for (int j = 0; j < numberofprocessors; j++)
+                    ParallelGateway newParallelGateway = new ParallelGateway();
+                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(pardoCode, masterGateway, regex,
+                        out Jumps.JumpMemory pardoJumpMemory,
+                        out _, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
+                    if (pardoCodeMemory == null)
                     {
-                        ParallelGateway newParallelGateway = new ParallelGateway();
-                        CodeMemory.CodeMemory? pardoCodeMemory = Compile(pardoCode, masterGateway, regex, out Jumps.JumpMemory pardoJumpMemory, out _, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
-
-                        if (pardoCodeMemory == null)
-                        {
-                            errorMessage = pardoErrorMessage;
-                            returnLineIndex = pardoReturnLineIndex + lineIndex + 1;
-                            return null;
-                        }
-
-                        inParallelMachines.Add(new InParallelMachine(j, pardoCodeMemory, pardoJumpMemory, newParallelGateway));
+                        errorMessage = pardoErrorMessage;
+                        returnLineIndex = pardoReturnLineIndex + lineIndex + 1;
+                        return null;
                     }
+                    inParallelMachines.Add(new InParallelMachine(0, pardoCodeMemory, pardoJumpMemory, newParallelGateway));
 
                     parallelMachines.Add(new ParallelMachineContainer(inParallelMachines, pardoCode.Substring(0, pardoCode.IndexOf(regex.ParallelEndString))));
 
