@@ -226,11 +226,13 @@
             globalService.SetLastState("Machine imported successfully", GlobalService.LastStateUniform.Note);
         }
 
+        navigationManager.NavigateTo("/");
         return Task.CompletedTask;
     }
 
     private void UpdateMemoryFromText(string memoryText, PRAM_lib.Memory.Interface.IMemory memory, out string? errorMessage)
     {
+        memory.Clear();
         var lines = memoryText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         foreach (var line in lines)
         {

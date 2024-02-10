@@ -77,6 +77,11 @@
             return $"Operation \"{operation}\" is not recognized.";
         }
 
+        internal static string CompilerParallelNotEnded()
+        {
+            return "Parallel block is not ended.";
+        }
+
         internal static string IllegalMemoryRead()
         {
             return "Illegal memory read.";

@@ -279,9 +279,11 @@ namespace PRAM_lib.Code.Compiler
             //Set the gateways
             IGateway foreignGateway = masterGateway;
             IGateway localGateway = masterGateway;
+            bool isParallelAndNotEnded = false;
             if (parallelGateway != null)
             {
                 localGateway = parallelGateway;
+                isParallelAndNotEnded = true;
             }
 
             Match? match;
@@ -469,7 +471,7 @@ namespace PRAM_lib.Code.Compiler
                     try
                     {
                         newCodeMemory.Instructions.Add(new SetMemoryToResult(new GatewayIndexSet(selectedGateway, int.Parse(sharedMemoryResultAddress)), ResultSetResolver(regex, resultIs_any), instructionPointerIndex++, lineIndex));
-                        //NOTE: No checks for infinity loops right now
+                        //NOTE: No checks for infinity loops
                     }
                     catch (LocalException e)
                     {
@@ -577,6 +579,16 @@ namespace PRAM_lib.Code.Compiler
                 returnLineIndex = lineIndex;
                 return null;
             }
+
+            if(isParallelAndNotEnded)
+            {
+                errorMessage = ExceptionMessages.CompilerParallelNotEnded();
+                returnLineIndex = lineIndex;
+                return null;
+            }
+
+            //Add halt at the end of the code
+            newCodeMemory.Instructions.Add(new Halt(new GatewayIndexSet(localGateway, -1), instructionPointerIndex++, -1));
 
             errorMessage = string.Empty;
             returnLineIndex = -1;
