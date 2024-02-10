@@ -65,5 +65,22 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                     throw new Exception("Debug: ComparisonMethod is not defined");
             }
         }
+
+        public IComparisonSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            GatewayIndexSet? leftGateway = null;
+            if(leftGateway != null)
+            {
+                leftGateway = leftGateway.DeepCopyToParallel(gateway);
+            }
+
+            GatewayIndexSet? rightGateway = null;
+            if(rightGateway != null)
+            {
+                rightGateway = rightGateway.DeepCopyToParallel(gateway);
+            }
+
+            return new ComparisonSet(leftGateway, rightGateway, ComparisonMethod, LeftValue, RightValue);
+        }
     }
 }

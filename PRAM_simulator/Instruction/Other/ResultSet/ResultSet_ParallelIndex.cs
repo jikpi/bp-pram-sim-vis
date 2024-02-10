@@ -15,5 +15,10 @@ namespace PRAM_lib.Instruction.Other.ResultSet
         {
             return gateway.GetParallelIndex();
         }
+
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new ResultSet_ParallelIndex(this.gateway.DeepCopyToParallel(gateway));
+        }
     }
 }

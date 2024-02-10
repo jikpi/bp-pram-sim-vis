@@ -73,5 +73,17 @@ namespace PRAM_lib.Code.Gateway
         {
             Gateway.Halt();
         }
+
+        public GatewayIndexSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            if(Gateway is ParallelGateway)
+            {
+                return new GatewayIndexSet(gateway, MemoryAddressIndex);
+            }
+            else
+            {
+                return new GatewayIndexSet(Gateway, MemoryAddressIndex);
+            }
+        }
     }
 }

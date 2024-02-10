@@ -1,4 +1,5 @@
-﻿using PRAM_lib.Instruction.Other.Interface;
+﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Code.CodeMemory
 {
@@ -9,6 +10,16 @@ namespace PRAM_lib.Code.CodeMemory
         public CodeMemory()
         {
             Instructions = new List<IInstruction>();
+        }
+
+        public CodeMemory DeepCopyToParallel(ParallelGateway parallelGateway)
+        {
+            CodeMemory newCodeMemory = new CodeMemory();
+            foreach (IInstruction instruction in Instructions)
+            {
+                newCodeMemory.Instructions.Add(instruction.DeepCopyToParallel(parallelGateway));
+            }
+            return newCodeMemory;
         }
     }
 }

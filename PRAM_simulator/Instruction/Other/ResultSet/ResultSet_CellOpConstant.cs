@@ -8,13 +8,13 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     //A class that represents a result of an instruction, for example: S2 := S2 + 5
     internal class ResultSet_CellOpConstant : IResultSet
     {
-        public GatewayIndexSet gateway { get; }
+        public GatewayIndexSet Gateway { get; }
         public int ConstantValue { get; }
         public Operation operation { get; }
         private bool IsLeftCell { get; }
         public ResultSet_CellOpConstant(GatewayIndexSet gateway, int constantValue, Operation operation, bool isLeftCell = true)
         {
-            this.gateway = gateway;
+            this.Gateway = gateway;
             ConstantValue = constantValue;
             this.operation = operation;
             IsLeftCell = isLeftCell;
@@ -26,13 +26,13 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
 
             if (IsLeftCell)
             {
-                LeftValue = gateway.Read();
+                LeftValue = Gateway.Read();
                 RightValue = ConstantValue;
             }
             else
             {
                 LeftValue = ConstantValue;
-                RightValue = gateway.Read();
+                RightValue = Gateway.Read();
 
             }
 
@@ -54,6 +54,11 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                 default:
                     throw new Exception("Unknown operation");
             }
+        }
+
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new ResultSet_CellOpConstant(this.Gateway.DeepCopyToParallel(gateway), ConstantValue, operation, IsLeftCell);
         }
     }
 }

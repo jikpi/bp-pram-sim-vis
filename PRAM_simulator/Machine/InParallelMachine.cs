@@ -150,6 +150,17 @@ namespace PRAM_lib.Processor
             LocalMemory.Clear();
         }
 
+        public List<InParallelMachine> DeepCopy(int count)
+        {
+            for(int i = 0; i < count; i++) 
+            {
+                int newProcessorIndex = ProcessorIndex + i;
+                ParallelGateway newGateway = new ParallelGateway();
+
+
+            }
+        }
+
 
     }
 }

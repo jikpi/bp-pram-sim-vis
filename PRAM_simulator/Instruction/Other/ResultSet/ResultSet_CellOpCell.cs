@@ -42,5 +42,11 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
                     throw new Exception("Debug exception");
             }
         }
+
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new ResultSet_CellOpCell(leftGateway.DeepCopyToParallel(gateway),
+                rightGateway.DeepCopyToParallel(gateway), Operation);
+        }
     }
 }

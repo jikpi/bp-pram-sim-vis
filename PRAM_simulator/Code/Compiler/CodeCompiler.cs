@@ -570,7 +570,7 @@ namespace PRAM_lib.Code.Compiler
                 //NoOperation
                 if (regex.NoOperation.IsMatch(strings[i]))
                 {
-                    newCodeMemory.Instructions.Add(new NoOperation(new GatewayIndexSet(localGateway, -1), instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new NoOperation(instructionPointerIndex++, lineIndex));
                     continue;
                 }
 
