@@ -35,7 +35,7 @@ namespace PRAM_lib.Code
         public Regex IfJumpTo { get; private set; }
         private static readonly Regex DefIfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$");
         public Regex ParallelStart { get; private set; }
-        private static readonly Regex DefParallelStart = new Regex(@"^pardo (\d+)\s*$");
+        private static readonly Regex DefParallelStart = new Regex(@"^pardo (.*)\s*$");
         public readonly Regex ParallelEnd = new Regex(@"^parend\s*$"); //Cannot be changed by user
         public readonly string ParallelEndString = "parend"; //Cannot be changed by user
         public string ParallelCell { get; private set; } //Not a real instruction

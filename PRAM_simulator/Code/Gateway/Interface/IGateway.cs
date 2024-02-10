@@ -20,7 +20,7 @@
         void JumpTo(int index);
 
         //Notify PRAM about the launch of a parallel processors
-        void ParallelDoStart();
+        void ParallelDoStart(int count, int index);
 
         int GetParallelIndex();
 

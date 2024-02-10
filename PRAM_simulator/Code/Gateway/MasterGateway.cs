@@ -14,7 +14,7 @@ namespace PRAM_lib.Code.Gateway
         private IOMemory OutputMemory { get; set; }
         private InstrPointer InstructionPointer { get; set; }
         private Jumps.JumpMemory JumpMemory { get; set; }
-        public event Action ParallelDoLaunch;
+        public event Action<int, int> ParallelDoLaunch;
         public event Action HaltNotify;
 
         private bool AccessingParallel;
@@ -183,9 +183,9 @@ namespace PRAM_lib.Code.Gateway
         {
             InstructionPointer.Value = index;
         }
-        public void ParallelDoStart()
+        public void ParallelDoStart(int count, int index)
         {
-            ParallelDoLaunch?.Invoke();
+            ParallelDoLaunch?.Invoke(count, index);
         }
 
         public int GetParallelIndex()

@@ -27,7 +27,7 @@ namespace PRAM_lib.Instruction.Master_Instructions
             gateway.WriteOutput(Result.GetResult());
         }
 
-        public void DeepCopyToParallel(IGateway gateway)
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
         {
             throw new NotImplementedException();
         }

@@ -9,16 +9,16 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
     // combinations determine what is being compared.
     internal class ComparisonSet : IComparisonSet
     {
-        internal GatewayIndexSet? leftGateway { get; }
-        internal GatewayIndexSet? rightGateway { get; }
+        internal GatewayIndexSet? LeftGateway { get; }
+        internal GatewayIndexSet? RightGateway { get; }
         internal int? LeftValue { get; }
         internal int? RightValue { get; }
         internal ComparisonMethod? ComparisonMethod { get; }
 
         public ComparisonSet(GatewayIndexSet? leftGateway = null, GatewayIndexSet? rightGateway = null, ComparisonMethod? method = null, int? leftValue = null, int? rightValue = null)
         {
-            this.leftGateway = leftGateway;
-            this.rightGateway = rightGateway;
+            this.LeftGateway = leftGateway;
+            this.RightGateway = rightGateway;
             LeftValue = leftValue;
             RightValue = rightValue;
             ComparisonMethod = method;
@@ -33,15 +33,15 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             int rightValue;
 
             // Determine what is being compared, get the values, and compare them. Then return the result.
-            if (leftGateway != null)
-                leftValue = leftGateway.Read();
+            if (LeftGateway != null)
+                leftValue = LeftGateway.Read();
             else if (LeftValue != null)
                 leftValue = LeftValue.Value;
             else
                 throw new Exception("Debug: Left is none");
 
-            if (rightGateway != null)
-                rightValue = rightGateway.Read();
+            if (RightGateway != null)
+                rightValue = RightGateway.Read();
             else if (RightValue != null)
                 rightValue = RightValue.Value;
             else
@@ -69,15 +69,15 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         public IComparisonSet DeepCopyToParallel(ParallelGateway gateway)
         {
             GatewayIndexSet? leftGateway = null;
-            if(leftGateway != null)
+            if(LeftGateway != null)
             {
-                leftGateway = leftGateway.DeepCopyToParallel(gateway);
+                leftGateway = LeftGateway.DeepCopyToParallel(gateway);
             }
 
             GatewayIndexSet? rightGateway = null;
-            if(rightGateway != null)
+            if(RightGateway != null)
             {
-                rightGateway = rightGateway.DeepCopyToParallel(gateway);
+                rightGateway = RightGateway.DeepCopyToParallel(gateway);
             }
 
             return new ComparisonSet(leftGateway, rightGateway, ComparisonMethod, LeftValue, RightValue);

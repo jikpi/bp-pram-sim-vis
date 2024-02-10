@@ -153,7 +153,7 @@ namespace PRAM_lib.Processor
         public List<InParallelMachine> DeepCopy(int count)
         {
             List<InParallelMachine> newMachines = new List<InParallelMachine>();
-            for(int i = 0; i < count; i++) 
+            for(int i = 1; i < count + 1; i++) 
             {
                 int newProcessorIndex = ProcessorIndex + i;
                 ParallelGateway newGateway = new ParallelGateway();

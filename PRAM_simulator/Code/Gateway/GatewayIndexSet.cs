@@ -59,9 +59,9 @@ namespace PRAM_lib.Code.Gateway
             Gateway.JumpTo(index);
         }
 
-        public void ParallelDo()
+        public void ParallelDo(int count, int index)
         {
-            Gateway.ParallelDoStart();
+            Gateway.ParallelDoStart(count, index);
         }
 
         public int GetParallelIndex()
