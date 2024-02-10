@@ -79,6 +79,13 @@
               }
     @for (int i = 0; i < GetParallelMachineCount(); i++)
     {
+
+        if(displayCount > 300)
+                {
+                    continue;
+                }
+
+
                 if (!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
                 {
                     if(pramMachine.IllegalMemoryAccess)
@@ -297,16 +304,22 @@
             return "code-comment";
         }
 
-        if (pramMachine.InstructionRegex.IfJumpTo.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        if (pramMachine.InstructionRegex.IfJumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
             primaryLineIndicator = false;
             return "code-jump";
         }
 
-        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        if (pramMachine.InstructionRegex.JumpLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
             primaryLineIndicator = false;
             return "code-label-jump";
+        }
+
+        if(pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        {
+            primaryLineIndicator = false;
+            return "code-jump";
         }
 
         primaryLineIndicator = false;
@@ -343,6 +356,11 @@
         else
         {
             selectViewPlaceHolder = "🟧 Displaying: " + string.Join(", ", pramCodeViewService.SelectedViewParallelMachines) + "; Begin with '+' to add.";
+
+            if(selectViewPlaceHolder.Length > 200)
+            {
+                selectViewPlaceHolder = selectViewPlaceHolder.Substring(0, 200) + "...";
+            }
             StateHasChanged();
         }
     }

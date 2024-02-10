@@ -13,18 +13,23 @@ namespace PRAM_lib.Instruction.Independent_Instructions
         public int InstructionPointerIndex { get; }
         public int CodeInstructionLineIndex { get; }
 
-        public GatewayIndexSet gateway;
+        public GatewayIndexSet Gateway;
 
         public Halt(GatewayIndexSet gateway, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            this.gateway = gateway;
+            this.Gateway = gateway;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
         }
 
         public void Execute()
         {
-            gateway.Halt();
+            Gateway.Halt();
+        }
+
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new Halt(Gateway.DeepCopyToParallel(gateway), InstructionPointerIndex, CodeInstructionLineIndex);
         }
     }
 }

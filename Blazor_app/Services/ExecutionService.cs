@@ -211,12 +211,14 @@ namespace Blazor_app.Services
             if (_pramMachine.IsCompiled)
             {
                 _globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
-                _codeEditorService.CodeToCompiledMode();
+                _codeEditorService.CodeToViewMode();
             }
             else
             {
                 _globalService.SetLastState($"Compilation failed: {_pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
+                _codeEditorService.CodeToViewMode(_pramMachine.CompilationErrorLineIndex ?? -1);
             }
+
             RefreshMemory();
         }
 
@@ -505,20 +507,22 @@ namespace Blazor_app.Services
                 return;
             }
 
-            int batchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value) ?? -1;
+            int? batchIndex = _historyMemoryService.GetParallelBatchIndexAt(_historyMemoryService.HistoryIndex + HistoryOffset.Value);
+
+            if (batchIndex == null)
+            {
+                batchIndex = -1;
+            }
 
             if (batchIndex == -1)
             {
-                if (batchIndex != _lastBatchIndex)
-                {
-                    _navigationManager.NavigateTo("/");
-                }
+                _navigationManager.NavigateTo("/");
 
                 _lastBatchIndex = batchIndex;
                 return;
             }
 
-            string code = _pramMachine.GetParallelMachineCode(batchIndex);
+            string code = _pramMachine.GetParallelMachineCode((int)batchIndex);
 
 
             if (_lastBatchIndex != batchIndex)

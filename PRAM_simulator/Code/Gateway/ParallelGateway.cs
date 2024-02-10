@@ -79,7 +79,7 @@ namespace PRAM_lib.Code.Gateway
             InstructionPointer.Value = index;
         }
 
-        public void ParallelDoStart()
+        public void ParallelDoStart(int count, int index)
         {
             throw new NotImplementedException();
         }

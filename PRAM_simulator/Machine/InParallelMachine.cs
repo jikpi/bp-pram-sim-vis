@@ -150,6 +150,21 @@ namespace PRAM_lib.Processor
             LocalMemory.Clear();
         }
 
+        public List<InParallelMachine> DeepCopy(int count)
+        {
+            List<InParallelMachine> newMachines = new List<InParallelMachine>();
+            for(int i = 1; i < count + 1; i++) 
+            {
+                int newProcessorIndex = ProcessorIndex + i;
+                ParallelGateway newGateway = new ParallelGateway();
+                CodeMemory newCodeMemory = CodeMemory.DeepCopyToParallel(newGateway);
+                JumpMemory newJumpMemory = JumpMemory; //No need to deep copy
 
+                InParallelMachine newMachine = new InParallelMachine(newProcessorIndex, newCodeMemory, newJumpMemory, newGateway);
+                newMachines.Add(newMachine);
+            }
+
+            return newMachines;
+        }
     }
 }

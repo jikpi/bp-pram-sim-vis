@@ -18,7 +18,7 @@
             EditorStateChanged?.Invoke();
         }
 
-        public void CodeToCompiledMode()
+        public void CodeToViewMode(int setExecutingLine = -1)
         {
             EditMode = false;
             CompiledLines = Code.Split('\n')
@@ -26,7 +26,7 @@
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             CompiledCode = new string(Code);
-            CurrentExecutingLine = -1;
+            CurrentExecutingLine = setExecutingLine;
             Breakpoints.Clear();
 
             EditorStateChanged?.Invoke();

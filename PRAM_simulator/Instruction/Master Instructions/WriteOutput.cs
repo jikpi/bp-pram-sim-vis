@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 
@@ -26,5 +27,9 @@ namespace PRAM_lib.Instruction.Master_Instructions
             gateway.WriteOutput(Result.GetResult());
         }
 
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

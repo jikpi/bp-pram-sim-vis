@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.InstructionResult;
 using PRAM_lib.Instruction.Other.Interface;
 
@@ -10,11 +11,11 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public ComparisonSet comparisonSet { get; }
         public int InstructionPointerIndex { get; }
         public int CodeInstructionLineIndex { get; }
-        public GatewayIndexSet gateway;
+        public GatewayIndexSet Gateway;
 
         public IfJumpTo(GatewayIndexSet gateway, string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex, ComparisonSet comparisonSet)
         {
-            this.gateway = gateway;
+            this.Gateway = gateway;
             JumpToLabel = jumpToLabelString;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
@@ -30,10 +31,16 @@ namespace PRAM_lib.Instruction.Master_Instructions
             }
 
             // Get index of instruction to jump to, and set instruction pointer to that index
-            int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
+            int InstructionPointerIndex = Gateway.GetJump(JumpToLabel);
 
-            gateway.JumpTo(InstructionPointerIndex);
+            Gateway.JumpTo(InstructionPointerIndex);
         }
 
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
+        {
+            GatewayIndexSet gatewayIndexSet = Gateway.DeepCopyToParallel(gateway);
+            ComparisonSet comparisonSet = (ComparisonSet)this.comparisonSet.DeepCopyToParallel(gateway);
+            return new IfJumpTo(gatewayIndexSet, JumpToLabel, InstructionPointerIndex, CodeInstructionLineIndex, comparisonSet);
+        }
     }
 }

@@ -28,14 +28,14 @@ namespace PRAM_lib.Code
         private static readonly Regex DefResultSet_Constant = new Regex(@"^(\d+|-\d+)\s*$");
         public Regex SetPointerToResult { get; private set; }
         private static readonly Regex DefSetPointerToResult = new Regex(@"^\[([A-Z])(\d+)\] := (.*)\s*$");
-        public Regex JumpToInstruction { get; private set; }
+        public Regex JumpToLabel { get; private set; }
         private static readonly Regex DefJumpToInstruction = new Regex(@"^goto :([0-z]*)\s*$");
-        public Regex JumpToLabel { get; private set; } //Not a real instruction
+        public Regex JumpLabel { get; private set; } //Not a real instruction
         private static readonly Regex DefJumpToLabel = new Regex(@"^:([0-z]*)\s*$");
-        public Regex IfJumpTo { get; private set; }
+        public Regex IfJumpToLabel { get; private set; }
         private static readonly Regex DefIfJumpTo = new Regex(@"^if \(([A-Z]|)((?:-|)\d+) (==|!=|<|>|<=|>=) ([A-Z]|)((?:-|)\d+)\) goto :([0-z]*)\s*$");
         public Regex ParallelStart { get; private set; }
-        private static readonly Regex DefParallelStart = new Regex(@"^pardo (\d+)\s*$");
+        private static readonly Regex DefParallelStart = new Regex(@"^pardo (.*)\s*$");
         public readonly Regex ParallelEnd = new Regex(@"^parend\s*$"); //Cannot be changed by user
         public readonly string ParallelEndString = "parend"; //Cannot be changed by user
         public string ParallelCell { get; private set; } //Not a real instruction
@@ -62,9 +62,9 @@ namespace PRAM_lib.Code
             ResultSet_ConstantOpCell = DefResultSet_ConstantOpCell;
             ResultSet_Pointer = DefResultSet_Pointer;
             ResultSet_Constant = DefResultSet_Constant;
-            JumpToInstruction = DefJumpToInstruction;
-            JumpToLabel = DefJumpToLabel;
-            IfJumpTo = DefIfJumpTo;
+            JumpToLabel = DefJumpToInstruction;
+            JumpLabel = DefJumpToLabel;
+            IfJumpToLabel = DefIfJumpTo;
             ParallelStart = DefParallelStart;
             ParallelCell = DefParallelCell;
             ResultSet_ParallelIndex = DefResultSet_ParallelIndex;
@@ -86,9 +86,9 @@ namespace PRAM_lib.Code
             ResultSet_ConstantOpCell = DefResultSet_ConstantOpCell;
             ResultSet_Pointer = DefResultSet_Pointer;
             ResultSet_Constant = DefResultSet_Constant;
-            JumpToInstruction = DefJumpToInstruction;
-            JumpToLabel = DefJumpToLabel;
-            IfJumpTo = DefIfJumpTo;
+            JumpToLabel = DefJumpToInstruction;
+            JumpLabel = DefJumpToLabel;
+            IfJumpToLabel = DefIfJumpTo;
             ParallelStart = DefParallelStart;
             ParallelCell = DefParallelCell;
             ResultSet_ParallelIndex = DefResultSet_ParallelIndex;
@@ -124,12 +124,12 @@ namespace PRAM_lib.Code
             sb.AppendLine(ResultSet_Constant.ToString());
             sb.AppendLine("SetPointerToResult");
             sb.AppendLine(SetPointerToResult.ToString());
-            sb.AppendLine("JumpToInstruction");
-            sb.AppendLine(JumpToInstruction.ToString());
             sb.AppendLine("JumpToLabel");
             sb.AppendLine(JumpToLabel.ToString());
-            sb.AppendLine("IfJumpTo");
-            sb.AppendLine(IfJumpTo.ToString());
+            sb.AppendLine("JumpLabel");
+            sb.AppendLine(JumpLabel.ToString());
+            sb.AppendLine("IfJumpToLabel");
+            sb.AppendLine(IfJumpToLabel.ToString());
             sb.AppendLine("ParallelStart");
             sb.AppendLine(ParallelStart.ToString());
             sb.AppendLine("ParallelCell");
@@ -230,9 +230,9 @@ namespace PRAM_lib.Code
                 {"ResultSet_Pointer", ResultSet_Pointer},
                 {"ResultSet_Constant", ResultSet_Constant},
                 {"SetPointerToResult", SetPointerToResult},
-                {"JumpToInstruction", JumpToInstruction},
                 {"JumpToLabel", JumpToLabel},
-                {"IfJumpTo", IfJumpTo},
+                {"JumpLabel", JumpLabel},
+                {"IfJumpToLabel", IfJumpToLabel},
                 {"ParallelStart", ParallelStart},
                 {"ParallelCell", new Regex(ParallelCell)},
                 {"ResultSet_ParallelIndex", ResultSet_ParallelIndex},

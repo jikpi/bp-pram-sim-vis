@@ -1,4 +1,6 @@
-﻿namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
+﻿using PRAM_lib.Code.Gateway;
+
+namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
 {
     public enum ComparisonMethod
     {
@@ -23,11 +25,13 @@
     internal interface IResultSet
     {
         public int GetResult();
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway);
     }
 
     // For instruction "ComparisonSet"
     internal interface IComparisonSet
     {
         public bool GetResult();
+        public IComparisonSet DeepCopyToParallel(ParallelGateway gateway);
     }
 }

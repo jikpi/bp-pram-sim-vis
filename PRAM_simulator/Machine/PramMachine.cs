@@ -25,7 +25,7 @@ namespace PRAM_lib.Machine
         internal MasterGateway MasterGateway { get; private set; }
         private CodeCompiler Compiler { get; set; }
         public InstructionRegex InstructionRegex { get; set; }
-        public int ParallelBatchIndex { get; private set; }
+        public int CurrentParallelBatchIndex { get; private set; }
         private List<ParallelMachineContainer> ContainedParallelMachines { get; set; }
         private List<InParallelMachine>? LaunchedParallelMachines { get; set; }
         public bool IsCompiled => MasterCodeMemory != null;
@@ -62,7 +62,7 @@ namespace PRAM_lib.Machine
             IsHalted = false;
             JumpMemory = new JumpMemory();
             ContainedParallelMachines = new List<ParallelMachineContainer>();
-            ParallelBatchIndex = 0;
+            CurrentParallelBatchIndex = -1;
             CRXW = true;
             XRCW = true;
             IllegalMemoryAccesses = new List<ParallelAccessInfo>();
@@ -184,9 +184,10 @@ namespace PRAM_lib.Machine
         }
 
         // Start parallel
-        private void ParallelDo()
+        private void ParallelDo(int count, int index)
         {
-            LaunchedParallelMachines = ContainedParallelMachines[ParallelBatchIndex].ParallelMachines;
+            CurrentParallelBatchIndex = index;
+            LaunchedParallelMachines = ContainedParallelMachines[index].CreateParallelMachines(count);
             MasterGateway.AccessingParallelStart();
         }
 
@@ -278,8 +279,8 @@ namespace PRAM_lib.Machine
             if (LaunchedParallelMachines.All(x => x.IsHalted))
             {
                 LaunchedParallelMachines = null;
-                ParallelBatchIndex++;
                 relParallelMachine = null;
+                CurrentParallelBatchIndex = -1;
                 MasterGateway.AccessingParallelEnd();
             }
             else
@@ -366,7 +367,7 @@ namespace PRAM_lib.Machine
             IllegalMemoryAccesses.Clear();
             ExecutionErrorLineIndex = null;
 
-            ParallelBatchIndex = 0;
+            CurrentParallelBatchIndex = -1;
             LaunchedParallelMachines = null;
 
             IllegalMemoryAccessType = null;
@@ -390,7 +391,7 @@ namespace PRAM_lib.Machine
             OutputMemory = new IOMemory();
             JumpMemory.Clear();
             ContainedParallelMachines.Clear();
-            ParallelBatchIndex = 0;
+            CurrentParallelBatchIndex = -1;
             LaunchedParallelMachines = null;
             RefreshGateway();
             MasterCodeMemory = null;
@@ -425,12 +426,12 @@ namespace PRAM_lib.Machine
 
         public string? GetCurrentParallelMachineCode()
         {
-            if (LaunchedParallelMachines == null)
+            if (LaunchedParallelMachines == null || CurrentParallelBatchIndex == -1)
             {
                 return null;
             }
 
-            return ContainedParallelMachines[ParallelBatchIndex].ParallelMachineCode;
+            return ContainedParallelMachines[CurrentParallelBatchIndex].ParallelMachineCode;
         }
 
         public string GetParallelMachineCode(int index)
@@ -440,7 +441,7 @@ namespace PRAM_lib.Machine
 
         private InParallelMachine? GetParallelMachine(int index)
         {
-            if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count)
+            if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count || index < 0 || CurrentParallelBatchIndex == -1)
             {
                 return null;
             }

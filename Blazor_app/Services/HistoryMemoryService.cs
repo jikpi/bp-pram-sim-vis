@@ -79,7 +79,7 @@ namespace Blazor_app.Services
                         break;
                     }
                 }
-                ParallelBatchIndex.Add(machine.ParallelBatchIndex);
+                ParallelBatchIndex.Add(machine.CurrentParallelBatchIndex);
                 ParallelMemoryHistory.Add(parallelMemory);
                 ParallelCodeIndexHistory.Add(parallelIP);
                 ParallelMachineHaltHistory.Add(parallelMachineHalt);

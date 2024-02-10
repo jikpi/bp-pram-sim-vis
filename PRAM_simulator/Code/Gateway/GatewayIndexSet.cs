@@ -59,9 +59,9 @@ namespace PRAM_lib.Code.Gateway
             Gateway.JumpTo(index);
         }
 
-        public void ParallelDo()
+        public void ParallelDo(int count, int index)
         {
-            Gateway.ParallelDoStart();
+            Gateway.ParallelDoStart(count, index);
         }
 
         public int GetParallelIndex()
@@ -72,6 +72,18 @@ namespace PRAM_lib.Code.Gateway
         public void Halt()
         {
             Gateway.Halt();
+        }
+
+        public GatewayIndexSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            if(Gateway is ParallelGateway)
+            {
+                return new GatewayIndexSet(gateway, MemoryAddressIndex);
+            }
+            else
+            {
+                return new GatewayIndexSet(Gateway, MemoryAddressIndex);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace PRAM_lib.Instruction.Independent_Instructions
 
         public int CodeInstructionLineIndex { get; set; }
 
-        public NoOperation(GatewayIndexSet gateway, int virtualInstructionIndex, int codeInstructionIndex)
+        public NoOperation(int virtualInstructionIndex, int codeInstructionIndex)
         {
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
@@ -23,6 +24,16 @@ namespace PRAM_lib.Instruction.Independent_Instructions
         public void Execute()
         {
             //Do nothing
+        }
+
+        public void DeepCopyToParallel(IGateway gateway)
+        {
+            return;
+        }
+
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new NoOperation(InstructionPointerIndex, CodeInstructionLineIndex);
         }
     }
 }

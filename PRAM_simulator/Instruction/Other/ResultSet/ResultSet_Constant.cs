@@ -1,4 +1,5 @@
-﻿using PRAM_lib.Instruction.Other.InstructionResult.Interface;
+﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
@@ -14,6 +15,11 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         public virtual int GetResult()
         {
             return ConstantValue;
+        }
+
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new ResultSet_Constant(ConstantValue);
         }
     }
 }

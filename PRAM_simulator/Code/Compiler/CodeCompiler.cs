@@ -276,10 +276,12 @@ namespace PRAM_lib.Code.Compiler
             //Used by compiler to set the values in instructions, and to set the jump memory.
             int instructionPointerIndex = 0;
 
+            bool isParallelAndNotEnded = false;
+            int parallelDosIndex = 0;
+
             //Set the gateways
             IGateway foreignGateway = masterGateway;
             IGateway localGateway = masterGateway;
-            bool isParallelAndNotEnded = false;
             if (parallelGateway != null)
             {
                 localGateway = parallelGateway;
@@ -305,36 +307,26 @@ namespace PRAM_lib.Code.Compiler
 
                     List<string> pardoStrings = strings.GetRange(i + 1, strings.Count - i - 1);
                     string pardoCode = string.Join("\r\n", pardoStrings);
-                    int numberofprocessors = int.Parse(match.Groups[1].Value);
-
-                    if(numberofprocessors < 1)
-                    {
-                        errorMessage = "Number of processors must be at least 1";
-                        returnLineIndex = lineIndex;
-                        return null;
-                    }
+                    IResultSet pardoNumberOfProcessors = ResultSetResolver(regex, match.Groups[1].Value);
 
                     List<InParallelMachine> inParallelMachines = new List<InParallelMachine>();
 
-                    for (int j = 0; j < numberofprocessors; j++)
+                    ParallelGateway newParallelGateway = new ParallelGateway();
+                    CodeMemory.CodeMemory? pardoCodeMemory = Compile(pardoCode, masterGateway, regex,
+                        out Jumps.JumpMemory pardoJumpMemory,
+                        out _, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
+                    if (pardoCodeMemory == null)
                     {
-                        ParallelGateway newParallelGateway = new ParallelGateway();
-                        CodeMemory.CodeMemory? pardoCodeMemory = Compile(pardoCode, masterGateway, regex, out Jumps.JumpMemory pardoJumpMemory, out _, out string pardoErrorMessage, out int pardoReturnLineIndex, newParallelGateway);
-
-                        if (pardoCodeMemory == null)
-                        {
-                            errorMessage = pardoErrorMessage;
-                            returnLineIndex = pardoReturnLineIndex + lineIndex + 1;
-                            return null;
-                        }
-
-                        inParallelMachines.Add(new InParallelMachine(j, pardoCodeMemory, pardoJumpMemory, newParallelGateway));
+                        errorMessage = pardoErrorMessage;
+                        returnLineIndex = pardoReturnLineIndex + lineIndex + 1;
+                        return null;
                     }
+                    inParallelMachines.Add(new InParallelMachine(0, pardoCodeMemory, pardoJumpMemory, newParallelGateway));
 
                     parallelMachines.Add(new ParallelMachineContainer(inParallelMachines, pardoCode.Substring(0, pardoCode.IndexOf(regex.ParallelEndString))));
 
                     //Add the ParallelDo instruction into the master machine
-                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new ParallelDo(new GatewayIndexSet(masterGateway, -1), instructionPointerIndex++, lineIndex, pardoNumberOfProcessors, parallelDosIndex++));
                     //Skip the lines that were already compiled
                     int originalLineIndex = lineIndex;
                     while (!regex.ParallelEnd.IsMatch(strings[i]))
@@ -504,9 +496,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToInstruction
-                if (regex.JumpToInstruction.IsMatch(strings[i]))
+                if (regex.JumpToLabel.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToInstruction.Match(strings[i]);
+                    match = regex.JumpToLabel.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -518,9 +510,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //JumpToLabel
-                if (regex.JumpToLabel.IsMatch(strings[i]))
+                if (regex.JumpLabel.IsMatch(strings[i]))
                 {
-                    match = regex.JumpToLabel.Match(strings[i]);
+                    match = regex.JumpLabel.Match(strings[i]);
 
                     string jumpName = match.Groups[1].Value;
 
@@ -530,9 +522,9 @@ namespace PRAM_lib.Code.Compiler
                 }
 
                 //IfJumpTo
-                if (regex.IfJumpTo.IsMatch(strings[i]))
+                if (regex.IfJumpToLabel.IsMatch(strings[i]))
                 {
-                    match = regex.IfJumpTo.Match(strings[i]);
+                    match = regex.IfJumpToLabel.Match(strings[i]);
 
                     string potentialLeftCell = match.Groups[1].Value; //A cell identifier or empty string, if it's a constant on the left
                     string leftValue = match.Groups[2].Value; //Cell address or constant value
@@ -570,7 +562,7 @@ namespace PRAM_lib.Code.Compiler
                 //NoOperation
                 if (regex.NoOperation.IsMatch(strings[i]))
                 {
-                    newCodeMemory.Instructions.Add(new NoOperation(new GatewayIndexSet(localGateway, -1), instructionPointerIndex++, lineIndex));
+                    newCodeMemory.Instructions.Add(new NoOperation(instructionPointerIndex++, lineIndex));
                     continue;
                 }
 

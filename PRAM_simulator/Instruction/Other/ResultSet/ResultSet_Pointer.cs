@@ -20,5 +20,10 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
             // Read the value from the pointed cell
             return gateway.Read(pointed);
         }
+
+        public IResultSet DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new ResultSet_Pointer(this.gateway.DeepCopyToParallel(gateway));
+        }
     }
 }

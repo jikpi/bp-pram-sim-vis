@@ -1,4 +1,5 @@
 ﻿using PRAM_lib.Code.Gateway;
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
@@ -9,11 +10,11 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public int CodeInstructionLineIndex { get; }
         public string JumpToLabel { get; }
 
-        public GatewayIndexSet gateway;
+        public GatewayIndexSet Gateway;
 
         public JumpTo(GatewayIndexSet gateway, string jumpToLabelString, int virtualInstructionIndex, int codeInstructionIndex)
         {
-            this.gateway = gateway;
+            this.Gateway = gateway;
             JumpToLabel = jumpToLabelString;
             InstructionPointerIndex = virtualInstructionIndex;
             CodeInstructionLineIndex = codeInstructionIndex;
@@ -22,9 +23,14 @@ namespace PRAM_lib.Instruction.Master_Instructions
         public void Execute()
         {
             // Get index for the InstructionPointer to jump to
-            int InstructionPointerIndex = gateway.GetJump(JumpToLabel);
+            int InstructionPointerIndex = Gateway.GetJump(JumpToLabel);
 
-            gateway.JumpTo(InstructionPointerIndex);
+            Gateway.JumpTo(InstructionPointerIndex);
+        }
+
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway)
+        {
+            return new JumpTo(Gateway.DeepCopyToParallel(gateway), JumpToLabel, InstructionPointerIndex, CodeInstructionLineIndex);
         }
     }
 }
