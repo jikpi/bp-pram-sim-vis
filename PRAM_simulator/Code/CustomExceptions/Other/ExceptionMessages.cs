@@ -92,6 +92,11 @@
             return "Illegal memory write.";
         }
 
+        internal static string IllegalMemoryCommon()
+        {
+            return "Illegal memory access: Not common.";
+        }
+
         internal static string IllegalMemoryAccess()
         {
             return "Illegal memory access.";

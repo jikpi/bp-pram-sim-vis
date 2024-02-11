@@ -656,6 +656,13 @@ namespace Blazor_app.Services
             set
             {
                 _concurrentRead = value;
+
+                //Dont allow ERCW, as it is not properly implemented in the machine
+                if(_concurrentRead == false && _concurrentWrite == true)
+                {
+                    _concurrentWrite = false;
+                }
+
                 CRCWChanged();
             }
         }
@@ -666,6 +673,13 @@ namespace Blazor_app.Services
             set
             {
                 _concurrentWrite = value;
+
+                //Dont allow ERCW
+                if (_concurrentRead == false && _concurrentWrite == true)
+                {
+                    _concurrentRead = true;
+                }
+
                 CRCWChanged();
             }
         }

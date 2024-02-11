@@ -43,8 +43,17 @@ namespace PRAM_lib.Machine
         private bool XREW { get => !XRCW; set => XRCW = !value; }
         public List<ParallelAccessInfo> IllegalMemoryAccesses { get; private set; }
         public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
-        public ParallelAccessType? IllegalMemoryAccessType { get; private set; }
+        public ParallelAccessError? IllegalMemoryAccessType { get; private set; }
         public int PreviousCodeLineIndex => MPIP.Value > 0 ? MasterCodeMemory!.Instructions[MPIP.Value - 1].CodeInstructionLineIndex : -1;
+
+        public enum CRCW_AccessType
+        {
+            Common,
+            Arbitrary,
+            Priority
+        }
+
+        public CRCW_AccessType CRCW_Access { get; set; }
 
 
         //Master Processor Instruction Pointer. Instructions themselves also remember their own IP index (Which is currently only used for validation)
@@ -72,6 +81,8 @@ namespace PRAM_lib.Machine
             MasterGateway.HaltNotify += delegate { IsHalted = true; };
 
             IllegalMemoryAccessType = null;
+
+            CRCW_Access = CRCW_AccessType.Priority;
         }
 
         public int GetCurrentCodeLineIndex()
@@ -194,29 +205,66 @@ namespace PRAM_lib.Machine
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
             relParallelMachine = null;
-            for (int i = 0; i < LaunchedParallelMachines!.Count; i++)
+
+            List<InParallelMachine> orderedParallelMachines = new List<InParallelMachine>();
+
+            if (LaunchedParallelMachines == null)
             {
-                if (LaunchedParallelMachines[i].IsHalted)
+                throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
+            }
+
+            if (CRXW && XRCW)
+            {
+                //Order the parallel machines based on the CRCW_Access
+                if (CRCW_Access == CRCW_AccessType.Priority || CRCW_Access == CRCW_AccessType.Common)
+                {
+                    orderedParallelMachines = LaunchedParallelMachines.OrderByDescending(x => x.ProcessorIndex).ToList();
+                }
+                else if (CRCW_Access == CRCW_AccessType.Arbitrary)
+                {
+                    // Fisher-Yates shuffle
+                    orderedParallelMachines = new List<InParallelMachine>(LaunchedParallelMachines);
+
+                    Random rng = new Random();
+                    int n = orderedParallelMachines.Count;
+                    while (n > 1)
+                    {
+                        n--;
+                        int k = rng.Next(n + 1);
+                        InParallelMachine value = orderedParallelMachines[k];
+                        orderedParallelMachines[k] = orderedParallelMachines[n];
+                        orderedParallelMachines[n] = value;
+                    }
+                }
+            }
+            else
+            {
+                orderedParallelMachines = LaunchedParallelMachines;
+            }
+
+            for (int i = 0; i < orderedParallelMachines!.Count; i++)
+            {
+                if (orderedParallelMachines[i].IsHalted)
                 {
                     continue;
                 }
 
-                int previousCodeLineIndex = LaunchedParallelMachines[i].GetCurrentCodeLineIndex();
+                int previousCodeLineIndex = orderedParallelMachines[i].GetCurrentCodeLineIndex();
 
-                bool result = LaunchedParallelMachines[i].ExecuteNextInstruction();
+                bool result = orderedParallelMachines[i].ExecuteNextInstruction();
 
                 //Note single instruction in parallel access
-                MasterGateway.AccessingParallelStepInCycle(i, previousCodeLineIndex);
+                MasterGateway.AccessingParallelStepInCycle(orderedParallelMachines[i].ProcessorIndex, previousCodeLineIndex);
 
                 if (!result)
                 {
-                    if (LaunchedParallelMachines[i].IsCrashed)
+                    if (orderedParallelMachines[i].IsCrashed)
                     {
-                        relParallelMachine ??= LaunchedParallelMachines[i];
+                        relParallelMachine ??= orderedParallelMachines[i];
                         continue;
                     }
 
-                    if (LaunchedParallelMachines[i].IsHalted)
+                    if (orderedParallelMachines[i].IsHalted)
                     {
                         continue;
                     }
@@ -237,7 +285,7 @@ namespace PRAM_lib.Machine
                     if (readCount > 1)
                     {
                         IllegalMemoryAccesses.AddRange(access.Value.Where(x => x.Type == ParallelAccessType.Read));
-                        IllegalMemoryAccessType = ParallelAccessType.Read;
+                        IllegalMemoryAccessType = ParallelAccessError.Read;
                         relParallelMachine = null;
                         return;
                     }
@@ -252,7 +300,7 @@ namespace PRAM_lib.Machine
                     if (writeCount > 1)
                     {
                         IllegalMemoryAccesses.AddRange(access.Value);
-                        IllegalMemoryAccessType = ParallelAccessType.Write;
+                        IllegalMemoryAccessType = ParallelAccessError.Write;
                         relParallelMachine = null;
                         return;
                     }
@@ -260,9 +308,36 @@ namespace PRAM_lib.Machine
                     if (writeCount > 0 && access.Value.Count(x => x.Type == ParallelAccessType.Read) > 0)
                     {
                         IllegalMemoryAccesses.AddRange(access.Value);
-                        IllegalMemoryAccessType = ParallelAccessType.Write;
+                        IllegalMemoryAccessType = ParallelAccessError.Write;
                         relParallelMachine = null;
                         return;
+                    }
+                }
+            }
+
+            //CRCW Common
+            if (CRXW && XRCW && CRCW_Access == CRCW_AccessType.Common)
+            {
+                //Check that if there is a write access, there is no read access and all write accesses have the same .Value
+                foreach (var access in MasterGateway.ParallelAccessCycle)
+                {
+                    if (access.Value.Count(x => x.Type == ParallelAccessType.Write) > 0)
+                    {
+                        if (access.Value.Count(x => x.Type == ParallelAccessType.Read) > 0)
+                        {
+                            IllegalMemoryAccesses.AddRange(access.Value);
+                            IllegalMemoryAccessType = ParallelAccessError.Common;
+                            relParallelMachine = null;
+                            return;
+                        }
+
+                        if (access.Value.Select(x => x.WriteValue).Distinct().Count() > 1)
+                        {
+                            IllegalMemoryAccesses.AddRange(access.Value);
+                            IllegalMemoryAccessType = ParallelAccessError.Common;
+                            relParallelMachine = null;
+                            return;
+                        }
                     }
                 }
             }
@@ -270,13 +345,13 @@ namespace PRAM_lib.Machine
             //If no illegal memory access, mark new cycle
             MasterGateway.AccessingParallelFinishCycle();
 
-            if (LaunchedParallelMachines == null)
+            if (orderedParallelMachines == null)
             {
                 throw new Exception("Debug error: LaunchedParallelMachines is null. Bug in code.");
             }
 
             //Check if all parallel machines have finished, if so, end parallel.
-            if (LaunchedParallelMachines.All(x => x.IsHalted))
+            if (orderedParallelMachines.All(x => x.IsHalted))
             {
                 LaunchedParallelMachines = null;
                 relParallelMachine = null;
@@ -315,13 +390,17 @@ namespace PRAM_lib.Machine
                         throw new Exception("Debug error: Bug in code.");
                     }
 
-                    if (IllegalMemoryAccessType == ParallelAccessType.Read)
+                    if (IllegalMemoryAccessType == ParallelAccessError.Read)
                     {
                         ExecutionErrorMessage = ExceptionMessages.IllegalMemoryRead();
                     }
-                    else
+                    else if (IllegalMemoryAccessType == ParallelAccessError.Write)
                     {
                         ExecutionErrorMessage = ExceptionMessages.IllegalMemoryWrite();
+                    }
+                    else if (IllegalMemoryAccessType == ParallelAccessError.Common)
+                    {
+                        ExecutionErrorMessage = ExceptionMessages.IllegalMemoryCommon();
                     }
 
                     IsCrashed = true;

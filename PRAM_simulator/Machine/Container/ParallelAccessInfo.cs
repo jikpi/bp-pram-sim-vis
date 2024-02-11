@@ -11,6 +11,13 @@ namespace PRAM_lib.Machine.Container
         Read,
         Write
     }
+
+    public enum ParallelAccessError
+    {
+        Read,
+        Write,
+        Common
+    }
     public class ParallelAccessInfo
     {
         public ParallelAccessType Type { get; private set; }
@@ -18,12 +25,15 @@ namespace PRAM_lib.Machine.Container
         public int ParallelMachineIndex { get; private set; }
         public int CodeLineIndex { get; private set; }
 
-        public ParallelAccessInfo(ParallelAccessType type, int index, int parallelMachineIndex, int codeLineIndex)
+        public int? WriteValue { get; set; }
+
+        public ParallelAccessInfo(ParallelAccessType type, int index, int parallelMachineIndex, int codeLineIndex, int? writeValue)
         {
             Type = type;
             MemoryIndex = index;
             ParallelMachineIndex = parallelMachineIndex;
             CodeLineIndex = codeLineIndex;
+            WriteValue = writeValue;
         }
     }
 }
