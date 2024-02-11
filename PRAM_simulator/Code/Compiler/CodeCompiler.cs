@@ -182,6 +182,24 @@ namespace PRAM_lib.Code.Compiler
                     return new ResultSet_ParallelIndex(new GatewayIndexSet(selectedGateway, -1));
                 }
 
+                //ResultSet_IndirectPointer
+                if (regex.ResultSet_IndirectPointer.IsMatch(inputText))
+                {
+                    match = regex.ResultSet_IndirectPointer.Match(inputText);
+
+                    string memoryAddressContext = match.Groups[1].Value;
+                    string resultIs_any = match.Groups[2].Value;
+
+                    IGateway selectedGateway = masterGateway;
+                    if (IsLocalMemoryAccess(memoryAddressContext))
+                    {
+                        selectedGateway = parallelGateway!;
+                    }
+
+                    IResultSet addressingResult = ResultSetResolver(regex, resultIs_any);
+                    return new ResultSet_IndirectPointer(new GatewayIndexSet(selectedGateway, -1), addressingResult);
+                }
+
                 throw new LocalException(ExceptionMessages.CompilerResultSetNotRecognized(inputText));
             }
 

@@ -25,6 +25,10 @@
     <button class="btn btn-primary" @onclick="RunUntilBreakpoint">🔴 Run Until Breakpoint</button>
     <button class="btn btn-primary" @onclick="ToggleAutoRun">⏯ Auto Run</button>
     <button class="btn btn-primary" @onclick="Reset">🧹 Reset</button>
+
+    <div class="text-center">Steps: @execService.StepsTotal Steps including parallel: @execService.StepsIncludingParallel</div>
+
+
 </div>
 
 

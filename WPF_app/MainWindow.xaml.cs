@@ -208,7 +208,7 @@ namespace WPF_app
                 MessageBox.Show("Illegal memory access");
                 foreach (var access in DataResources.PRAM.IllegalMemoryAccesses)
                 {
-                    MessageBox.Show($"Global type: {(DataResources.PRAM.IllegalMemoryAccessType == PRAM_lib.Machine.Container.ParallelAccessType.Write ? " Write " : " Read ")}     Machine index: {access.ParallelMachineIndex}" + Environment.NewLine +
+                    MessageBox.Show($"Global type: {(DataResources.PRAM.IllegalMemoryAccessType == PRAM_lib.Machine.Container.ParallelAccessError.Read ? " Write " : " Read ")}     Machine index: {access.ParallelMachineIndex}" + Environment.NewLine +
                         $"Memory index: {access.MemoryIndex}" + Environment.NewLine + $"Type: {(access.Type == PRAM_lib.Machine.Container.ParallelAccessType.Write ? " Write " : " Read ")}" + Environment.NewLine +
                     $"Parallel machine relevant code index: {access.CodeLineIndex}");
                 }

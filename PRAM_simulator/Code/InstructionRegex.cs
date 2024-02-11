@@ -49,6 +49,9 @@ namespace PRAM_lib.Code
         public Regex NoOperation { get; private set; }
         private static readonly Regex DefNoOperation = new Regex(@"^nop\s*$");
 
+        public Regex ResultSet_IndirectPointer { get; private set; }
+        private static readonly Regex DefResultSet_IndirectPointer = new Regex(@"^([A-Z]){(.*)}\s*$");
+
         public InstructionRegex()
         {
             Comment = DefComment;
@@ -71,6 +74,7 @@ namespace PRAM_lib.Code
             IndirectMultiMemoryToResult = DefIndirectMultiMemoryToResult;
             Halt = DefHalt;
             NoOperation = DefNoOperation;
+            ResultSet_IndirectPointer = DefResultSet_IndirectPointer;
         }
 
         public void ResetToDefault()
@@ -95,6 +99,7 @@ namespace PRAM_lib.Code
             IndirectMultiMemoryToResult = DefIndirectMultiMemoryToResult;
             Halt = DefHalt;
             NoOperation = DefNoOperation;
+            ResultSet_IndirectPointer = DefResultSet_IndirectPointer;
         }
 
         //Return a string with all the regexes, with property names on first line, and regex patterns on second line, in pairs.
@@ -142,6 +147,8 @@ namespace PRAM_lib.Code
             sb.AppendLine(Halt.ToString());
             sb.AppendLine("NoOperation");
             sb.AppendLine(NoOperation.ToString());
+            sb.AppendLine("ResultSet_IndirectPointer");
+            sb.AppendLine(ResultSet_IndirectPointer.ToString());
 
             return sb.ToString();
         }
@@ -238,7 +245,8 @@ namespace PRAM_lib.Code
                 {"ResultSet_ParallelIndex", ResultSet_ParallelIndex},
                 {"IndirectMultiMemoryToResult", IndirectMultiMemoryToResult},
                 {"Halt", Halt},
-                {"NoOperation", NoOperation}
+                {"NoOperation", NoOperation},
+                {"ResultSet_IndirectPointer", ResultSet_IndirectPointer}
             };
         }
 

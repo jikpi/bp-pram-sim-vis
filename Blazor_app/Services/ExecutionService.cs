@@ -22,7 +22,8 @@ namespace Blazor_app.Services
         public bool IsAutoRunning { get; private set; } = false;
         private int _autoRunInterval = 1000;
 
-
+        public int StepsTotal { get; private set; } = 0;
+        public int StepsIncludingParallel { get; private set; } = 0;
 
 
 
@@ -145,6 +146,11 @@ namespace Blazor_app.Services
                 {
                     //not shown if machine is halted, since the if for 'halt' will override
                     _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
+                    if (IsRunningParallel)
+                    {   
+                        _navigationManager.NavigateTo("/");
+                        ResetParallelRunningState();
+                    }
                 }
 
                 int currentLine;
@@ -162,6 +168,11 @@ namespace Blazor_app.Services
             }
             else
             {
+                //Count steps
+                StepsIncludingParallel++;
+                StepsTotal++;
+                StepsIncludingParallel += _pramMachine.ParallelMachinesCount;
+
                 if (_globalService.SaveHistory)
                 {
                     _historyMemoryService.SaveState(_pramMachine);
@@ -191,6 +202,9 @@ namespace Blazor_app.Services
             _navigationManager.NavigateTo("/");
             _historyMemoryService.Reset();
             HistoryOffset = null;
+
+            StepsIncludingParallel = 0;
+            StepsTotal = 0;
         }
 
         //Compiles the code in the code editor
@@ -206,6 +220,9 @@ namespace Blazor_app.Services
             ResetParallelRunningState();
             _historyMemoryService.Reset();
             HistoryOffset = null;
+
+            StepsIncludingParallel = 0;
+            StepsTotal = 0;
 
 
             if (_pramMachine.IsCompiled)
@@ -239,6 +256,8 @@ namespace Blazor_app.Services
             _codeEditorService.UpdateExecutingLine(-1);
             _historyMemoryService.Reset();
             HistoryOffset = null;
+            StepsIncludingParallel = 0;
+            StepsTotal = 0;
         }
 
         //## Auto run ########################################
@@ -516,7 +535,11 @@ namespace Blazor_app.Services
 
             if (batchIndex == -1)
             {
-                _navigationManager.NavigateTo("/");
+                if(_lastBatchIndex != batchIndex)
+                {
+                    _navigationManager.NavigateTo("/");
+                    IsRunningParallel = false;
+                }
 
                 _lastBatchIndex = batchIndex;
                 return;
@@ -528,6 +551,7 @@ namespace Blazor_app.Services
             if (_lastBatchIndex != batchIndex)
             {
                 _navigationManager.NavigateTo("/pramview");
+                IsRunningParallel = true;
             }
 
 

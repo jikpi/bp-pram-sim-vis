@@ -131,35 +131,35 @@ namespace PRAM_lib.Machine
             string ErrorMessage;
             int ErrorLineIndex;
 
-            try
+            //try
+            //{
+            MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
+
+            if (MasterCodeMemory == null) //Compilation failed
             {
-                MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
-
-                if (MasterCodeMemory == null) //Compilation failed
-                {
-                    CompilationErrorMessage = ErrorMessage;
-                    CompilationErrorLineIndex = ErrorLineIndex;
-                }
-                else //Compilation successful
-                {
-                    CompilationErrorMessage = null;
-                    CompilationErrorLineIndex = null;
-
-                    //Save the parallel machine containers
-                    ContainedParallelMachines = parallelMachines;
-
-                    //Set the new jump memory
-                    JumpMemory = newJumpMemory;
-                    RefreshGateway();
-
-                    Restart();
-                }
+                CompilationErrorMessage = ErrorMessage;
+                CompilationErrorLineIndex = ErrorLineIndex;
             }
-            catch (Exception)
+            else //Compilation successful
             {
-                CompilationErrorMessage = ExceptionMessages.BugCompilationError();
+                CompilationErrorMessage = null;
                 CompilationErrorLineIndex = null;
+
+                //Save the parallel machine containers
+                ContainedParallelMachines = parallelMachines;
+
+                //Set the new jump memory
+                JumpMemory = newJumpMemory;
+                RefreshGateway();
+
+                Restart();
             }
+            //}
+            //catch (Exception)
+            //{
+            //    CompilationErrorMessage = ExceptionMessages.BugCompilationError();
+            //    CompilationErrorLineIndex = null;
+            //}
 
         }
 

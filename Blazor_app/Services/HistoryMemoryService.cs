@@ -24,7 +24,10 @@ namespace Blazor_app.Services
             ObservableCollection<MemoryCell> newCollection = [];
             foreach (var cell in input)
             {
-                newCollection.Add(new MemoryCell(cell.Value));
+                MemoryCell newCell = new MemoryCell();
+                newCell.Value = cell.Value;
+                newCell.HasBeenWrittenTo = cell.HasBeenWrittenTo;
+                newCollection.Add(newCell);
             }
             target.Add(newCollection);
         }
