@@ -46,6 +46,17 @@
                            @onchange="FixedCodeLengthChanged">
                     <span>@globalService.FixedCodeLength</span>
                 </div>
+
+                <div class="form-group mb-1">
+                    <label for="crcwAccessType">CRCW Access type</label>
+                    <select id="crcwAccessType" class="form-control" @bind="pramMachine.CRCW_Access">
+                        @foreach (var accessType in Enum.GetValues<PRAM_lib.Machine.PramMachine.CRCW_AccessType>())
+                        {
+                            <option value="@accessType">@accessType</option>
+                        }
+                    </select>
+                </div>
+
             </div>
         </div>
 

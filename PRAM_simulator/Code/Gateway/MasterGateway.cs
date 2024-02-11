@@ -23,7 +23,7 @@ namespace PRAM_lib.Code.Gateway
         public Dictionary<int, List<ParallelAccessInfo>> ParallelAccessCycle { get; private set; }
         //Hashset with memory cell index that was accessed, always for a single parallel machine
         private HashSet<int> ReadSingleInstructionAccess;
-        private HashSet<int> WriteSingleInstructionAccess;
+        private Dictionary<int,int> WriteSingleInstructionAccess;
 
         public MasterGateway(MachineMemory refSharedMemory,
             IOMemory refInputMemory,
@@ -40,7 +40,7 @@ namespace PRAM_lib.Code.Gateway
             HaltNotify = delegate { };
 
             ReadSingleInstructionAccess = new HashSet<int>();
-            WriteSingleInstructionAccess = new HashSet<int>();
+            WriteSingleInstructionAccess = new Dictionary<int, int>();
             ParallelAccessCycle = new Dictionary<int, List<ParallelAccessInfo>>();
 
             AccessingParallel = false;
@@ -85,18 +85,18 @@ namespace PRAM_lib.Code.Gateway
                     ParallelAccessCycle.Add(index, new List<ParallelAccessInfo>());
                 }
 
-                ParallelAccessCycle[index].Add(new ParallelAccessInfo(ParallelAccessType.Read, index, parallelMachineIndex, relevantParallelMachineCodeIndex));
+                ParallelAccessCycle[index].Add(new ParallelAccessInfo(ParallelAccessType.Read, index, parallelMachineIndex, relevantParallelMachineCodeIndex, null));
             }
 
             //Add write accesses
-            foreach (int index in WriteSingleInstructionAccess)
+            foreach (var entry in WriteSingleInstructionAccess)
             {
-                if(ParallelAccessCycle.ContainsKey(index) == false)
+                if(ParallelAccessCycle.ContainsKey(entry.Key) == false)
                 {
-                    ParallelAccessCycle.Add(index, new List<ParallelAccessInfo>());
+                    ParallelAccessCycle.Add(entry.Key, new List<ParallelAccessInfo>());
                 }
 
-                ParallelAccessCycle[index].Add(new ParallelAccessInfo(ParallelAccessType.Write, index, parallelMachineIndex, relevantParallelMachineCodeIndex));
+                ParallelAccessCycle[entry.Key].Add(new ParallelAccessInfo(ParallelAccessType.Write, entry.Key, parallelMachineIndex, relevantParallelMachineCodeIndex, entry.Value));
             }
         }
 
@@ -108,11 +108,11 @@ namespace PRAM_lib.Code.Gateway
             }
         }
 
-        private void NoteSingleWriteAccess(int index)
+        private void NoteSingleWriteAccess(int index, int value)
         {
             if (AccessingParallel)
             {
-                WriteSingleInstructionAccess.Add(index);
+                WriteSingleInstructionAccess.Add(index, value);
             }
         }
 
@@ -155,7 +155,7 @@ namespace PRAM_lib.Code.Gateway
         // Primary write access
         public void Write(int cellIndex, int value)
         {
-            NoteSingleWriteAccess(cellIndex);
+            NoteSingleWriteAccess(cellIndex, value);
             SharedMemory.Write(cellIndex, value);
         }
 
