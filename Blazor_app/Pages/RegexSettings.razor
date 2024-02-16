@@ -1,4 +1,11 @@
-﻿@page "/regexsettings"
+﻿<!--
+Author: Jan Kopidol
+
+A major razor component allowing for the editing of regex patterns for the PRAM machine.
+
+-->
+
+@page "/regexsettings"
 @using PRAM_lib.Machine
 @using PRAM_lib.Code
 @using Blazor_app.Services
@@ -38,7 +45,7 @@
 </div>
 
 @code {
-    private Dictionary<string, string> regexes;
+    private Dictionary<string, string> regexes = new Dictionary<string, string>();
     private Dictionary<string, string> saveStatus = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
@@ -72,12 +79,12 @@
 
             if (!success)
             {
-                globalService.SetLastState($"Invalid regex pattern for {key}", GlobalService.LastStateUniform.Error);
-                globalService.ShowPopupMessage("Invalid regex pattern for " + key);
+                globalService.SetLastState(TextUIService.StateIndicatorInvalidRegexPattern(key), GlobalService.LastStateUniform.Error);
+                globalService.ShowPopupMessage(TextUIService.StateIndicatorInvalidRegexPattern(key));
             }
             else
             {
-                globalService.SetLastState($"Regex pattern for {key} saved successfully", GlobalService.LastStateUniform.Ok);
+                globalService.SetLastState(TextUIService.StateIndicatorRegexPatternSavedSuccessfully(key), GlobalService.LastStateUniform.Ok);
             }
 
             StateHasChanged();
@@ -94,7 +101,7 @@
             saveStatus[key] = "";
         }
 
-        globalService.SetLastState("All regex have been reset", GlobalService.LastStateUniform.Ok);
+        globalService.SetLastState(TextUIService.StateIndicatorRegexAllReset, GlobalService.LastStateUniform.Ok);
         StateHasChanged();
     }
 }

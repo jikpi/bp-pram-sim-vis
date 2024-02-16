@@ -1,10 +1,16 @@
-﻿@page "/pramview"
+﻿<!--
+Author: Jan Kopidol
+
+A major razor component for displaying parallel machine(s) state and memory, and relevant controls.
+
+-->
+
+@page "/pramview"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using System.Collections.ObjectModel
 @using PRAM_lib.Processor
 @inject PramMachine pramMachine
-@inject CodeEditorService codeEditorService
 @inject PramCodeViewService pramCodeViewService
 @inject ExecutionService execService
 @inject GlobalService globalService
@@ -31,30 +37,30 @@
                 <div class="input-group-text d-flex align-items-center mx-2" style="gap: 20px;">
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="concurrentReadCheckbox" @bind="execService.ConcurrentRead" aria-label="Concurrent Read">
+                        <input class="form-check-input" type="checkbox" id="concurrentReadCheckbox" @bind="execService.ConcurrentRead" aria-label="@TextUIService.PRAMViewConcurrentRead">
                         <label class="form-check-label" for="concurrentReadCheckbox">
-                            Concurrent Read
+                            @TextUIService.PRAMViewConcurrentRead
                         </label>
                     </div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="concurrentWriteCheckbox" @bind="execService.ConcurrentWrite" aria-label="Concurrent Write">
+                        <input class="form-check-input" type="checkbox" id="concurrentWriteCheckbox" @bind="execService.ConcurrentWrite" aria-label="@TextUIService.PRAMViewConcurrentWrite">
                         <label class="form-check-label" for="concurrentWriteCheckbox">
-                            Concurrent Write
+                            @TextUIService.PRAMViewConcurrentWrite
                         </label>
                     </div>
 
                 </div>
 
-                <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="Enter text" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
-                <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">Set</button>
-                <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">Reset</button>
+                <input type="text" class="form-control" placeholder="@this.selectViewPlaceHolder" aria-label="@TextUIService.PRAMViewMachineFilterTextEntry" @bind="selectViewParallelMachinesText" @onkeypress="SelectViewParallelMachinesKeyPressed">
+                <button class="btn btn-outline-primary" type="button" @onclick="SelectViewParallelMachines">@TextUIService.PRAMViewMachineFilterTextSet</button>
+                <button class="btn btn-outline-secondary" type="button" @onclick="ResetViewParallelMachines">@TextUIService.Reset</button>
 
                 <div class="input-group-text d-flex align-items-center mx-2" style="gap: 20px;">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showHaltedCheckbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="Show halted parallel machines">
+                        <input class="form-check-input" type="checkbox" id="showHaltedCheckbox" @bind="pramCodeViewService.ShowHaltedParallelMachines" aria-label="@TextUIService.PRAMViewShowHalted">
                         <label class="form-check-label" for="showHaltedCheckbox">
-                            Show Halted
+                            @TextUIService.PRAMViewShowHalted
                         </label>
                     </div>   
                 </div>
@@ -66,7 +72,7 @@
     <div class="row">
         <div class="col-md-1">
             <div class="text-center">
-                <h4>Shared Memory</h4>
+                <h4>@TextUIService.MemorySharedTitle</h4>
             </div>
             <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
         </div>
@@ -110,7 +116,7 @@
         <div class="col-md-3 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    Machine @i :
+                    @TextUIService.PRAMViewMachineTitle(i)
                                     @{
                     bool foundMachine = false;
 
@@ -120,7 +126,7 @@
                         {
                             if (item.ParallelMachineIndex == i)
                             {
-                                <span class="badge bg-info">IMA</span>
+                                <span class="badge bg-info">@TextUIService.PRAMViewCardIllegalMemoryAccess</span>
                                 foundMachine = true;
                                 break;
                             }
@@ -131,18 +137,18 @@
                     {
                         if(GetParallelMachineIsHalted(i))
                         {
-                            <span class="badge bg-warning">Halted</span>
+                            <span class="badge bg-warning">@TextUIService.PRAMViewCardHalted</span>
                         }
                         else if (execService.IsHistoryInLatestParallelBatch() && pramMachine.GetParallelMachineIsCrashed(i))
                         {
-                            <span class="badge bg-danger">Crashed</span>
+                            <span class="badge bg-danger">@TextUIService.PRAMViewCardCrashed</span>
                         }
                     }
                 }
 
                         </div>
                 <div class="card-body @GetCardClass(i)">
-                    <h5 class="card-title">Code</h5>
+                    <h5 class="card-title">@TextUIService.PRAmViewCodeTitle</h5>
                     
                     <div class="code-compiled-code-container">
                 @{
@@ -222,7 +228,7 @@
 
                     </div>
 
-                    <h5 class="card-title">Memory</h5>
+                    <h5 class="card-title">@TextUIService.PRAMViewMemoryTitle</h5>
                     @if (machineMemory != null)
                     {
                         <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
@@ -350,12 +356,12 @@
 
         if(pramCodeViewService.SelectedViewParallelMachines.Count == 0)
         {
-            selectViewPlaceHolder = "Displaying all. Enter indexes like '0,1,2,4-10,odd 10-20, even 20-30, ...'";
+            selectViewPlaceHolder = TextUIService.PRAMViewMachineFilterDisplayingAll;
             StateHasChanged();
         }
         else
         {
-            selectViewPlaceHolder = "🟧 Displaying: " + string.Join(", ", pramCodeViewService.SelectedViewParallelMachines) + "; Begin with '+' to add.";
+            selectViewPlaceHolder = TextUIService.PRAMViewMachineFilterDisplayingMessage(string.Join(", ", pramCodeViewService.SelectedViewParallelMachines));
 
             if(selectViewPlaceHolder.Length > 200)
             {
@@ -377,7 +383,7 @@
         ResolveViewParallelMachines();
     }
 
-    private async Task SelectViewParallelMachinesKeyPressed(KeyboardEventArgs eventArgs)
+    private void SelectViewParallelMachinesKeyPressed(KeyboardEventArgs eventArgs)
     {
         if (eventArgs.Key == "Enter")
         {

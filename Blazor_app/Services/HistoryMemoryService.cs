@@ -1,9 +1,16 @@
-﻿using PRAM_lib.Memory;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Memory;
 using System.Collections.ObjectModel;
 
 
 namespace Blazor_app.Services
 {
+    /// <summary>
+    /// Service for storing history of the PRAM machine state
+    /// </summary>
     public class HistoryMemoryService
     {
         public int HistoryIndex { get; private set; } = 0;
@@ -32,6 +39,8 @@ namespace Blazor_app.Services
             target.Add(newCollection);
         }
 
+        // Saves the current state of the PRAM machine. Shifts the memory in the list if the list is full.
+        // Since the size of the list is limited significantly, no major performance issues are expected.
         public void SaveState(PRAM_lib.Machine.PramMachine machine)
         {
             if(HistoryIndex >= MaxHistoryIndex)

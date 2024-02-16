@@ -1,6 +1,12 @@
-﻿namespace Blazor_app.Services
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+namespace Blazor_app.Services
 {
-    //Service for settings and global state
+    /// <summary>
+    /// Service for settings and global state
+    /// </summary>
     public class GlobalService
     {
         //## State text
@@ -28,6 +34,7 @@
         {
             ShowPopup += (message) => { };
             LastStateUpdated += () => { };
+            HistoryToggled += (value) => { };
         }
 
         // ## Auto step speed
@@ -76,8 +83,6 @@
             }
         }
 
-        //
-
         //Memory cell hiding
         public bool HideMemoryCells { get; set; } = false;
 
@@ -96,7 +101,7 @@
 
 
         // ## Regex state management
-        public string DefaultRegex { get; private set; }
+        public string DefaultRegex { get; private set; } = "";
         public void SetDefaultRegex(string regex)
         {
             DefaultRegex = regex;

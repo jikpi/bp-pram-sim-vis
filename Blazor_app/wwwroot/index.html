@@ -33,7 +33,7 @@
 
 <!--JAVASCRIPT FUNCTIONS-->
 <script>
-    //DOWNLOAD REGEX FUNCTION
+    //DOWNLOAD FUNCTION
     function downloadFileFromBlazor(fileName, contentType, content) {
         var data = new Blob([content], { type: contentType });
         var url = window.URL.createObjectURL(data);

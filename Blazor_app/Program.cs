@@ -1,3 +1,7 @@
+/*
+ * Author: Jan Kopidol
+ */
+
 using Blazor_app.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -30,6 +34,9 @@ namespace Blazor_app
 
             //dependency injection for the history memory service
             builder.Services.AddSingleton<HistoryMemoryService>();
+
+            //dependency injection for the text UI service
+            builder.Services.AddSingleton<TextUIService>();
 
             //dependency injection for the execution service
             builder.Services.AddSingleton<ExecutionService>(sp =>

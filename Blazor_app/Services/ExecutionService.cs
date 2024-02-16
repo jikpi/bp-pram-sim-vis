@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using Microsoft.AspNetCore.Components;
 using PRAM_lib.Machine;
 using System.Collections.ObjectModel;
-using System.Reflection.PortableExecutable;
 
 namespace Blazor_app.Services
 {
+    /// <summary>
+    /// Service handling the execution of the PRAM machine, and the UI logic during, and all relevant states.
+    /// </summary>
     public class ExecutionService
     {
         private readonly PramMachine _pramMachine;
@@ -40,6 +46,7 @@ namespace Blazor_app.Services
             _navigationManager = navigationManager;
             _globalService = globalService;
             _historyMemoryService = historyMemoryService;
+
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
             _globalService.HistoryToggled += HistoryToggled;
@@ -74,14 +81,14 @@ namespace Blazor_app.Services
         {
 
             int currentLine;
-            _globalService.SetLastState($"Next step: {_pramMachine.MPIP.Value.ToString()}", GlobalService.LastStateUniform.Ok);
+            _globalService.SetLastState(TextUIService.StateIndicatorNextStep(_pramMachine.MPIP.Value), GlobalService.LastStateUniform.Ok);
             currentLine = _pramMachine.GetCurrentCodeLineIndex();
 
             if (_pramMachine.IsRunningParallel)
             {
                 if (IsRunningParallel == false)
                 {
-                    _globalService.SetLastState("Parallel execution started", GlobalService.LastStateUniform.Note);
+                    _globalService.SetLastState(TextUIService.StateIndicatorParallelExecutionStarted, GlobalService.LastStateUniform.Note);
                     IsRunningParallel = true;
                     _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                     _navigationManager.NavigateTo("/pramview");
@@ -93,14 +100,14 @@ namespace Blazor_app.Services
             {
                 if (IsRunningParallel == true)
                 {
-                    _globalService.SetLastState("Parallel execution stopped", GlobalService.LastStateUniform.Note);
+                    _globalService.SetLastState(TextUIService.StateIndicatorParallelExecutionStopped, GlobalService.LastStateUniform.Note);
                     IsRunningParallel = false;
                     _navigationManager.NavigateTo("/");
                 }
 
                 if (_pramMachine.IsHalted)
                 {
-                    _globalService.SetLastState("Execution finished", GlobalService.LastStateUniform.Note);
+                    _globalService.SetLastState(TextUIService.StateIndicatorExecutionFinished, GlobalService.LastStateUniform.Note);
                 }
             }
 
@@ -140,12 +147,12 @@ namespace Blazor_app.Services
                         _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
 
-                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Error);
+                    _globalService.SetLastState(TextUIService.StateIndicatorExecutionStop(_pramMachine.ExecutionErrorMessage), GlobalService.LastStateUniform.Error);
                 }
                 else
                 {
                     //not shown if machine is halted, since the if for 'halt' will override
-                    _globalService.SetLastState($"Execution stop: {_pramMachine.ExecutionErrorMessage}", GlobalService.LastStateUniform.Warning);
+                    _globalService.SetLastState(TextUIService.StateIndicatorExecutionStop(_pramMachine.ExecutionErrorMessage), GlobalService.LastStateUniform.Warning);
                     if (IsRunningParallel)
                     {   
                         _navigationManager.NavigateTo("/");
@@ -196,7 +203,7 @@ namespace Blazor_app.Services
             }
 
             _pramMachine.Restart();
-            _globalService.SetLastState("Reset", GlobalService.LastStateUniform.Ok);
+            _globalService.SetLastState(TextUIService.Reset, GlobalService.LastStateUniform.Ok);
             _codeEditorService.UpdateExecutingLine(-1);
             ResetParallelRunningState();
             _navigationManager.NavigateTo("/");
@@ -227,12 +234,12 @@ namespace Blazor_app.Services
 
             if (_pramMachine.IsCompiled)
             {
-                _globalService.SetLastState("Compilation successful", GlobalService.LastStateUniform.Ok);
+                _globalService.SetLastState(TextUIService.StateIndicatorCompilationSuccessful, GlobalService.LastStateUniform.Ok);
                 _codeEditorService.CodeToViewMode();
             }
             else
             {
-                _globalService.SetLastState($"Compilation failed: {_pramMachine.CompilationErrorMessage}", GlobalService.LastStateUniform.Error);
+                _globalService.SetLastState(TextUIService.StateIndicatorCompilationFailed(_pramMachine.CompilationErrorMessage), GlobalService.LastStateUniform.Error);
                 _codeEditorService.CodeToViewMode(_pramMachine.CompilationErrorLineIndex ?? -1);
             }
 
@@ -243,7 +250,7 @@ namespace Blazor_app.Services
         {
             _pramMachine.ClearMemory();
             RefreshMemory();
-            _globalService.SetLastState("Memory cleared", GlobalService.LastStateUniform.Ok);
+            _globalService.SetLastState(TextUIService.StateIndicatorMemoryCleared, GlobalService.LastStateUniform.Ok);
         }
 
         //Unused
@@ -367,6 +374,7 @@ namespace Blazor_app.Services
         // ----------------------------------------------------
 
         // ## History #########################################
+        //Contains getters for the memory and code context, switching which is used based on the history state.
 
         int? HistoryOffset = null;
         public bool IsInHistory => HistoryOffset != null;
@@ -560,12 +568,13 @@ namespace Blazor_app.Services
             RefreshPramView();
         }
 
+        // Main method(s) to step the machine forward (backward). Handles history.
         public void StepForward()
         {
             if (HistoryOffset >= -1)
             {
                 HistoryOffset = null;
-                _globalService.SetLastState($"History reset: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState(TextUIService.StateIndicatorHistoryReset(HistoryOffset ?? 0), GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             }
@@ -577,7 +586,7 @@ namespace Blazor_app.Services
             else
             {
                 HistoryOffset++;
-                _globalService.SetLastState($"History going forward: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState(TextUIService.StateIndicatorHistoryGoingForward(HistoryOffset ?? 0), GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
                 ResolveUIParallelHistory();
@@ -593,26 +602,26 @@ namespace Blazor_app.Services
 
             if (!_globalService.SaveHistory || _historyMemoryService.HistoryIndex == 0)
             {
-                _globalService.SetLastState("No history", GlobalService.LastStateUniform.Warning);
+                _globalService.SetLastState(TextUIService.StateIndicatorNoHistory, GlobalService.LastStateUniform.Warning);
                 return;
             }
 
             if (HistoryOffset == null)
             {
                 HistoryOffset = -2;
-                _globalService.SetLastState($"Starting history: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState(TextUIService.StateIndicatorStartingHistory(HistoryOffset ?? 0), GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
                 ResolveUIParallelHistory();
             }
             else if (_historyMemoryService.HistoryIndex + HistoryOffset <= 0)
             {
-                _globalService.SetLastState($"Max history reached: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState(TextUIService.StateIndicatorMaxHistoryReached(HistoryOffset ?? 0), GlobalService.LastStateUniform.Note);
             }
             else
             {
                 HistoryOffset--;
-                _globalService.SetLastState($"History going back: {HistoryOffset}", GlobalService.LastStateUniform.Note);
+                _globalService.SetLastState(TextUIService.StateIndicatorHistoryGoingBack(HistoryOffset ?? 0), GlobalService.LastStateUniform.Note);
                 RefreshMemory();
                 _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
                 ResolveUIParallelHistory();
@@ -627,7 +636,7 @@ namespace Blazor_app.Services
             }
 
             HistoryOffset = null;
-            _globalService.SetLastState($"History set to present.", GlobalService.LastStateUniform.Note);
+            _globalService.SetLastState(TextUIService.StateIndicatorHistorySetToPresent, GlobalService.LastStateUniform.Note);
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
             ResolveUIParallelHistory();
@@ -642,6 +651,7 @@ namespace Blazor_app.Services
         }
 
         //Returns true if the current history offset is the latest parallel batch, or if the history offset is null
+        //Useful when a machine is crashed / halted / accessed memory illegally, and the user still wants to see which one caused it.
         public bool IsHistoryInLatestParallelBatch()
         {
             if (HistoryOffset == null)

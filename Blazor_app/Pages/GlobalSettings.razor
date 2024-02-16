@@ -1,4 +1,11 @@
-﻿@page "/settings"
+﻿<!--
+Author: Jan Kopidol
+
+A major razor component for settings.
+
+-->
+
+@page "/settings"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using System.Text
@@ -17,10 +24,10 @@
 
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
-                <h3 class="card-title">🟢 Run configuration</h3>
+                <h3 class="card-title">@TextUIService.SettingsTitleRunConfiguration</h3>
 
                 <div class="form-group mb-1">
-                    <label for="autoStepSpeedSlider">Auto Step Speed</label>
+                    <label for="autoStepSpeedSlider">@TextUIService.SettingsAutoStepSpeed</label>
                     <input type="range" class="form-control-range" id="autoStepSpeedSlider"
                            min="@globalService.MinAutoStepSpeed" max="@globalService.MaxAutoStepSpeed" value="@globalService.AutoStepSpeed"
                            @onchange="AutoStepSpeedChanged">
@@ -28,19 +35,19 @@
                 </div>
 
                 <div class="form-group mb-1">
-                    <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="Hide unset memory cells">
-                    <label for="hideMemoryCellsCheckbox" class="ms-2">Hide unset memory cells</label>
+                    <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="@TextUIService.SettingsHideUnsetMemoryCells">
+                    <label for="hideMemoryCellsCheckbox" class="ms-2">@TextUIService.SettingsHideUnsetMemoryCells</label>
                 </div>
 
                 <div class="form-group mb-1">
-                    <input type="checkbox" @bind="globalService.SaveHistory" id="savehistorycheckbox" aria-label="Save history">
-                    <label for="savehistorycheckbox" class="ms-2">Save history</label>
+                    <input type="checkbox" @bind="globalService.SaveHistory" id="savehistorycheckbox" aria-label="@TextUIService.SettingsSaveHistory">
+                    <label for="savehistorycheckbox" class="ms-2">@TextUIService.SettingsSaveHistory</label>
                 </div>
 
                 <div class="form-group mb-1">
-                    <input type="checkbox" @bind="globalService.FixedCode" id="fixedcodecheckbox" aria-label="Fix parallel code in place">
-                    <label for="fixedcodecheckbox" class="ms-2">Fix code in place</label>
-                    <label for="fixedCodeLinesSlider">Length:</label>
+                    <input type="checkbox" @bind="globalService.FixedCode" id="fixedcodecheckbox" aria-label="@TextUIService.SettingsFixParallelCodeInPlace">
+                    <label for="fixedcodecheckbox" class="ms-2">@TextUIService.SettingsFixParallelCodeInPlace</label>
+                    <label for="fixedCodeLinesSlider">:</label>
                     <input type="range" class="form-control-range" id="fixedCodeLinesSlider"
                            min="@globalService.MinFixedCodeLength" max="@globalService.MaxFixedCodeLength" value="@globalService.FixedCodeLength"
                            @onchange="FixedCodeLengthChanged">
@@ -48,7 +55,7 @@
                 </div>
 
                 <div class="form-group mb-1">
-                    <label for="crcwAccessType">CRCW Access type</label>
+                    <label for="crcwAccessType">@TextUIService.SettingsCRCWAccessType</label>
                     <select id="crcwAccessType" class="form-control" @bind="pramMachine.CRCW_Access">
                         @foreach (var accessType in Enum.GetValues<PRAM_lib.Machine.PramMachine.CRCW_AccessType>())
                         {
@@ -62,34 +69,34 @@
 
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
-                <h3 class="card-title">💾 Machine import/export</h3>
+                <h3 class="card-title">@TextUIService.SettingsTitleMachineImportExport</h3>
                 <input type="file" id="fileInput" style="display:none" />
                 <button type="button" class="btn btn-primary" @onclick="ImportMachine">
-                    Import machine
+                    Import
                 </button>
 
                 <button type="button" class="btn btn-secondary"
                         @onclick="ExportMachine">
-                    Export machine
+                    Export
                 </button>
             </div>
         </div>
 
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
-                <h3 class="card-title">🔠 Regex import/export</h3>
+                <h3 class="card-title">@TextUIService.SettingsTitleRegexImportExport</h3>
                 <input type="file" id="fileInput" style="display:none" />
                 <button type="button" class="btn btn-primary" @onclick="ImportRegex">
-                    Import regex
+                    Import
                 </button>
 
                 <button type="button" class="btn btn-secondary"
                         @onclick="ExportRegex">
-                    Export regex
+                    Export
                 </button>
                 <button type="button" class="btn btn-warning"
                         @onclick="ResetRegex">
-                    Reset regex
+                    Reset
                 </button>
 
             </div>
@@ -97,10 +104,10 @@
 
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
-                <h3 class="card-title">📝 Regex edit</h3>
-                <p class="card-text">Editing the instruction regex of the machine is not officially supported and may expose critical aspects of its internal functionality. Please proceed with caution.</p>
+                <h3 class="card-title">@TextUIService.SettingsTitleEditingInstructionRegex</h3>
+                <p class="card-text">@TextUIService.SettingsEditingInstructionRegexWarning</p>
                 <button type="button" class="btn btn-primary" @onclick="NavigateToRegexSettings">
-                    I understand, continue
+                    @TextUIService.SettingsEditingInstructionRegexContinue
                 </button>
             </div>
         </div>
@@ -129,7 +136,7 @@
     private void ResetRegex()
     {
         pramMachine.InstructionRegex.ResetToDefault();
-        globalService.SetLastState("All regex have been reset", GlobalService.LastStateUniform.Note);
+        globalService.SetLastState(TextUIService.StateIndicatorAllRegexReset, GlobalService.LastStateUniform.Note);
     }
 
     private void NavigateToRegexSettings()
@@ -181,7 +188,7 @@
         }
         catch (Exception)
         {
-            globalService.SetLastState("Failed to export machine", GlobalService.LastStateUniform.Error);
+            globalService.SetLastState(TextUIService.StateIndicatorFailedToExportMachine, GlobalService.LastStateUniform.Error);
         }
     }
 
@@ -196,7 +203,7 @@
     {
         if (string.IsNullOrEmpty(fileContent))
         {
-            globalService.SetLastState("File refused, it might be too large.", GlobalService.LastStateUniform.Error);
+            globalService.SetLastState(TextUIService.StateIndicatorFileRefusedTooLarge, GlobalService.LastStateUniform.Error);
             return Task.CompletedTask;
         }
 
@@ -206,7 +213,7 @@
 
             if (sections.Length < 3)
             {
-                throw new FormatException("File format is incorrect or file is corrupted.");
+                throw new FormatException(TextUIService.StateIndicatorFileFormatIncorrectOrCorrupted);
             }
 
             //sections[0] is code, sections[1] is input memory, sections[2] is shared memory
@@ -223,18 +230,18 @@
         }
         catch (Exception ex)
         {
-            globalService.SetLastState($"Failed to import machine: {ex.Message}", GlobalService.LastStateUniform.Error);
+            globalService.SetLastState(TextUIService.StateIndicatorFailedToImportMachine(ex.Message), GlobalService.LastStateUniform.Error);
             return Task.CompletedTask;
         }
 
         codeEditorService.EditCode();
         if (pramMachine.InstructionRegex.SaveToText() != globalService.DefaultRegex)
         {
-            globalService.SetLastState("Machine imported successfully. Warning: The regex of the machine is not default.", GlobalService.LastStateUniform.Warning);
+            globalService.SetLastState(TextUIService.StateIndicatorMachineImportedSuccessfullyWarning, GlobalService.LastStateUniform.Warning);
         }
         else
         {
-            globalService.SetLastState("Machine imported successfully", GlobalService.LastStateUniform.Note);
+            globalService.SetLastState(TextUIService.StateIndicatorMachineImportedSuccessfully, GlobalService.LastStateUniform.Note);
         }
 
         navigationManager.NavigateTo("/");
@@ -254,7 +261,7 @@
             }
             else
             {
-                errorMessage = "Memory format is incorrect or file is corrupted.";
+                errorMessage = TextUIService.StateIndicatorFailedToImportMemory;
                 return;
             }
         }
@@ -272,7 +279,7 @@
     {
         if (string.IsNullOrEmpty(fileContent))
         {
-            globalService.SetLastState("File refused, it might be too large.", GlobalService.LastStateUniform.Error);
+            globalService.SetLastState(TextUIService.StateIndicatorFileRefusedTooLarge, GlobalService.LastStateUniform.Error);
             return Task.CompletedTask;
         }
 
@@ -284,7 +291,7 @@
         }
         else
         {
-            globalService.SetLastState("Regex imported successfully", GlobalService.LastStateUniform.Note);
+            globalService.SetLastState(TextUIService.StateIndicatorRegexImportedSuccessfully, GlobalService.LastStateUniform.Note);
         }
 
         return Task.CompletedTask;
@@ -299,7 +306,7 @@
         }
         catch (Exception)
         {
-            globalService.SetLastState("Failed to export regex", GlobalService.LastStateUniform.Error);
+            globalService.SetLastState(TextUIService.StateIndicatorFailedToExportRegex, GlobalService.LastStateUniform.Error);
         }
     }
 }

@@ -1,4 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿<!--
+Author: Jan Kopidol
+
+A major razor component common to all major razor components.
+
+-->
+
+@inherits LayoutComponentBase
 @using Blazor_app.Services
 @inject GlobalService globalService
 
@@ -85,7 +92,7 @@
     }
 
     //##### Popup
-    private Action<string> showPopupHandler;
+    private Action<string> showPopupHandler = _ => { };
     private bool showPopup = false;
     private string popupMessage = "";
     private void ShowPopup(string message = "none")

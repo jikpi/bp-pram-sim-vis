@@ -1,4 +1,10 @@
-﻿@using System.Collections.ObjectModel
+﻿<!--
+Author: Jan Kopidol
+
+A razor component for displaying the contents of any memory (shared / local of a parallel machine)
+
+-->
+@using System.Collections.ObjectModel
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
@@ -68,32 +74,35 @@
     </thead>
     <tbody>
         @{
-            int i = 0;
-            foreach (var item in MemoryItems)
+            if (MemoryItems is not null)
             {
-
-                if (globalService.HideMemoryCells && !item.HasBeenWrittenTo)
+                int i = 0;
+                foreach (var item in MemoryItems)
                 {
-                    if (i < MemoryItems.Count - 1)
+
+                    if (globalService.HideMemoryCells && !item.HasBeenWrittenTo)
                     {
-                        i++;
-                        continue;
+                        if (i < MemoryItems.Count - 1)
+                        {
+                            i++;
+                            continue;
+                        }
                     }
-                }
 
-                if (i > 500)
-                {
+                    if (i > 500)
+                    {
+                        <tr>
+                            <td>MAX</td>
+                            <td><input class="compact-input" @bind="item.Value" /></td>
+                        </tr>
+                        break;
+                    }
                     <tr>
-                        <td>MAX</td>
+                        <td>@i</td>
                         <td><input class="compact-input" @bind="item.Value" /></td>
                     </tr>
-                    break;
+                    i++;
                 }
-                <tr>
-                    <td>@i</td>
-                    <td><input class="compact-input" @bind="item.Value" /></td>
-                </tr>
-                i++;
             }
         }
     </tbody>

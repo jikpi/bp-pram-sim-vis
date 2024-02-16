@@ -1,8 +1,14 @@
-﻿@using Blazor_app.Services
+﻿<!--
+Author: Jan Kopidol
+
+A razor component for common controls of the PRAM machine.
+
+-->
+
+@using Blazor_app.Services
 @using PRAM_lib.Machine
 @inject GlobalService globalService
 @inject ExecutionService execService
-@inject PramCodeViewService pramCodeViewService
 
 <style>
     .button-group {
@@ -19,14 +25,14 @@
 <div class="button-group">
     @if (globalService.SaveHistory)
     {
-        <button class="btn btn-primary" @onclick="StepBackward">🔺 Step back</button>
+        <button class="btn btn-primary" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
     }
-    <button class="btn btn-primary" @onclick="StepForward">🟢 Step forward</button>
-    <button class="btn btn-primary" @onclick="RunUntilBreakpoint">🔴 Run Until Breakpoint</button>
-    <button class="btn btn-primary" @onclick="ToggleAutoRun">⏯ Auto Run</button>
-    <button class="btn btn-primary" @onclick="Reset">🧹 Reset</button>
+    <button class="btn btn-primary" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
+    <button class="btn btn-primary" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
+    <button class="btn btn-primary" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
+    <button class="btn btn-primary" @onclick="Reset">@TextUIService.ExecutionReset</button>
 
-    <div class="text-center">Steps: @execService.StepsTotal Steps including parallel: @execService.StepsIncludingParallel</div>
+    <div class="text-center">@TextUIService.ExecutionStepsCount(execService.StepsTotal, execService.StepsIncludingParallel)</div>
 
 
 </div>

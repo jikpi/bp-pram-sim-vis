@@ -1,5 +1,12 @@
-﻿namespace Blazor_app.Services
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+namespace Blazor_app.Services
 {
+    /// <summary>
+    /// Service for managing the PRAM UI state
+    /// </summary>
     public class PramCodeViewService
     {
         public string PramCode { get; set; } = "";

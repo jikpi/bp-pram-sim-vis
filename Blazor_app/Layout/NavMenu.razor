@@ -1,4 +1,11 @@
-﻿@using Blazor_app.Services
+﻿<!--
+Author: Jan Kopidol
+
+A razor component for the navigation menu.
+
+-->
+
+@using Blazor_app.Services
 @inject GlobalService globalService
 
 <div class="top-row navbar navbar-expand-lg navbar-dark bg-dark">
@@ -58,7 +65,7 @@
     //-----------------
 
     //## State indicator
-    private string stateIndicator = "Ready";
+    private string stateIndicator = TextUIService.StateIndicatorDefault;
     //color of the text
     private string stateIndicatorColor = "white";
 
