@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.Gateway.Interface;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway.Interface;
 
 namespace PRAM_lib.Code.Gateway
 {
@@ -79,7 +83,7 @@ namespace PRAM_lib.Code.Gateway
 
         public GatewayIndexSet DeepCopyToParallel(ParallelGateway gateway)
         {
-            if(Gateway is ParallelGateway)
+            if (Gateway is ParallelGateway)
             {
                 return new GatewayIndexSet(gateway, MemoryAddressIndex);
             }

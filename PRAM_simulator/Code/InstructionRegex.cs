@@ -1,5 +1,8 @@
-﻿using System.Reflection;
-using System.Text.Json;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace PRAM_lib.Code

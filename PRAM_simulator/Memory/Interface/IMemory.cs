@@ -1,4 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using System.Collections.ObjectModel;
 
 namespace PRAM_lib.Memory.Interface
 {

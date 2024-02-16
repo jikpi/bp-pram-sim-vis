@@ -1,4 +1,8 @@
-﻿namespace PRAM_lib.Code.Gateway.Interface
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+namespace PRAM_lib.Code.Gateway.Interface
 {
     /// <summary>
     /// A class that represents a gateway between a processor and a memory, and contextualizes a simple memory access

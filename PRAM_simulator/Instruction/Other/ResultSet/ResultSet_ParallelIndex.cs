@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.Gateway;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.ResultSet

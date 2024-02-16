@@ -1,4 +1,8 @@
-﻿namespace PRAM_lib.Machine.InstructionPointer
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+namespace PRAM_lib.Machine.InstructionPointer
 {
     /// <summary>
     /// A class representing an instruction pointer.

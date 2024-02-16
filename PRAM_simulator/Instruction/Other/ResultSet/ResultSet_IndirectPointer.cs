@@ -1,10 +1,9 @@
-﻿using PRAM_lib.Code.Gateway;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.ResultSet
 {

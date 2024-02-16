@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.CustomExceptions;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Memory.Interface;
 using System.Collections.ObjectModel;

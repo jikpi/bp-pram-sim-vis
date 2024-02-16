@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.CustomExceptions;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
 using PRAM_lib.Code.Gateway.Interface;
@@ -276,7 +280,7 @@ namespace PRAM_lib.Code.Compiler
             parallelMachines = new List<ParallelMachineContainer>();
 
             List<string> strings = code.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
-            if(strings.Count >= 100_000)
+            if (strings.Count >= 100_000)
             {
                 errorMessage = $"Code is too long: {strings.Count}.";
                 returnLineIndex = 0;
@@ -587,7 +591,7 @@ namespace PRAM_lib.Code.Compiler
                 return null;
             }
 
-            if(isParallelAndNotEnded)
+            if (isParallelAndNotEnded)
             {
                 errorMessage = ExceptionMessages.CompilerParallelNotEnded();
                 returnLineIndex = lineIndex;

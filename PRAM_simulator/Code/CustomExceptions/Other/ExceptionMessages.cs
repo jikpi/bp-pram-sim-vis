@@ -1,4 +1,8 @@
-﻿namespace PRAM_lib.Code.CustomExceptions.Other
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+namespace PRAM_lib.Code.CustomExceptions.Other
 {
     /// <summary>
     /// Messages for exceptions

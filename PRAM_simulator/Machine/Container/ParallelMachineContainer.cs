@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Processor;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Processor;
 
 namespace PRAM_lib.Machine.Container
 {

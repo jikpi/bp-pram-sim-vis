@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.CodeMemory;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.CodeMemory;
 using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 using PRAM_lib.Code.Gateway;
@@ -156,7 +160,7 @@ namespace PRAM_lib.Processor
         public List<InParallelMachine> DeepCopy(int count)
         {
             List<InParallelMachine> newMachines = new List<InParallelMachine>();
-            for(int i = 1; i < count + 1; i++) 
+            for (int i = 1; i < count + 1; i++)
             {
                 int newProcessorIndex = ProcessorIndex + i;
                 ParallelGateway newGateway = new ParallelGateway();

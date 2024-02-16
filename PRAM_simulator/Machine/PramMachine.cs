@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code;
 using PRAM_lib.Code.CodeMemory;
 using PRAM_lib.Code.Compiler;
 using PRAM_lib.Code.CustomExceptions;

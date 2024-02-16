@@ -1,4 +1,8 @@
-﻿using System.ComponentModel;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using System.ComponentModel;
 
 namespace PRAM_lib.Memory
 {

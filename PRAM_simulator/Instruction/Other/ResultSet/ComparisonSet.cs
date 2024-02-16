@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.Gateway;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
@@ -71,13 +75,13 @@ namespace PRAM_lib.Instruction.Other.InstructionResult
         public IComparisonSet DeepCopyToParallel(ParallelGateway gateway)
         {
             GatewayIndexSet? leftGateway = null;
-            if(LeftGateway != null)
+            if (LeftGateway != null)
             {
                 leftGateway = LeftGateway.DeepCopyToParallel(gateway);
             }
 
             GatewayIndexSet? rightGateway = null;
-            if(RightGateway != null)
+            if (RightGateway != null)
             {
                 rightGateway = RightGateway.DeepCopyToParallel(gateway);
             }

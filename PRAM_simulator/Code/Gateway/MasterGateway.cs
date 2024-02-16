@@ -1,8 +1,11 @@
-﻿using PRAM_lib.Code.Gateway.Interface;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway.Interface;
 using PRAM_lib.Machine.Container;
 using PRAM_lib.Machine.InstructionPointer;
 using PRAM_lib.Memory;
-using System.Reflection.Metadata.Ecma335;
 
 namespace PRAM_lib.Code.Gateway
 {
@@ -29,7 +32,7 @@ namespace PRAM_lib.Code.Gateway
         /// Hashset with memory cell index that was accessed, always for a single parallel machine
         /// </summary>
         private HashSet<int> ReadSingleInstructionAccess;
-        private Dictionary<int,int> WriteSingleInstructionAccess;
+        private Dictionary<int, int> WriteSingleInstructionAccess;
 
         public MasterGateway(MachineMemory refSharedMemory,
             IOMemory refInputMemory,
@@ -92,7 +95,7 @@ namespace PRAM_lib.Code.Gateway
             //Add read accesses
             foreach (int index in ReadSingleInstructionAccess)
             {
-                if(ParallelAccessCycle.ContainsKey(index) == false)
+                if (ParallelAccessCycle.ContainsKey(index) == false)
                 {
                     ParallelAccessCycle.Add(index, new List<ParallelAccessInfo>());
                 }
@@ -103,7 +106,7 @@ namespace PRAM_lib.Code.Gateway
             //Add write accesses
             foreach (var entry in WriteSingleInstructionAccess)
             {
-                if(ParallelAccessCycle.ContainsKey(entry.Key) == false)
+                if (ParallelAccessCycle.ContainsKey(entry.Key) == false)
                 {
                     ParallelAccessCycle.Add(entry.Key, new List<ParallelAccessInfo>());
                 }

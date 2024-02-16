@@ -1,5 +1,8 @@
-﻿using PRAM_lib.Code.Gateway;
-using PRAM_lib.Code.Gateway.Interface;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway;
 using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions

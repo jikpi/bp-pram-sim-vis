@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.Gateway;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.Gateway;
 
 namespace PRAM_lib.Instruction.Other.Interface
 {
@@ -12,6 +16,6 @@ namespace PRAM_lib.Instruction.Other.Interface
         public int CodeInstructionLineIndex { get; } //An index of the line in the code editor
 
         //A method that replaces a parallel gateway with a new one, used for deep copy of a processor
-        public IInstruction DeepCopyToParallel(ParallelGateway gateway); 
+        public IInstruction DeepCopyToParallel(ParallelGateway gateway);
     }
 }

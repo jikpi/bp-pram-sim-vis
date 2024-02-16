@@ -1,4 +1,8 @@
-﻿using PRAM_lib.Code.CustomExceptions;
+﻿/*
+ * Author: Jan Kopidol
+ */
+
+using PRAM_lib.Code.CustomExceptions;
 using PRAM_lib.Code.CustomExceptions.Other;
 
 namespace PRAM_lib.Code.Jumps
