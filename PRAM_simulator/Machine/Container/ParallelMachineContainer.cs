@@ -2,6 +2,9 @@
 
 namespace PRAM_lib.Machine.Container
 {
+    /// <summary>
+    /// A container for parallel machines. Holds a single parallel machine that is used to create deep copies of it.
+    /// </summary>
     internal class ParallelMachineContainer
     {
         internal List<InParallelMachine> ParallelMachines { get; private set; }

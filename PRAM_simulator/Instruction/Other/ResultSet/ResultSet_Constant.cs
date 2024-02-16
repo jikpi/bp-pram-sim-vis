@@ -3,7 +3,9 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A constant result for an instruction, that is for example S2 := 5
+    /// <summary>
+    /// A constant result for an instruction, that is for example S2 := 5
+    /// </summary>
     internal class ResultSet_Constant : IResultSet
     {
         public int ConstantValue { get; }

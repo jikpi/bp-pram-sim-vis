@@ -10,6 +10,9 @@ using System.Collections.ObjectModel;
 
 namespace PRAM_lib.Processor
 {
+    /// <summary>
+    /// A class representing a parallel machine.
+    /// </summary>
     internal class InParallelMachine : IProcessor
     {
         internal MachineMemory LocalMemory { get; private set; }

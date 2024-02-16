@@ -1,5 +1,8 @@
 ﻿namespace PRAM_lib.Code.CustomExceptions.Other
 {
+    /// <summary>
+    /// Messages for exceptions
+    /// </summary>
     internal static class ExceptionMessages
     {
         internal static string NotCompiled()

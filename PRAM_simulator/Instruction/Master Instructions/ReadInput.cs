@@ -4,10 +4,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
-    //Instruction that reads from input, and writes to shared memory. Optionally, it can read from specified index in input.
-
-    //POZNAMKA: IMPLEMENTACE READINPUT POUZE DO SHARED MEMORY
-    //TODO THIS IS A RESULT SET, REFACTOR AFTER PARALLELIZATION ARCHITECTURE IS DONE
+    /// <summary>
+    /// Instruction that reads from input, and writes to shared memory. Optionally, it can read from specified index in input.
+    /// </summary>
     internal class ReadInput : IInstruction
     {
         private GatewayIndexSet gateway { get; }

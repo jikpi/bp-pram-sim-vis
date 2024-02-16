@@ -6,7 +6,9 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace PRAM_lib.Code.Gateway
 {
-    //A class that represents a gateway between a processor and a memory
+    /// <summary>
+    /// A class that represents a gateway between a processor and a memory
+    /// </summary>
     internal class MasterGateway : IGateway
     {
         private MachineMemory SharedMemory { get; set; }
@@ -19,9 +21,13 @@ namespace PRAM_lib.Code.Gateway
 
         private bool AccessingParallel;
 
-        //Dictionary with memory cell as index, and a list of accesses to that cell by parallel processors
+        /// <summary>
+        /// Dictionary with memory cell as index, and a list of accesses to that cell by parallel processors
+        /// </summary>
         public Dictionary<int, List<ParallelAccessInfo>> ParallelAccessCycle { get; private set; }
-        //Hashset with memory cell index that was accessed, always for a single parallel machine
+        /// <summary>
+        /// Hashset with memory cell index that was accessed, always for a single parallel machine
+        /// </summary>
         private HashSet<int> ReadSingleInstructionAccess;
         private Dictionary<int,int> WriteSingleInstructionAccess;
 
@@ -65,7 +71,9 @@ namespace PRAM_lib.Code.Gateway
             AccessingParallel = false;
         }
 
-        // Parallel processors were launched, and will now be accessing memory
+        /// <summary>
+        /// Parallel processors were launched, and will now be accessing memory
+        /// </summary>
         public void AccessingParallelStart()
         {
             AccessingParallel = true;
@@ -74,7 +82,11 @@ namespace PRAM_lib.Code.Gateway
             WriteSingleInstructionAccess.Clear();
         }
 
-        // Summarize the memory access of a single parallel processor
+        /// <summary>
+        /// Summarize the memory access of a single parallel processor
+        /// </summary>
+        /// <param name="parallelMachineIndex"></param>
+        /// <param name="relevantParallelMachineCodeIndex"></param>
         private void SummarizeParallelMemoryAccess(int parallelMachineIndex, int relevantParallelMachineCodeIndex)
         {
             //Add read accesses
@@ -116,7 +128,11 @@ namespace PRAM_lib.Code.Gateway
             }
         }
 
-        //A single parallel processor has finished in the cycle, summarize the memory access
+        /// <summary>
+        /// A single parallel processor has finished in the cycle, summarize the memory access
+        /// </summary>
+        /// <param name="parallelMachineIndex"></param>
+        /// <param name="parallelMachineRelevantCodeIndex"></param>
         public void AccessingParallelStepInCycle(int parallelMachineIndex, int parallelMachineRelevantCodeIndex)
         {
             if (AccessingParallel)
@@ -139,20 +155,30 @@ namespace PRAM_lib.Code.Gateway
             }
         }
 
-        // The parallel processors have all finished, and the machine is now in a not parallel state
+        /// <summary>
+        /// The parallel processors have all finished, and the machine is now in a not parallel state
+        /// </summary>
         public void AccessingParallelEnd()
         {
             AccessingParallel = false;
         }
 
-        // Primary read access
+        /// <summary>
+        /// Primary read access
+        /// </summary>
+        /// <param name="cellIndex"></param>
+        /// <returns></returns>
         public int Read(int cellIndex)
         {
             NoteSingleReadAccess(cellIndex);
             return SharedMemory.Read(cellIndex).Value;
         }
 
-        // Primary write access
+        /// <summary>
+        /// Primary write access
+        /// </summary>
+        /// <param name="cellIndex"></param>
+        /// <param name="value"></param>
         public void Write(int cellIndex, int value)
         {
             NoteSingleWriteAccess(cellIndex, value);

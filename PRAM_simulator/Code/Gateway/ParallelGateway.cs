@@ -6,6 +6,9 @@ using PRAM_lib.Memory;
 
 namespace PRAM_lib.Code.Gateway
 {
+    /// <summary>
+    /// A class that represents a gateway between a processor and a memory, used for parallel processors
+    /// </summary>
     internal class ParallelGateway : IGateway
     {
         internal MachineMemory? Memory { get; set; }

@@ -18,6 +18,9 @@ namespace PRAM_lib.Machine.Container
         Write,
         Common
     }
+    /// <summary>
+    /// Class that holds information about parallel access to memory. Is checked for illegal access.
+    /// </summary>
     public class ParallelAccessInfo
     {
         public ParallelAccessType Type { get; private set; }

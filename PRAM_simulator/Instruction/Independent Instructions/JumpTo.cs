@@ -4,6 +4,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    /// <summary>
+    /// A class representing a jump-to instruction.
+    /// </summary>
     internal class JumpTo : IInstruction
     {
         public int InstructionPointerIndex { get; }

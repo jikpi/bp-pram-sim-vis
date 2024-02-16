@@ -7,6 +7,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    /// <summary>
+    /// A class representing a parallel-do instruction, launching parallel machines.
+    /// </summary>
     internal class ParallelDo : IInstruction
     {
         public int InstructionPointerIndex { get; }

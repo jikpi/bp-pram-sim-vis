@@ -5,6 +5,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    /// <summary>
+    /// A class representing an if-jump-to instruction.
+    /// </summary>
     internal class IfJumpTo : IInstruction
     {
         public string JumpToLabel { get; }

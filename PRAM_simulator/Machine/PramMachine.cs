@@ -15,6 +15,9 @@ using System.Collections.ObjectModel;
 
 namespace PRAM_lib.Machine
 {
+    /// <summary>
+    /// A parallel random access machine.
+    /// </summary>
     public class PramMachine : IProcessor
     {
         internal MachineMemory SharedMemory { get; private set; }
@@ -85,6 +88,10 @@ namespace PRAM_lib.Machine
             CRCW_Access = CRCW_AccessType.Priority;
         }
 
+        /// <summary>
+        /// Return the current code line index.
+        /// </summary>
+        /// <returns></returns>
         public int GetCurrentCodeLineIndex()
         {
             if (!CheckIfCanContinue())
@@ -95,21 +102,38 @@ namespace PRAM_lib.Machine
             return MasterCodeMemory!.Instructions[MPIP.Value].CodeInstructionLineIndex;
         }
 
+        /// <summary>
+        /// Return the input memory
+        /// </summary>
+        /// <returns></returns>
         public ObservableCollection<MemoryCell> GetInputMemory()
         {
             return InputMemory.Cells;
         }
 
+        /// <summary>
+        /// Return the output memory
+        /// </summary>
+        /// <returns></returns>
         public ObservableCollection<MemoryCell> GetOutputMemory()
         {
             return OutputMemory.Cells;
         }
 
+        /// <summary>
+        /// Return the shared memory
+        /// </summary>
+        /// <returns></returns>
         public ObservableCollection<MemoryCell> GetSharedMemory()
         {
             return SharedMemory.Cells;
         }
 
+        /// <summary>
+        /// Return the memory of the parallel machine at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public ObservableCollection<MemoryCell>? GetParallelMachinesMemory(int index)
         {
             if (LaunchedParallelMachines == null || index >= LaunchedParallelMachines.Count)
@@ -125,41 +149,44 @@ namespace PRAM_lib.Machine
             MasterGateway.Refresh(SharedMemory, InputMemory, OutputMemory, MPIP, JumpMemory);
         }
 
-        //Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
+        /// <summary>
+        /// Calls the compiler and sets the MasterCodeMemory, or checks if it compiled and sets appropriate flags
+        /// </summary>
+        /// <param name="code"></param>
         public void Compile(string code)
         {
             string ErrorMessage;
             int ErrorLineIndex;
 
-            //try
-            //{
-            MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
+            try
+            {
+                MasterCodeMemory = Compiler.Compile(code, MasterGateway, InstructionRegex, out JumpMemory newJumpMemory, out List<ParallelMachineContainer> parallelMachines, out ErrorMessage, out ErrorLineIndex);
 
-            if (MasterCodeMemory == null) //Compilation failed
-            {
-                CompilationErrorMessage = ErrorMessage;
-                CompilationErrorLineIndex = ErrorLineIndex;
+                if (MasterCodeMemory == null) //Compilation failed
+                {
+                    CompilationErrorMessage = ErrorMessage;
+                    CompilationErrorLineIndex = ErrorLineIndex;
+                }
+                else //Compilation successful
+                {
+                    CompilationErrorMessage = null;
+                    CompilationErrorLineIndex = null;
+
+                    //Save the parallel machine containers
+                    ContainedParallelMachines = parallelMachines;
+
+                    //Set the new jump memory
+                    JumpMemory = newJumpMemory;
+                    RefreshGateway();
+
+                    Restart();
+                }
             }
-            else //Compilation successful
+            catch (Exception)
             {
-                CompilationErrorMessage = null;
+                CompilationErrorMessage = ExceptionMessages.BugCompilationError();
                 CompilationErrorLineIndex = null;
-
-                //Save the parallel machine containers
-                ContainedParallelMachines = parallelMachines;
-
-                //Set the new jump memory
-                JumpMemory = newJumpMemory;
-                RefreshGateway();
-
-                Restart();
             }
-            //}
-            //catch (Exception)
-            //{
-            //    CompilationErrorMessage = ExceptionMessages.BugCompilationError();
-            //    CompilationErrorLineIndex = null;
-            //}
 
         }
 
@@ -194,7 +221,11 @@ namespace PRAM_lib.Machine
             return true;
         }
 
-        // Start parallel
+        /// <summary>
+        /// Start parallel execution of the parallel machines
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="index"></param>
         private void ParallelDo(int count, int index)
         {
             CurrentParallelBatchIndex = index;
@@ -202,6 +233,11 @@ namespace PRAM_lib.Machine
             MasterGateway.AccessingParallelStart();
         }
 
+        /// <summary>
+        /// Do a single step of parallel execution
+        /// </summary>
+        /// <param name="relParallelMachine"></param>
+        /// <exception cref="Exception"></exception>
         internal void ExecuteNextParallel(out InParallelMachine? relParallelMachine)
         {
             relParallelMachine = null;
@@ -364,6 +400,11 @@ namespace PRAM_lib.Machine
             }
         }
 
+        /// <summary>
+        /// Execute the next instruction
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public bool ExecuteNextInstruction()
         {
             if (!CheckIfCanContinue())
@@ -435,7 +476,9 @@ namespace PRAM_lib.Machine
 
             return true;
         }
-
+        /// <summary>
+        /// Restart the relevant parts of the machine
+        /// </summary>
         public void Restart()
         {
             MPIP.Value = 0;
@@ -461,6 +504,9 @@ namespace PRAM_lib.Machine
             }
         }
 
+        /// <summary>
+        /// Clear the machine, unused because of binding
+        /// </summary>
         public void Clear()
         {
             Restart();
@@ -477,6 +523,9 @@ namespace PRAM_lib.Machine
             IllegalMemoryAccessType = null;
         }
 
+        /// <summary>
+        /// Clear the memory of the machine
+        /// </summary>
         public void ClearMemory()
         {
             SharedMemory.Clear();
@@ -491,12 +540,20 @@ namespace PRAM_lib.Machine
             }
         }
 
+        /// <summary>
+        /// Set concurrent read state
+        /// </summary>
+        /// <param name="state"></param>
         public void SetCRXW(bool state)
         {
             CRXW = state;
             RefreshGateway();
         }
 
+        /// <summary>
+        /// Set concurrent write state
+        /// </summary>
+        /// <param name="state"></param>
         public void SetXRCW(bool state)
         {
             XRCW = state;
@@ -588,6 +645,7 @@ namespace PRAM_lib.Machine
             return machine.AfterHaltedExecution;
         }
 
+        // Getters to get the memory object itself
         public IMemory GetInteractiveInputMemory => InputMemory;
         public IMemory GetInteractiveSharedMemory => SharedMemory;
     }

@@ -2,6 +2,9 @@
 
 namespace PRAM_lib.Instruction.Other.Interface
 {
+    /// <summary>
+    /// An interface for an instruction.
+    /// </summary>
     internal interface IInstruction
     {
         public void Execute(); //A method that executes an instruction

@@ -3,6 +3,9 @@ using PRAM_lib.Code.CustomExceptions.Other;
 
 namespace PRAM_lib.Code.Jumps
 {
+    /// <summary>
+    /// A class holding the memory of jumps in the code
+    /// </summary>
     internal class JumpMemory
     {
         private Dictionary<string, int> JumpMemoryDictionary { get; set; }

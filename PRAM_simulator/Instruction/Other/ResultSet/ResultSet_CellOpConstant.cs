@@ -5,7 +5,9 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A class that represents a result of an instruction, for example: S2 := S2 + 5
+    /// <summary>
+    /// A class that represents a result of an instruction, for example: S2 := S2 + 5
+    /// </summary>
     internal class ResultSet_CellOpConstant : IResultSet
     {
         public GatewayIndexSet Gateway { get; }

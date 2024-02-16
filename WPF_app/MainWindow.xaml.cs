@@ -128,11 +128,12 @@ namespace WPF_app
             ResetCodeEditorColor();
             if (RichTextBoxCode.Document.Blocks.Count > 0)
             {
-                Paragraph paragraph = RichTextBoxCode.Document.Blocks.ElementAt(index) as Paragraph;
+                Paragraph? paragraph = RichTextBoxCode.Document.Blocks.ElementAt(index) as Paragraph;
 
                 if (paragraph != null && paragraph.Inlines.Count > 0)
                 {
-                    (paragraph.Inlines.FirstInline as Run).Foreground = Brushes.Red;
+
+                    ((Run)paragraph.Inlines.FirstInline).Foreground = Brushes.Red;
                 }
             }
         }

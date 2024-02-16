@@ -5,6 +5,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    /// <summary>
+    /// A class representing a write-output instruction. Writes to output memory from shared memory at specified index.
+    /// </summary>
     internal class WriteOutput : IInstruction
     {
         public IResultSet Result { get; }

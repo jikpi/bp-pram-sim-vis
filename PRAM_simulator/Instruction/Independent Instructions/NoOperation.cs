@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Independent_Instructions
 {
+    /// <summary>
+    /// A class representing a no-operation instruction.
+    /// </summary>
     internal class NoOperation : IInstruction
     {
         public int InstructionPointerIndex { get; set; }

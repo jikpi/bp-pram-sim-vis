@@ -5,6 +5,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
+    /// <summary>
+    /// A class representing a set-memory-to-result instruction.
+    /// </summary>
     internal class SetMemoryToResult : IInstruction
     {
         public IResultSet Result { get; }

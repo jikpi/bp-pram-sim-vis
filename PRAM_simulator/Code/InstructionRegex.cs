@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace PRAM_lib.Code
 {
+    /// <summary>
+    /// A class that holds all the regexes for the instructions of the PRAM language
+    /// </summary>
     public class InstructionRegex
     {
         public Regex Comment { get; private set; } //Not a real instruction
@@ -76,7 +79,9 @@ namespace PRAM_lib.Code
             NoOperation = DefNoOperation;
             ResultSet_IndirectPointer = DefResultSet_IndirectPointer;
         }
-
+        /// <summary>
+        /// Reset all regexes to their default values
+        /// </summary>
         public void ResetToDefault()
         {
             Comment = DefComment;
@@ -102,7 +107,10 @@ namespace PRAM_lib.Code
             ResultSet_IndirectPointer = DefResultSet_IndirectPointer;
         }
 
-        //Return a string with all the regexes, with property names on first line, and regex patterns on second line, in pairs.
+        /// <summary>
+        /// Return a string with all the regexes, with property names on first line, and regex patterns on second line, in pairs.
+        /// </summary>
+        /// <returns></returns>
         public string SaveToText()
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -153,8 +161,13 @@ namespace PRAM_lib.Code
             return sb.ToString();
         }
 
-        //Load pairs of property name and regex pattern from a string, and set the properties to the regexes using reflection.
-        //Should anything go wrong, return false and set errorMessage.
+        /// <summary>
+        /// Load pairs of property name and regex pattern from a string, and set the properties to the regexes using reflection.
+        /// Should anything go wrong, return false and set errorMessage.
+        /// </summary>
+        /// <param name="plaintext"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
         public bool LoadFromText(string plaintext, out string errorMessage)
         {
             errorMessage = string.Empty;
@@ -221,7 +234,10 @@ namespace PRAM_lib.Code
         }
 
 
-        //Return a dictionary of all regexes, with their names as keys
+        /// <summary>
+        /// Return a dictionary of all regexes, with their names as keys
+        /// </summary>
+        /// <returns></returns>
         public System.Collections.Generic.Dictionary<string, Regex> GetRegexes()
         {
             return new System.Collections.Generic.Dictionary<string, Regex>
@@ -250,7 +266,12 @@ namespace PRAM_lib.Code
             };
         }
 
-        //Set a regex by name, and check if the group count is correct. Return true if the group count is correct, false otherwise
+        /// <summary>
+        /// Set a regex by name, and check if the group count is correct. Return true if the group count is correct, false otherwise
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
         public bool SetRegex(string name, string pattern)
         {
             try

@@ -5,7 +5,9 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Master_Instructions
 {
-    //A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a ResultSet
+    /// <summary>
+    /// A class that represents a [S1] := <RESULT> instruction, where <RESULT> is a ResultSet
+    /// </summary>
     internal class SetPointerToResult : IInstruction
     {
         public int InstructionPointerIndex { get; }

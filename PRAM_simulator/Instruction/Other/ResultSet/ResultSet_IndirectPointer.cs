@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Other.ResultSet
 {
+    /// <summary>
+    /// A result set that allows the reading of a value by pointers. Independent of the memory type.
+    /// </summary>
     internal class ResultSet_IndirectPointer : IResultSet
     {
         public GatewayIndexSet Gateway { get; }

@@ -15,14 +15,11 @@ using System.Text.RegularExpressions;
 
 namespace PRAM_lib.Code.Compiler
 {
-    //A class that compiles code into CodeMemory
+    /// <summary>
+    /// A class that compiles code into CodeMemory
+    /// </summary>
     internal class CodeCompiler
     {
-        public CodeCompiler()
-        {
-
-        }
-
         private Operation DetermineOperation(string operation)
         {
             switch (operation)

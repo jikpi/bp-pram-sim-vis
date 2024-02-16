@@ -20,15 +20,19 @@ namespace PRAM_lib.Instruction.Other.InstructionResult.Interface
         Mod
     }
 
-    //For instruction "SetMemoryToResult", where SetMemoryToResult is only "S2 := " and the rest is all possible <RESULT>
-    //An interface for instruction result, that is for example S2 := <RESULT>
+    /// <summary>
+    /// For instruction "SetMemoryToResult", where SetMemoryToResult is only "S2 := " and the rest is all possible <RESULT>
+    /// An interface for instruction result, that is for example S2 := <RESULT>
+    /// </summary>
     internal interface IResultSet
     {
         public int GetResult();
         public IResultSet DeepCopyToParallel(ParallelGateway gateway);
     }
 
-    // For instruction "ComparisonSet"
+    /// <summary>
+    /// For instruction "ComparisonSet"
+    /// </summary>
     internal interface IComparisonSet
     {
         public bool GetResult();

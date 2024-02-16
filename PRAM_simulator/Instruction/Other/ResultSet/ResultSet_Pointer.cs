@@ -3,7 +3,9 @@ using PRAM_lib.Instruction.Other.InstructionResult.Interface;
 
 namespace PRAM_lib.Instruction.Other.InstructionResult
 {
-    //A class that represents a result of an instruction, that is for example S2 := [S3]
+    /// <summary>
+    /// A class that represents a result of an instruction, that is for example S2 := [S3]
+    /// </summary>
     internal class ResultSet_Pointer : IResultSet
     {
         private GatewayIndexSet gateway { get; }

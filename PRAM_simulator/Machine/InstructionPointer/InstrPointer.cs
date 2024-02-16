@@ -1,5 +1,8 @@
 ﻿namespace PRAM_lib.Machine.InstructionPointer
 {
+    /// <summary>
+    /// A class representing an instruction pointer.
+    /// </summary>
     public class InstrPointer
     {
         private int _value;

@@ -4,8 +4,11 @@ using PRAM_lib.Instruction.Other.Interface;
 
 namespace PRAM_lib.Instruction.Parallel_Instructions
 {
-    //A class that represents a indirection between any memory
-    //For example P{L1} := {i}
+    /// <summary>
+    /// A class that represents a indirection between any memory
+    /// For example P{L1} := {i}
+    /// </summary>
+
     internal class IndirectMultiMemoryToResult : IInstruction
     {
         public int InstructionPointerIndex { get; }

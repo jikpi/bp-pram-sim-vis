@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PRAM_lib.Instruction.Independent_Instructions
 {
+    /// <summary>
+    /// A class representing a halt instruction.
+    /// </summary>
     internal class Halt : IInstruction
     {
         public int InstructionPointerIndex { get; }

@@ -2,6 +2,9 @@
 
 namespace PRAM_lib.Code.Gateway
 {
+    /// <summary>
+    /// A set of gateway and memory address index
+    /// </summary>
     internal class GatewayIndexSet
     {
         private IGateway Gateway { get; set; }
