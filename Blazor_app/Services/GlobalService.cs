@@ -107,6 +107,10 @@ namespace Blazor_app.Services
             DefaultRegex = regex;
         }
 
+        // ## Machine import management
+
+        public string? LastImportedMachine { get; set; } = null;
+
 
 
         //## Test code

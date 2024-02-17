@@ -79,6 +79,11 @@ A major razor component for settings.
                         @onclick="ExportMachine">
                     Export
                 </button>
+
+                <button type="button" class="btn btn-warning"
+                        @onclick="ReimportMachine">
+                    Re-Import
+                </button>
             </div>
         </div>
 
@@ -198,6 +203,14 @@ A major razor component for settings.
         JSRuntime.InvokeVoidAsync("initializeUpload", dotNetReference, "fileInput", "ReceiveMachineFileContent");
     }
 
+    private void ReimportMachine()
+    {
+        if(globalService.LastImportedMachine != null)
+        {
+            ReceiveMachineFileContent(globalService.LastImportedMachine);
+        }
+    }
+
     [JSInvokable]
     public Task ReceiveMachineFileContent(string fileContent)
     {
@@ -244,6 +257,7 @@ A major razor component for settings.
             globalService.SetLastState(TextUIService.StateIndicatorMachineImportedSuccessfully, GlobalService.LastStateUniform.Note);
         }
 
+        globalService.LastImportedMachine = fileContent;
         navigationManager.NavigateTo("/");
         return Task.CompletedTask;
     }
