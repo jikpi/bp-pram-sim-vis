@@ -439,6 +439,11 @@ namespace Blazor_app.Services
             }
         }
 
+        public int GetRunningParallelMachineCount()
+        {
+            return _pramMachine.RunningParallelMachinesCount;
+        }
+
         public ObservableCollection<PRAM_lib.Memory.MemoryCell>? GetParallelMachineMemory(int machineIndex)
         {
             if (HistoryOffset == null)

@@ -4,7 +4,6 @@ Author: Jan Kopidol
 A razor component for common controls of the PRAM machine.
 
 -->
-
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @inject GlobalService globalService
@@ -17,24 +16,22 @@ A razor component for common controls of the PRAM machine.
         flex-wrap: wrap;
     }
 
-    .button-group .btn:not(:last-child) {
-        margin-right: 3px;
-    }
+        .button-group .btn:not(:last-child) {
+            margin-right: 3px;
+        }
 </style>
 
-<div class="button-group">
+<div class="button-group d-flex flex-wrap align-items-center justify-content-center">
     @if (globalService.SaveHistory)
     {
-        <button class="btn btn-primary" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
+        <button class="btn btn-primary me-2 mb-2" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
     }
-    <button class="btn btn-primary" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
-    <button class="btn btn-primary" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
-    <button class="btn btn-primary" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
-    <button class="btn btn-primary" @onclick="Reset">@TextUIService.ExecutionReset</button>
+    <button class="btn btn-primary me-2 mb-2" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
+    <button class="btn btn-primary me-2 mb-2" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
+    <button class="btn btn-primary me-2 mb-2" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
+    <button class="btn btn-primary me-2 mb-2" @onclick="Reset">@TextUIService.ExecutionReset</button>
 
-    <div class="text-center">@TextUIService.ExecutionStepsCount(execService.StepsTotal, execService.StepsIncludingParallel)</div>
-
-
+    <div class="text-center mb-2">@TextUIService.CurrentExecutionInfo(execService.StepsTotal, execService.StepsIncludingParallel, execService.GetRunningParallelMachineCount())</div>
 </div>
 
 

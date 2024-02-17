@@ -44,6 +44,7 @@ namespace PRAM_lib.Machine
         public bool IsHalted { get; private set; }
         public bool IsRunningParallel => LaunchedParallelMachines != null;
         public int ParallelMachinesCount => LaunchedParallelMachines?.Count ?? 0;
+        public int RunningParallelMachinesCount => LaunchedParallelMachines?.Count(x => !x.IsHalted) ?? 0;
         private bool CRXW { get; set; }
         private bool ERXW { get => !CRXW; set => CRXW = !value; }
         private bool XRCW { get; set; }

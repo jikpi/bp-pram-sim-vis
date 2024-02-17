@@ -94,17 +94,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
 
                 if (!pramCodeViewService.ShowHaltedParallelMachines && GetParallelMachineIsAfterHalted(i))
                 {
-                    if(pramMachine.IllegalMemoryAccess)
-                    {
-                        if(execService.IsInHistory)
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
         if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))

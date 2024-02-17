@@ -14,7 +14,7 @@
         public static string ExecutionStepUntilBreakpoint { get; private set; } = "🔴 Run Until Breakpoint";
         public static string ExecutionAutoRun { get; private set; } = "⏯ Auto Run";
         public static string ExecutionReset { get; private set; } = "🧹 Reset";
-        public static string ExecutionStepsCount(int stepsCount, int parallelStepsCount) => $"Steps: {stepsCount} Steps including parallel: {parallelStepsCount}";
+        public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Steps: {stepsCount} Steps including parallel: {parallelStepsCount} \n Running paralell machines: {(runningParallelMachines > 0 ? $"🟥 {runningParallelMachines}" : "0" )}";
 
         //Home page
         public static string HomePageCodeEditorCancel { get; private set; } = "Cancel";
