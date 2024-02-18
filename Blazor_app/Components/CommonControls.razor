@@ -10,6 +10,16 @@ A razor component for common controls of the PRAM machine.
 @inject ExecutionService execService
 
 <style>
+
+    .sticky-top {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background-color: white;
+        border-bottom: 1px solid #dee2e6;
+    }
+
     .button-group {
         display: flex;
         justify-content: center;
@@ -19,19 +29,25 @@ A razor component for common controls of the PRAM machine.
         .button-group .btn:not(:last-child) {
             margin-right: 3px;
         }
+
+    .larger-text {
+        font-size: 1.2em;
+    }
 </style>
 
-<div class="button-group d-flex flex-wrap align-items-center justify-content-center">
-    @if (globalService.SaveHistory)
-    {
-        <button class="btn btn-primary me-2 mb-2" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
-    }
-    <button class="btn btn-primary me-2 mb-2" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
-    <button class="btn btn-primary me-2 mb-2" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
-    <button class="btn btn-primary me-2 mb-2" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
-    <button class="btn btn-primary me-2 mb-2" @onclick="Reset">@TextUIService.ExecutionReset</button>
+<div class="sticky-top">
+    <div class="button-group d-flex flex-wrap align-items-center justify-content-center">
+        @if (globalService.SaveHistory)
+        {
+            <button class="btn btn-primary me-2 mb-2" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
+        }
+        <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
+        <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
+        <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
+        <button class="btn btn-primary me-2 mb-2" @onclick="Reset">@TextUIService.ExecutionReset</button>
 
-    <div class="text-center mb-2">@TextUIService.CurrentExecutionInfo(execService.StepsTotal, execService.StepsIncludingParallel, execService.GetRunningParallelMachineCount())</div>
+        <div class="text-center mb-2 larger-text">@TextUIService.CurrentExecutionInfo(execService.StepsTotal, execService.StepsIncludingParallel, execService.GetRunningParallelMachineCount())</div>
+    </div>
 </div>
 
 
@@ -45,6 +61,12 @@ A razor component for common controls of the PRAM machine.
 
     private void SubscribeToEvents()
     {
+        execService.CommonControlsRefreshed += Refresh;
+    }
+
+    private void Refresh()
+    {
+        StateHasChanged();
     }
 
     // UNUSED Reset history steps
@@ -110,7 +132,23 @@ A razor component for common controls of the PRAM machine.
         ResolveResetHistorySteps();
     }
 
+    private string GetNextButtonClass()
+    {
+        if (execService.IsInHistory)
+        {
+            return "btn btn-primary";
+        }
+
+        if (execService.CanMachineExecute())
+        {
+            return "btn btn-primary";
+        }
+
+        return "btn btn-secondary";
+    }
+
     public void Dispose()
     {
+        execService.CommonControlsRefreshed -= Refresh;
     }
 }

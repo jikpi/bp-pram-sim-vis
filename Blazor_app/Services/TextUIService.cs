@@ -10,11 +10,12 @@
 
         // Execution, common controls
         public static string ExecutionStepBack { get; private set; } = "🔺 Step back";
+        public static string ExecutionToPresent { get; private set; } = "🔁 Step to present";
         public static string ExecutionStepForward { get; private set; } = "🟢 Step forward";
         public static string ExecutionStepUntilBreakpoint { get; private set; } = "🔴 Run Until Breakpoint";
         public static string ExecutionAutoRun { get; private set; } = "⏯ Auto Run";
         public static string ExecutionReset { get; private set; } = "🧹 Reset";
-        public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Steps: {stepsCount} Steps including parallel: {parallelStepsCount} \n Running paralell machines: {(runningParallelMachines > 0 ? $"🟥 {runningParallelMachines}" : "0" )}";
+        public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Running paralell machines: {(runningParallelMachines > 0 ? $"🟥 [{runningParallelMachines}]" : "[0]")} Steps: [{stepsCount}] Steps including parallel: [{parallelStepsCount}]";
 
         //Home page
         public static string HomePageCodeEditorCancel { get; private set; } = "Cancel";

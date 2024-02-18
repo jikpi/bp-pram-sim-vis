@@ -493,6 +493,7 @@ namespace PRAM_lib.Machine
             OutputMemory.ResetMemoryPointer();
             IllegalMemoryAccesses.Clear();
             ExecutionErrorLineIndex = null;
+            MasterGateway.AccessingParallelEnd();
 
             CurrentParallelBatchIndex = -1;
             LaunchedParallelMachines = null;

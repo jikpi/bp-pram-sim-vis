@@ -4,7 +4,6 @@ Author: Jan Kopidol
 A major razor component for settings.
 
 -->
-
 @page "/settings"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
@@ -15,6 +14,7 @@ A major razor component for settings.
 @inject GlobalService globalService
 @inject PramMachine pramMachine
 @inject CodeEditorService codeEditorService
+@inject ExecutionService execService
 
 
 <div class="container mt-5">
@@ -63,6 +63,13 @@ A major razor component for settings.
                         }
                     </select>
                 </div>
+
+                @if (execService.IsInHistory)
+                {
+                    <div class="form-group mt-3">
+                        <button class="btn btn-primary me-2 mb-2" @onclick="execService.StepToPresent">@TextUIService.ExecutionToPresent</button>
+                    </div>
+                }
 
             </div>
         </div>
@@ -205,9 +212,10 @@ A major razor component for settings.
 
     private void ReimportMachine()
     {
-        if(globalService.LastImportedMachine != null)
+        if (globalService.LastImportedMachine != null)
         {
             ReceiveMachineFileContent(globalService.LastImportedMachine);
+            execService.CompileCode();
         }
     }
 

@@ -22,6 +22,7 @@ namespace Blazor_app.Services
 
         public event Action MemoryRefreshed;
         public event Action PramCodeRefreshed;
+        public event Action CommonControlsRefreshed;
 
 
         private Timer _timer;
@@ -30,6 +31,7 @@ namespace Blazor_app.Services
 
         public int StepsTotal { get; private set; } = 0;
         public int StepsIncludingParallel { get; private set; } = 0;
+        private bool ShownErrorMessage { get; set; } = false;
 
 
 
@@ -50,6 +52,7 @@ namespace Blazor_app.Services
             MemoryRefreshed += () => { };
             PramCodeRefreshed += () => { };
             _globalService.HistoryToggled += HistoryToggled;
+            CommonControlsRefreshed += () => { };
 
             _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
 
@@ -74,6 +77,16 @@ namespace Blazor_app.Services
         public void RefreshPramView()
         {
             PramCodeRefreshed?.Invoke();
+        }
+
+        public void RefreshCommonControls()
+        {
+            CommonControlsRefreshed?.Invoke();
+        }
+
+        public bool CanMachineExecute()
+        {
+            return _pramMachine.IsCompiled && !_pramMachine.IsHalted && !_pramMachine.IsCrashed;
         }
 
         // Logic for UI in machine step, is used to update the UI, called after the machine has executed an instruction/s
@@ -130,7 +143,6 @@ namespace Blazor_app.Services
                     if (IsRunningParallel && !_pramMachine.IsRunningParallel)
                     {
                         _navigationManager.NavigateTo("/");
-                        _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
                     else if (!IsRunningParallel && _pramMachine.IsRunningParallel)
                     {
@@ -142,10 +154,12 @@ namespace Blazor_app.Services
                     {
                         RefreshPramView();
                     }
-                    else if (!IsRunningParallel)
+
+                    if(!ShownErrorMessage)
                     {
                         _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
+                    ShownErrorMessage = true;
 
                     _globalService.SetLastState(TextUIService.StateIndicatorExecutionStop(_pramMachine.ExecutionErrorMessage), GlobalService.LastStateUniform.Error);
                 }
@@ -209,6 +223,7 @@ namespace Blazor_app.Services
             _navigationManager.NavigateTo("/");
             _historyMemoryService.Reset();
             HistoryOffset = null;
+            ShownErrorMessage = false;
 
             StepsIncludingParallel = 0;
             StepsTotal = 0;
@@ -227,6 +242,7 @@ namespace Blazor_app.Services
             ResetParallelRunningState();
             _historyMemoryService.Reset();
             HistoryOffset = null;
+            ShownErrorMessage = false;
 
             StepsIncludingParallel = 0;
             StepsTotal = 0;
@@ -243,6 +259,7 @@ namespace Blazor_app.Services
                 _codeEditorService.CodeToViewMode(_pramMachine.CompilationErrorLineIndex ?? -1);
             }
 
+            RefreshCommonControls();
             RefreshMemory();
         }
 
@@ -335,7 +352,7 @@ namespace Blazor_app.Services
                 if (_codeEditorService.Breakpoints.Count > 0)
                 {
                     //Stop if breakpoint in RAM is hit
-                    if (_codeEditorService.Breakpoints.Contains(_pramMachine.GetCurrentCodeLineIndex()))
+                    if (_codeEditorService.Breakpoints.Contains(_pramMachine.GetCurrentCodeLineIndex()) && !_pramMachine.IsRunningParallel)
                     {
                         break;
                     }
@@ -350,7 +367,7 @@ namespace Blazor_app.Services
                             int parallelMachineCodeLineIndex = _pramMachine.GetParallelMachineCodeLineIndex(j) ?? 0;
                             int parallelMachineRamCodeLineIndex = parallelMachineCodeLineIndex + lastRamCodeLineIndex + 1;
 
-                            //Stop if breakpoint in parallel machine RAM is hit
+                            //Stop if breakpoint in parallel RAM is hit
                             if (_codeEditorService.Breakpoints.Contains(parallelMachineRamCodeLineIndex))
                             {
                                 isParallelBreakpoint = true;
@@ -567,6 +584,12 @@ namespace Blazor_app.Services
                 IsRunningParallel = true;
             }
 
+            if(!IsRunningParallel )
+            {
+                _navigationManager.NavigateTo("/pramview");
+                IsRunningParallel = true;
+            }
+
 
             _pramCodeViewService.SetPramCode(code);
             _lastBatchIndex = batchIndex;
@@ -643,8 +666,20 @@ namespace Blazor_app.Services
             HistoryOffset = null;
             _globalService.SetLastState(TextUIService.StateIndicatorHistorySetToPresent, GlobalService.LastStateUniform.Note);
             RefreshMemory();
+            RefreshCommonControls();
+            RefreshPramView();
             _codeEditorService.UpdateExecutingLine(GetMasterCodeIndex());
-            ResolveUIParallelHistory();
+
+            if (_pramMachine.IsRunningParallel)
+            {
+                _navigationManager.NavigateTo("/pramview");
+                IsRunningParallel = true;
+            }
+            else
+            {
+                _navigationManager.NavigateTo("/");
+                IsRunningParallel = false;
+            }
         }
 
         private void HistoryToggled(bool value)
