@@ -654,5 +654,6 @@ namespace PRAM_lib.Machine
         // Getters to get the memory object itself
         public IMemory GetInteractiveInputMemory => InputMemory;
         public IMemory GetInteractiveSharedMemory => SharedMemory;
+        public IMemory GetInteractiveOutputMemory => OutputMemory;
     }
 }

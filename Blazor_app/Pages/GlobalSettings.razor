@@ -17,7 +17,7 @@ A major razor component for settings.
 @inject ExecutionService execService
 
 
-<div class="container mt-5">
+<div class="container mt-3">
     <h3 class="text-center mb-4">Settings</h3>
 
     <div class="d-flex flex-column align-items-center">
@@ -216,6 +216,7 @@ A major razor component for settings.
         {
             ReceiveMachineFileContent(globalService.LastImportedMachine);
             execService.CompileCode();
+            pramMachine.GetInteractiveOutputMemory.Clear();
         }
     }
 

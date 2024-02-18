@@ -34,7 +34,7 @@ else
         {
             var lineClass = GetLineClass(line.Key);
             <div class="@lineClass code-line">
-                @if (lineClass.Equals("code-label-jump") || lineClass.Equals("code-comment") || string.IsNullOrWhiteSpace(line.Value))
+                @if (lineClass.Equals("code-label-jump") || lineClass.Equals("code-comment") || lineClass.Equals("code-pardo") || lineClass.Equals("code-parend") || string.IsNullOrWhiteSpace(line.Value))
                 {
                     if (string.IsNullOrWhiteSpace(line.Value))
                     {

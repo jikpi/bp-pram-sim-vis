@@ -1,0 +1,231 @@
+﻿<!--
+Author: Jan Kopidol
+
+A major razor component for about page.
+
+-->
+@page "/about"
+
+<style>
+    .text-container-center {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: left;
+    }
+</style>
+
+<div class="container mt-3">
+    <h3 class="text-center mb-4">About</h3>
+
+    <div class="d-flex flex-column align-items-center text-container-center">
+        <h4 class="text-center">Info</h4>
+        <p>By Jan Kopidol</p>
+        <br />
+        <p>
+            This application is a capable PRAM simulator, supporting the variants EREW, CREW, CRCW (Priority, Arbitrary, Common). Code is executed synchronously.
+            This model starts as a RAM machine that can launch parallel machines, thus optionally allowing elegant managment of resources and parallel machines, simplyfying the code of parallel machines
+        </p>
+        <br />
+        <h4 class="text-center">Getting started</h4>
+        <p>
+            The user can create a PRAM machine code, run the simulation, and view the results.
+        </p>
+
+        <h4>On the Main Page, the user may observe:</h4>
+        <ul>
+            <li>Status text under the navigation menu, displaying currently relevant information</li>
+            <li>Common controls at the top:</li>
+            <li>
+                <ul>
+                    <li>Step Back: Go backwards in the machine execution progress</li>
+                    <li>Step Forward: Go forwards in the machine execution progress</li>
+                    <li>Run until breakpoint: Run the machine until a breakpoint is hit or halts</li>
+                    <li>Toggle auto run: Run the machine automatically</li>
+                    <li>Reset the machine: Reset the machine, without clearing memory. (Local memory in parallel machines is cleared)</li>
+                    <li>Current run statistics, such as the number of currently running parallel machines, and the total number of steps taken</li>
+                </ul>
+            </li>
+            <li>The code textbox, which changes after compilation into user friendly code view box</li>
+            <li>
+                <ul>
+                    <li>Compilation button, that compiles the code</li>
+                    <li>Cancel button, that returns the editor to its previous state</li>
+                    <li>Edit button if the machine was compiled, that unlocks the text box to edit / write new code.</li>
+                </ul>
+            </li>
+            <li>Memory view, that displays the memory of the machine and allows the user to edit it</li>
+            <li>
+                <ul>
+                    <li>It can be cleared with the clear button above it</li>
+                    <li>New cells can be added with the + button under it.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>To start:</h4>
+        <ul>
+            <li>On the main page, write the code into the desiganted text box</li>
+            <li>Compile the code. If it doesn't succesfully compile, the bad line will be highlighted.</li>
+            <li>The machine can now be launched. The user can either:</li>
+            <li>
+                <ul>
+                    <li>Run the machine step by step</li>
+                    <li>Run the machine until a breakpoint is hit (or unitl it halts if there are no breakpoints)</li>
+                    <li>Toggle auto run, which will step the machine automatically</li>
+                </ul>
+            </li>
+            <li>After each step, the state of the machine is updated.</li>
+            <li>
+                <ul>
+                    <li>The user can observe the code view highlighting the line that will be executed in the next step</li>
+                    <li>The memory view will display the current memory of the machine</li>
+                </ul>
+            </li>
+            <li>Should the machine crash, the problematic line will be highlighted, and the error message will be shown in the status text.</li>
+            <li>
+                The machine may launch parallel machines after executing an instruction to do so, after which the page is switched to "PRAM View"
+            </li>
+        </ul>
+
+        <h4>On the PRAM View page, the user may observe: </h4>
+        <ul>
+            <li>The common controls, which are the same as on the home page</li>
+            <li>The paralell concurency / exclusivity toggle checkboxes</li>
+            <li>A textbox to filter which paralell machines should be displayed</li>
+            <li>
+                <ul>
+                    <li>
+                        The user may set a new filter using the syntax as described in the textbox
+                    </li>
+                    <li>The user may add a new to the existing one, by starting with the '+' character followed immidiately by the new filter</li>
+                    <li>The user may reset the filter</li>
+                </ul>
+            </li>
+            <li>A checkbox to always hide halted parallel machines.</li>
+            <li>A memory view on the left displaying shared memory</li>
+            <li>Rows of boxes that show each individual launched paralell machine with:</li>
+            <li>
+                <ul>
+                    <li>The index of the machine</li>
+                    <li>The state of the machine, should it be halted, crashed, or attempted to access the shared memory illegally</li>
+                    <li>The code view of each machine, with the next line to be executed highlighted</li>
+                    <li>The local memory of each machine</li>
+                </ul>
+            </li>
+            <li>Should any paralell machine/machines crash, the relevant code line will be highlighted in pink.</li>
+            <li>Should any paralell machines access memory illegally, the relevant code line will be highlighted in orange</li>
+        </ul>
+
+        <h4>Breakpoints</h4>
+        <ul>
+            <li>They can be set in the code view by clicking the checkbox next to the line in code view</li>
+            <li>They can be removed by clicking the checkbox again</li>
+            <li>They can be set and removed while the machine is running</li>
+            <li>If a breakpoint is set in the paralell section of the code, it will stop executing should any parallel machine reach it</li>
+        </ul>
+
+        <h4>History</h4>
+        <p>During execution, history is saved, allowing the user to step back in the execution</p>
+        <ul>
+            <li>The size of history is limited, and if the max size is reached, the oldest entries are dropped</li>
+            <li>It can be disabled in settings</li>
+            <li>Breakpoints don't affect history in any way. If the user is viewing a record from history and "Run until breakpoint" is clicked, the machine continues where it left off</li>
+            <li>History is saved in any execution mode</li>
+            <li>The user can jump to present machine state with the appropriate button in settings</li>
+        </ul>
+
+        <h4>Settings</h4>
+        <p>Settings can be accessed from the navigation menu. The user can:</p>
+        <ul>
+            <li>Change relevant run configuration: </li>
+            <li>
+                <ul>
+                    <li>Change auto step speed</li>
+                    <li>Hide unset memory cells to save display space</li>
+                    <li>Enable/Disable history</li>
+                    <li>Fix parallel machine code in place to save display space, and set the number of displayed lines</li>
+                    <li>Set the CRCW access type</li>
+                </ul>
+            </li>
+            <li>Import / export a machine</li>
+            <li>
+                <ul>
+                    <li>Import a machine from a file</li>
+                    <li>Export a machine to a file</li>
+                    <li>Re-Import a machine, importing the last imported machine</li>
+                    <li>Code, input memory and shared memory are imported/exported</li>
+                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled</li>
+                    <li>If a machine is imported and the PRAM syntax regex is non-default, a warnign is displayed.</li>
+                </ul>
+            </li>
+            <li>Import / export PRAM syntax regex</li>
+            <li>
+                <ul>
+                    <li>Import a regex from a file</li>
+                    <li>Export a regex to a file</li>
+                    <li>Reset the regex to default</li>
+                </ul>
+            </li>
+
+            <li>Edit PRAM syntax regex with some validity checking</li>
+        </ul>
+
+        <h4>Parallel shared memory access / PRAM variant</h4>
+        <p>The variant of the PRAM determines the behaviour during paralell memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the "master" RAM is idle.
+            Whether the memory access was legal is checked after every step, after every paralell machine has executed its instruction.
+        </p>
+        <ul>
+            <li>EREW: Exclusive Read Exclusive Write</li>
+            <li>
+                <ul>
+                    <li>In a single step, a shared memory cell might be only either read from or written to by a single parallel machine</li>
+                </ul>
+            </li>
+            <li>CREW: Concurrent Read Exclusive Write</li>
+            <li>
+                <ul>
+                    <li>In a single step, a shared memory cell might be read from by any number of parallel machines, but only written to by a single parallel machine</li>
+                    <li>If in a single step the cell is being written to, it cannot be read from.</li>
+                </ul>
+            </li>
+
+            <li>CRCW: Concurrent Read Concurrent Write</li>
+            <li>
+                <ul>
+                    <li>Common</li>
+                    <li>
+                        <ul>
+                            <li>In a single step, any number of paralell machines can write into the same memory cell, if they are writing the same value</li>
+                            <li>If in a single step the cell is being written to, it cannot be read from.</li>
+                        </ul>
+                    </li>
+
+                    <li>Priority</li>
+                    <li>
+                        <ul>
+                            <li>In a single step, any number of paralell machines can write into the same memory cell, but only the value of a parallel machine with the smallest index is written.</li>
+                            <li>The cell may be read from at the same time as it is being written to. The value read is determined by the priority.</li>
+                            <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step "10" is written in the shared memory cell, and "20" is read by PM1. Depending on the order, the original value of the cell before any write might be read.</li>
+                        </ul>
+                    </li>
+
+                    <li>Arbitrary</li>
+                    <li>
+                        <ul>
+                            <li>In a single step, any number of paralell machines can write into the same memory cell, but only the value of a randomly chosen parallel machine is written.</li>
+                            <li>The cell may be read from at the same time as it is being written to. The value read is determined arbitrarily.</li>
+                            <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step, one of the values that was being written is in the shared memory cell, and a random value that was being written is read by PM1, including the value that was in the cell originally</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>Code syntax</h4>
+
+    </div>
+</div>
+
+@code {
+
+}
