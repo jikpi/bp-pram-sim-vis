@@ -10,7 +10,7 @@ namespace PRAM_lib.Instruction.Parallel_Instructions
 {
     /// <summary>
     /// A class that represents a indirection between any memory
-    /// For example P{L1} := {i}
+    /// For example S{L1} := {i}
     /// </summary>
 
     internal class IndirectMultiMemoryToResult : IInstruction

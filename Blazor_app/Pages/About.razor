@@ -90,8 +90,8 @@ A major razor component for about page.
         <h4>On the PRAM View page, the user may observe: </h4>
         <ul>
             <li>The common controls, which are the same as on the home page</li>
-            <li>The paralell concurency / exclusivity toggle checkboxes</li>
-            <li>A textbox to filter which paralell machines should be displayed</li>
+            <li>The parallel concurency / exclusivity toggle checkboxes</li>
+            <li>A textbox to filter which parallel machines should be displayed</li>
             <li>
                 <ul>
                     <li>
@@ -103,7 +103,7 @@ A major razor component for about page.
             </li>
             <li>A checkbox to always hide halted parallel machines.</li>
             <li>A memory view on the left displaying shared memory</li>
-            <li>Rows of boxes that show each individual launched paralell machine with:</li>
+            <li>Rows of boxes that show each individual launched parallel machine with:</li>
             <li>
                 <ul>
                     <li>The index of the machine</li>
@@ -112,8 +112,8 @@ A major razor component for about page.
                     <li>The local memory of each machine</li>
                 </ul>
             </li>
-            <li>Should any paralell machine/machines crash, the relevant code line will be highlighted in pink.</li>
-            <li>Should any paralell machines access memory illegally, the relevant code line will be highlighted in orange</li>
+            <li>Should any parallel machine/machines crash, the relevant code line will be highlighted in pink.</li>
+            <li>Should any parallel machines access memory illegally, the relevant code line will be highlighted in orange</li>
         </ul>
 
         <h4>Breakpoints</h4>
@@ -121,7 +121,7 @@ A major razor component for about page.
             <li>They can be set in the code view by clicking the checkbox next to the line in code view</li>
             <li>They can be removed by clicking the checkbox again</li>
             <li>They can be set and removed while the machine is running</li>
-            <li>If a breakpoint is set in the paralell section of the code, it will stop executing should any parallel machine reach it</li>
+            <li>If a breakpoint is set in the parallel section of the code, it will stop executing should any parallel machine reach it</li>
         </ul>
 
         <h4>History</h4>
@@ -171,8 +171,8 @@ A major razor component for about page.
         </ul>
 
         <h4>Parallel shared memory access / PRAM variant</h4>
-        <p>The variant of the PRAM determines the behaviour during paralell memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the "master" RAM is idle.
-            Whether the memory access was legal is checked after every step, after every paralell machine has executed its instruction.
+        <p>The variant of the PRAM determines the behaviour during parallel memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the "master" RAM is idle.
+            Whether the memory access was legal is checked after every step, after every parallel machine has executed its instruction.
         </p>
         <ul>
             <li>EREW: Exclusive Read Exclusive Write</li>
@@ -195,7 +195,7 @@ A major razor component for about page.
                     <li>Common</li>
                     <li>
                         <ul>
-                            <li>In a single step, any number of paralell machines can write into the same memory cell, if they are writing the same value</li>
+                            <li>In a single step, any number of parallel machines can write into the same memory cell, if they are writing the same value</li>
                             <li>If in a single step the cell is being written to, it cannot be read from.</li>
                         </ul>
                     </li>
@@ -203,7 +203,7 @@ A major razor component for about page.
                     <li>Priority</li>
                     <li>
                         <ul>
-                            <li>In a single step, any number of paralell machines can write into the same memory cell, but only the value of a parallel machine with the smallest index is written.</li>
+                            <li>In a single step, any number of parallel machines can write into the same memory cell, but only the value of a parallel machine with the smallest index is written.</li>
                             <li>The cell may be read from at the same time as it is being written to. The value read is determined by the priority.</li>
                             <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step "10" is written in the shared memory cell, and "20" is read by PM1. Depending on the order, the original value of the cell before any write might be read.</li>
                         </ul>
@@ -212,7 +212,7 @@ A major razor component for about page.
                     <li>Arbitrary</li>
                     <li>
                         <ul>
-                            <li>In a single step, any number of paralell machines can write into the same memory cell, but only the value of a randomly chosen parallel machine is written.</li>
+                            <li>In a single step, any number of parallel machines can write into the same memory cell, but only the value of a randomly chosen parallel machine is written.</li>
                             <li>The cell may be read from at the same time as it is being written to. The value read is determined arbitrarily.</li>
                             <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step, one of the values that was being written is in the shared memory cell, and a random value that was being written is read by PM1, including the value that was in the cell originally</li>
                         </ul>
@@ -222,6 +222,39 @@ A major razor component for about page.
         </ul>
 
         <h4>Code syntax</h4>
+        <p>The default code syntax with instructions is as follows. 'S' is a shared memory cell, 'L' is local memory cell (of a paralell machine)</p>
+        <ul>
+            <li>Instructions that can be executed by both</li>
+            <li>
+                <ul>
+                    <li><code>#comment</code> a comment line</li>
+                    <li><code>S0 := /RESULT_SET/</code> // <code>L0 := /RESULT_SET/</code> sets memory cell to the value of result set</li>
+                    <li><code>[S0] := /RESULT_SET/</code> // <code>[L0] := /RESULT_SET/</code> sets memory cell at the index of the value in the cell in brackets to the value of result set</li>
+                    <li><code>goto :label</code> jumps to the specified label</li>
+                    <li><code>:label</code> a label which can be jumped to.</li>
+                    <li><code>if (S0 == S1) goto :label</code> jumps to the specified label if the condition is true</li>
+                    <li><ul>
+                            <li>the condition operators are <pre>==, !=, >=, &lt;=, >, &lt;</pre></li>
+                            <li>Only either shared memory or local memory can be compared in single if statement</li>
+                            <li>Comparing shared memory counts as a read for both cells</li>
+                    </ul></li>
+                    <li><code>nop</code> no operation, does nothing when executed</li>
+                    <li><code>S{/RESULT_SET/} := /RESULT_SET/</code> // <code>L{/RESULT_SET/} := /RESULT_SET/</code> sets shared / local memory at the address of the result set</li>
+                </ul>
+            </li>
+
+            <li>Instructions that cannot be executed by parallel machines</li>
+            <li>
+                <ul>
+                    <li><code>S0 := READ() </code> // <code>S0 := READ(0)</code> read from input memory into shared memory at the designated index / indexes. If no index is specified in input memory, it increases from 0 at every read. Specifying the index does not affect this counter</li>
+                    <li><code>WRITE(/RESULT_SET/)</code> writes the result set into the next cell of output memory. If the machine is reset, the output memory counter is also reset</li>
+                    <li><code>pardo /RESULT_SET/</code> annotates the start of parallel machine instruction block. Any number of paralell machines is launched, unless negative, then the PRAM crashes.</li>
+                    <li><code>parend</code> annotates the end of parallel machine instruction block. Always in a pair with <code>pardo</code>. This instruction syntax is the only one that cannot be changed in any way.</li>
+                </ul>
+            </li>
+
+
+        </ul>
 
     </div>
 </div>
