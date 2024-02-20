@@ -96,6 +96,17 @@ A major razor component for settings.
 
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
+                <h3 class="card-title">@TextUIService.SettingsTitleInformation</h3>
+                <p class="card-text">a</p>
+                <button type="button" class="btn btn-primary" @onclick="NavigateToAbout">
+                    @TextUIService.SettingsAboutButton
+                </button>
+
+            </div>
+        </div>
+
+        <div class="card mb-3" style="width: 50%;">
+            <div class="card-body">
                 <h3 class="card-title">@TextUIService.SettingsTitleRegexImportExport</h3>
                 <input type="file" id="fileInput" style="display:none" />
                 <button type="button" class="btn btn-primary" @onclick="ImportRegex">
@@ -123,7 +134,6 @@ A major razor component for settings.
                 </button>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -154,6 +164,11 @@ A major razor component for settings.
     private void NavigateToRegexSettings()
     {
         navigationManager.NavigateTo("/regexsettings");
+    }
+
+    private void NavigateToAbout()
+    {
+        navigationManager.NavigateTo("/about");
     }
 
     public void ExportMachine()

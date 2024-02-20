@@ -155,7 +155,7 @@ A major razor component for about page.
                     <li>Re-Import a machine, importing the last imported machine</li>
                     <li>Code, input memory and shared memory are imported/exported</li>
                     <li>When Re-Importing, output memory is cleared and the machine is automatically compiled</li>
-                    <li>If a machine is imported and the PRAM syntax regex is non-default, a warnign is displayed.</li>
+                    <li>If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed.</li>
                 </ul>
             </li>
             <li>Import / export PRAM syntax regex</li>
@@ -222,9 +222,9 @@ A major razor component for about page.
         </ul>
 
         <h4>Code syntax</h4>
-        <p>The default code syntax with instructions is as follows. 'S' is a shared memory cell, 'L' is local memory cell (of a paralell machine)</p>
+        <p>The default code syntax of instructions is as follows. 'S' is a shared memory cell, 'L' is local memory cell (of a paralell machine)</p>
         <ul>
-            <li>Instructions that can be executed by both</li>
+            <li>Instructions that can be executed by both "master" RAM and parallel machines</li>
             <li>
                 <ul>
                     <li><code>#comment</code> a comment line</li>
@@ -235,11 +235,11 @@ A major razor component for about page.
                     <li><code>if (S0 == S1) goto :label</code> jumps to the specified label if the condition is true</li>
                     <li><ul>
                             <li>the condition operators are <pre>==, !=, >=, &lt;=, >, &lt;</pre></li>
-                            <li>Only either shared memory or local memory can be compared in single if statement</li>
+                            <li>Only either shared memory or local memory can be compared in a single if statement</li>
                             <li>Comparing shared memory counts as a read for both cells</li>
                     </ul></li>
                     <li><code>nop</code> no operation, does nothing when executed</li>
-                    <li><code>S{/RESULT_SET/} := /RESULT_SET/</code> // <code>L{/RESULT_SET/} := /RESULT_SET/</code> sets shared / local memory at the address of the result set</li>
+                    <li><code>S{/RESULT_SET/} := /RESULT_SET/</code> // <code>L{/RESULT_SET/} := /RESULT_SET/</code> sets shared / local memory at the address of the left result set to the value of the right result set</li>
                 </ul>
             </li>
 
@@ -249,13 +249,23 @@ A major razor component for about page.
                     <li><code>S0 := READ() </code> // <code>S0 := READ(0)</code> read from input memory into shared memory at the designated index / indexes. If no index is specified in input memory, it increases from 0 at every read. Specifying the index does not affect this counter</li>
                     <li><code>WRITE(/RESULT_SET/)</code> writes the result set into the next cell of output memory. If the machine is reset, the output memory counter is also reset</li>
                     <li><code>pardo /RESULT_SET/</code> annotates the start of parallel machine instruction block. Any number of paralell machines is launched, unless negative, then the PRAM crashes.</li>
-                    <li><code>parend</code> annotates the end of parallel machine instruction block. Always in a pair with <code>pardo</code>. This instruction syntax is the only one that cannot be changed in any way.</li>
+                    <li><code>parend</code> annotates the end of parallel machine instruction block. Always in a pair with <code>pardo</code>. This instructions syntax is fixed.</li>
                 </ul>
             </li>
 
-
+            <li>Result sets are dynamically evaluated expressions at runtime.</li>
+            <li>
+                <ul>
+                    <li><code>S0</code> // <code>L0</code> a value of a cell</li>
+                    <li><code>0</code> a constant</li>
+                    <li><code>S0 + S1</code> // <code>L0 + L1</code> operation between cells, supported operators are +,-,*,/ (integer division),% (modulo), only within either shared or local memory.</li>
+                    <li><code>S0 + 10</code> // <code>L0 + 10</code> similar as above but between a cell and a constant. The positions can be switched.</li>
+                    <li><code>[S0]</code> // <code>[L0]</code> takes the value of a cell with the address that is the value of the cell in brackets. Addresses in either shared or local memory.</li>
+                    <li><code>S{/RESULT_SET/}</code> // <code>L{/RESULT_SET/}</code> takes the value of a cell with the address that is the value of the result set. Allows addressing between shared and local memory.</li>
+                    <li><code>{i}</code> the index of the parallel machine, with <code>n</code> launched parallel machines from 0 to <code>n</code> - 1.</li>
+                </ul>
+            </li>
         </ul>
-
     </div>
 </div>
 
