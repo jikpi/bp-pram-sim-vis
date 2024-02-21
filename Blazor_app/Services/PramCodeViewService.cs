@@ -5,7 +5,7 @@
 namespace Blazor_app.Services
 {
     /// <summary>
-    /// Service for managing the PRAM UI state
+    /// Service for managing some PRAM UI state
     /// </summary>
     public class PramCodeViewService
     {
@@ -18,6 +18,16 @@ namespace Blazor_app.Services
             PramLines = PramCode.Split('\n')
                                 .Select((line, index) => new KeyValuePair<int, string>(index, line += " "))
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            //Limit the string size
+            int maxSize = 50;
+            foreach (var kvp in PramLines)
+            {
+                if (kvp.Value.Length > maxSize)
+                {
+                    PramLines[kvp.Key] = kvp.Value.Substring(0, maxSize) + "..";
+                }
+            }
         }
 
         //A property that decides whether to show halted parallel machines

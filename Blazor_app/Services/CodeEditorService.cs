@@ -42,6 +42,15 @@ namespace Blazor_app.Services
                                 .Select((line, index) => new KeyValuePair<int, string>(index, line += " "))
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
+            //Limit the string size to 50
+            foreach (var kvp in CompiledLines)
+            {
+                if (kvp.Value.Length > 50)
+                {
+                    CompiledLines[kvp.Key] = kvp.Value.Substring(0, 50) + "..";
+                }
+            }
+
             CompiledCode = new string(Code);
             CurrentExecutingLine = setExecutingLine;
             Breakpoints.Clear();

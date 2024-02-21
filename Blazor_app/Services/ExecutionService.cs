@@ -94,8 +94,18 @@ namespace Blazor_app.Services
         {
 
             int currentLine;
-            _globalService.SetLastState(TextUIService.StateIndicatorNextStep(_pramMachine.MPIP.Value), GlobalService.LastStateUniform.Ok);
+
+            if (_pramMachine.IsRunningParallel)
+            {
+                _globalService.SetLastState(TextUIService.StateIndicatorRunningInParallel, GlobalService.LastStateUniform.Ok);
+            }
+            else
+            {
+                _globalService.SetLastState(TextUIService.StateIndicatorNextStep(_pramMachine.MPIP.Value), GlobalService.LastStateUniform.Ok);
+            }
+
             currentLine = _pramMachine.GetCurrentCodeLineIndex();
+
 
             if (_pramMachine.IsRunningParallel)
             {
@@ -155,7 +165,7 @@ namespace Blazor_app.Services
                         RefreshPramView();
                     }
 
-                    if(!ShownErrorMessage)
+                    if (!ShownErrorMessage)
                     {
                         _globalService.ShowPopupMessage(_pramMachine.ExecutionErrorMessage ?? string.Empty);
                     }
@@ -168,7 +178,7 @@ namespace Blazor_app.Services
                     //not shown if machine is halted, since the if for 'halt' will override
                     _globalService.SetLastState(TextUIService.StateIndicatorExecutionStop(_pramMachine.ExecutionErrorMessage), GlobalService.LastStateUniform.Warning);
                     if (IsRunningParallel)
-                    {   
+                    {
                         _navigationManager.NavigateTo("/");
                         ResetParallelRunningState();
                     }
@@ -237,6 +247,12 @@ namespace Blazor_app.Services
                 StopAutoRun();
             }
 
+            if (string.IsNullOrWhiteSpace(_codeEditorService.Code))
+            {
+                _globalService.ShowPopupMessage(TextUIService.CodeCannotBeEmpty);
+                return;
+            }
+
             _pramMachine.Compile(_codeEditorService.Code);
             CRCWChanged();
             ResetParallelRunningState();
@@ -256,6 +272,7 @@ namespace Blazor_app.Services
             else
             {
                 _globalService.SetLastState(TextUIService.StateIndicatorCompilationFailed(_pramMachine.CompilationErrorMessage), GlobalService.LastStateUniform.Error);
+                _globalService.ShowPopupMessage(TextUIService.StateIndicatorCompilationFailed(_pramMachine.CompilationErrorMessage));
                 _codeEditorService.CodeToViewMode(_pramMachine.CompilationErrorLineIndex ?? -1);
             }
 
@@ -565,7 +582,7 @@ namespace Blazor_app.Services
 
             if (batchIndex == -1)
             {
-                if(_lastBatchIndex != batchIndex)
+                if (_lastBatchIndex != batchIndex)
                 {
                     _navigationManager.NavigateTo("/");
                     IsRunningParallel = false;
@@ -584,7 +601,7 @@ namespace Blazor_app.Services
                 IsRunningParallel = true;
             }
 
-            if(!IsRunningParallel )
+            if (!IsRunningParallel)
             {
                 _navigationManager.NavigateTo("/pramview");
                 IsRunningParallel = true;
@@ -732,7 +749,7 @@ namespace Blazor_app.Services
                 _concurrentRead = value;
 
                 //Dont allow ERCW, as it is not properly implemented in the machine
-                if(_concurrentRead == false && _concurrentWrite == true)
+                if (_concurrentRead == false && _concurrentWrite == true)
                 {
                     _concurrentWrite = false;
                 }

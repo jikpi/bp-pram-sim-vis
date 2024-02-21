@@ -15,7 +15,8 @@
         public static string ExecutionStepUntilBreakpoint { get; private set; } = "🔴 Run Until Breakpoint";
         public static string ExecutionAutoRun { get; private set; } = "⏯ Auto Run";
         public static string ExecutionReset { get; private set; } = "🧹 Reset";
-        public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Running paralell machines: {(runningParallelMachines > 0 ? $"[{runningParallelMachines}] 🟥" : "[0]")} Steps: [{stepsCount}] Steps including parallel: [{parallelStepsCount}]";
+        public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Running paralell machines: {(runningParallelMachines > 0 ? $"[{runningParallelMachines}] 🟥" : "[0]")} || Steps: [{stepsCount}] || Including parallel: [{parallelStepsCount}]";
+        public static string CodeCannotBeEmpty { get; private set; } = "Code cannot be empty";
 
         //Home page
         public static string HomePageCodeEditorCancel { get; private set; } = "Cancel";
@@ -62,6 +63,7 @@
         public static string StateIndicatorRegexPatternSavedSuccessfully(string key) => $"Regex pattern for {key} saved successfully";
         public static string StateIndicatorRegexAllReset { get; private set; } = "All regex have been reset";
         public static string StateIndicatorNextStep(int nextStep) => $"Next step: {nextStep}";
+        public static string StateIndicatorRunningInParallel { get; private set; } = "Parallel machines running";
         public static string StateIndicatorParallelExecutionStarted { get; private set; } = "Parallel execution started";
         public static string StateIndicatorParallelExecutionStopped { get; private set; } = "Parallel execution stopped";
         public static string StateIndicatorExecutionFinished { get; private set; } = "Execution finished";
