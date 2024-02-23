@@ -20,12 +20,10 @@ A major razor component for about page.
     <div class="d-flex flex-column align-items-center text-container-center">
         <h4 class="text-center">Info</h4>
         <p>By Jan Kopidol</p>
-        <br />
         <p>
-            This application is a capable PRAM simulator, supporting the variants EREW, CREW, CRCW (Priority, Arbitrary, Common). Code is executed synchronously.
+            This application is a capable PRAM abstract machine simulator, supporting the variants EREW, CREW, CRCW (Priority, Arbitrary, Common). Code is executed synchronously.
             This model starts as a RAM machine that can launch parallel machines, thus optionally allowing elegant managment of resources and parallel machines, simplyfying the code of parallel machines
         </p>
-        <br />
         <h4 class="text-center">Getting started</h4>
         <p>
             The user can create a PRAM machine code, run the simulation, and view the results.
@@ -141,7 +139,7 @@ A major razor component for about page.
             <li>
                 <ul>
                     <li>Change auto step speed</li>
-                    <li>Hide unset memory cells to save display space</li>
+                    <li>Hide unset memory cells to save display space. A button is present that allows to re-hide all cells currently containing a value of 0, should they have been set in the past. Useful when exporting a machine.</li>
                     <li>Enable/Disable history</li>
                     <li>Fix parallel machine code in place to save display space, and set the number of displayed lines</li>
                     <li>Set the CRCW access type</li>
@@ -154,10 +152,18 @@ A major razor component for about page.
                     <li>Export a machine to a file</li>
                     <li>Re-Import a machine, importing the last imported machine</li>
                     <li>Code, input memory and shared memory are imported/exported</li>
-                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled</li>
-                    <li>If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed.</li>
+                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled. If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed</li>
                 </ul>
             </li>
+
+            <li>Information and examples</li>
+            <li>
+                <ul>
+                    <li>Load example machines</li>
+                    <li>View this page containing information and user manual</li>
+                </ul>
+            </li>
+
             <li>Import / export PRAM syntax regex</li>
             <li>
                 <ul>
@@ -259,11 +265,11 @@ A major razor component for about page.
                 <ul>
                     <li><code>S0</code> // <code>L0</code> a value of a cell</li>
                     <li><code>0</code> a constant</li>
-                    <li><code>S0 + S1</code> // <code>L0 + L1</code> operation between cells, supported operators are +,-,*,/ (integer division),% (modulo), only within either shared or local memory.</li>
+                    <li><code>S0 + S1</code> // <code>L0 + L1</code> // <code>S0 + L0</code> operation between cells, supported operators are +,-,*,/ (integer division),% (modulo), even between memories.</li>
                     <li><code>S0 + 10</code> // <code>L0 + 10</code> similar as above but between a cell and a constant. The positions can be switched.</li>
                     <li><code>[S0]</code> // <code>[L0]</code> takes the value of a cell with the address that is the value of the cell in brackets. Addresses in either shared or local memory.</li>
                     <li><code>S{/RESULT_SET/}</code> // <code>L{/RESULT_SET/}</code> takes the value of a cell with the address that is the value of the result set. Allows addressing between shared and local memory.</li>
-                    <li><code>{i}</code> the index of the parallel machine, with <code>n</code> launched parallel machines from 0 to <code>n</code> - 1.</li>
+                    <li><code>{i}</code> the index of the parallel machine, with <code>n</code> launched parallel machines from 0 to <code>n</code> - 1. In RAM, returns 0.</li>
                 </ul>
             </li>
         </ul>

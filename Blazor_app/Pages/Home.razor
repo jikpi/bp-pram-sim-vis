@@ -4,7 +4,6 @@ Author: Jan Kopidol
 A major razor component serving as the home / landing page. Displays the code editor, input/ output/ shared memory, and common controls.
 
 -->
-
 @page "/"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
@@ -13,6 +12,7 @@ A major razor component serving as the home / landing page. Displays the code ed
 @inject GlobalService globalService
 @inject ExecutionService execService
 @inject CodeEditorService codeEditorService
+@inject NavigationManager navigationManager
 
 <PageTitle>PRAM Simulator</PageTitle>
 <Blazor_app.Components.CommonControls />
@@ -36,6 +36,18 @@ A major razor component serving as the home / landing page. Displays the code ed
             }
 
             <Blazor_app.Components.CodeEditor />
+
+            @if (globalService.ShowUserManual)
+            {
+                <br />
+                <div class="container rounded py-3 px-4" style="background-color: lightyellow">
+                    <h5>@TextUIService.SettingsFirstTimeUserManual</h5>
+                    <button type="button" class="btn btn-primary" @onclick="NavigateToAbout">
+                        @TextUIService.SettingsAboutButton
+                    </button>
+                    @{globalService.ShowUserManual = false;}
+                </div>
+            }
         </div>
         <div class="col">
             <div class="text-center">
@@ -144,6 +156,11 @@ A major razor component serving as the home / landing page. Displays the code ed
     private void AddTestCode()
     {
         codeEditorService.ChangeCode(globalService.TestedCode);
+    }
+
+    private void NavigateToAbout()
+    {
+        navigationManager.NavigateTo("/about");
     }
 
     public void Dispose()

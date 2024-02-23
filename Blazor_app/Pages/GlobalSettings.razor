@@ -37,6 +37,10 @@ A major razor component for settings.
                 <div class="form-group mb-1">
                     <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="@TextUIService.SettingsHideUnsetMemoryCells">
                     <label for="hideMemoryCellsCheckbox" class="ms-2">@TextUIService.SettingsHideUnsetMemoryCells</label>
+                    <button type="button" class="btn btn-secondary"
+                            @onclick="ResetZeroCellsFlag">
+                        @TextUIService.SettingsHideUnsetMemoryCellsReHide
+                    </button>
                 </div>
 
                 <div class="form-group mb-1">
@@ -97,8 +101,21 @@ A major razor component for settings.
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
                 <h3 class="card-title">@TextUIService.SettingsTitleInformation</h3>
-                <p class="card-text">a</p>
-                <button type="button" class="btn btn-primary" @onclick="NavigateToAbout">
+
+                <div class="input-group mb-3">
+                    <select id="machineSelection" class="form-control" @onchange="MachineSelected">
+                        <option selected disabled>@TextUIService.Select</option>
+                        @foreach (var machine in globalService.ExampleMachines)
+                        {
+                            <option value="@machine.Key">@machine.Key</option>
+                        }
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" @onclick="OpenExampleMachine">@TextUIService.LoadTitle</button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary mt-2" @onclick="NavigateToAbout">
                     @TextUIService.SettingsAboutButton
                 </button>
 
@@ -169,6 +186,11 @@ A major razor component for settings.
     private void NavigateToAbout()
     {
         navigationManager.NavigateTo("/about");
+    }
+
+    private void ResetZeroCellsFlag()
+    {
+        execService.ResetZeroValuedMemoryCellsFlags();
     }
 
     public void ExportMachine()
@@ -345,6 +367,31 @@ A major razor component for settings.
         catch (Exception)
         {
             globalService.SetLastState(TextUIService.StateIndicatorFailedToExportRegex, GlobalService.LastStateUniform.Error);
+        }
+    }
+
+    private string selectedMachine = "";
+    private void MachineSelected(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            return;
+        }
+
+        selectedMachine = e.Value.ToString() ?? "";
+    }
+
+    private async Task OpenExampleMachine()
+    {
+        if (string.IsNullOrEmpty(selectedMachine))
+        {
+            return;
+        }
+
+        if (globalService.ExampleMachines.TryGetValue(selectedMachine, out var fileContent))
+        {
+            await ReceiveMachineFileContent(fileContent);
+            execService.CompileCode();
         }
     }
 }

@@ -310,6 +310,7 @@ namespace Blazor_app.Services
             }
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             StepForward();
+            RefreshCommonControls();
             _timer.Change(_autoRunInterval, _autoRunInterval);
         }
 
@@ -772,6 +773,33 @@ namespace Blazor_app.Services
                 }
 
                 CRCWChanged();
+            }
+        }
+
+        public void ResetZeroValuedMemoryCellsFlags()
+        {
+            foreach (var cell in _pramMachine.GetInputMemory())
+            {
+                if(cell.Value == 0)
+                {
+                    cell.HasBeenWrittenTo = false;
+                }
+            }
+
+            foreach (var cell in _pramMachine.GetOutputMemory())
+            {
+                if (cell.Value == 0)
+                {
+                    cell.HasBeenWrittenTo = false;
+                }
+            }
+
+            foreach (var cell in _pramMachine.GetSharedMemory())
+            {
+                if (cell.Value == 0)
+                {
+                    cell.HasBeenWrittenTo = false;
+                }
             }
         }
     }
