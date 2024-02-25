@@ -89,10 +89,6 @@ A major razor component serving as the home / landing page. Displays the code ed
     </div>
 </div>
 
-<button class="btn btn-primary" @onclick="AddTestCode">Add test code</button>
-
-
-
 @code {
 
     protected override void OnInitialized()
@@ -151,11 +147,6 @@ A major razor component serving as the home / landing page. Displays the code ed
     private void ClearOutputMemory()
     {
         pramMachine.GetOutputMemory().Clear();
-    }
-
-    private void AddTestCode()
-    {
-        codeEditorService.ChangeCode(globalService.TestedCode);
     }
 
     private void NavigateToAbout()

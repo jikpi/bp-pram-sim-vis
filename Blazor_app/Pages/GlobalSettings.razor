@@ -392,6 +392,7 @@ A major razor component for settings.
         {
             await ReceiveMachineFileContent(fileContent);
             execService.CompileCode();
+            pramMachine.GetInteractiveOutputMemory.Clear();
         }
     }
 }
