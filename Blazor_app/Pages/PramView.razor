@@ -152,7 +152,6 @@ A major razor component for displaying parallel machine(s) state and memory, and
                                     bool primaryLineIndicator = false;
                                     int lineCountDown = globalService.FixedCodeLength;
                                     bool startedCountDown = false;
-                                    const string fillerLine = " ";
                                     foreach (var line in pramCodeViewService.PramLines)
                                     {
 
@@ -207,6 +206,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
                                         int j = 0;
                                         for (; j < lineCountDown - 1; j++)
                                         {
+                                            const string fillerLine = " ";
                                             <div class="code-comment">
                                                 @fillerLine
                                             </div>

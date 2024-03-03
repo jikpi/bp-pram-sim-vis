@@ -61,11 +61,11 @@ namespace Blazor_app.Services
 
 
         //## Parallel run state #############################
-        public bool IsRunningParallel { get; set; } = false;
+        public bool IsUIRunningParallel { get; set; } = false;
         //## Reset parallel running service state
-        public void ResetParallelRunningState()
+        public void ResetUIParallelRunningState()
         {
-            IsRunningParallel = false;
+            IsUIRunningParallel = false;
         }
         //---------------------------------------------
 
@@ -109,10 +109,10 @@ namespace Blazor_app.Services
 
             if (_pramMachine.IsRunningParallel)
             {
-                if (IsRunningParallel == false)
+                if (IsUIRunningParallel == false)
                 {
                     _globalService.SetLastState(TextUIService.StateIndicatorParallelExecutionStarted, GlobalService.LastStateUniform.Note);
-                    IsRunningParallel = true;
+                    IsUIRunningParallel = true;
                     _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                     _navigationManager.NavigateTo("/pramview");
                 }
@@ -121,10 +121,10 @@ namespace Blazor_app.Services
             }
             else
             {
-                if (IsRunningParallel == true)
+                if (IsUIRunningParallel == true)
                 {
                     _globalService.SetLastState(TextUIService.StateIndicatorParallelExecutionStopped, GlobalService.LastStateUniform.Note);
-                    IsRunningParallel = false;
+                    IsUIRunningParallel = false;
                     _navigationManager.NavigateTo("/");
                 }
 
@@ -150,17 +150,17 @@ namespace Blazor_app.Services
                 if (_pramMachine.IsCrashed)
                 {
                     //View switching logic
-                    if (IsRunningParallel && !_pramMachine.IsRunningParallel)
+                    if (IsUIRunningParallel && !_pramMachine.IsRunningParallel)
                     {
                         _navigationManager.NavigateTo("/");
                     }
-                    else if (!IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (!IsUIRunningParallel && _pramMachine.IsRunningParallel)
                     {
                         _pramCodeViewService.SetPramCode(_pramMachine.GetCurrentParallelMachineCode() ?? "No code");
                         _navigationManager.NavigateTo("/pramview");
                         RefreshPramView();
                     }
-                    else if (IsRunningParallel && _pramMachine.IsRunningParallel)
+                    else if (IsUIRunningParallel && _pramMachine.IsRunningParallel)
                     {
                         RefreshPramView();
                     }
@@ -177,10 +177,10 @@ namespace Blazor_app.Services
                 {
                     //not shown if machine is halted, since the if for 'halt' will override
                     _globalService.SetLastState(TextUIService.StateIndicatorExecutionStop(_pramMachine.ExecutionErrorMessage), GlobalService.LastStateUniform.Warning);
-                    if (IsRunningParallel)
+                    if (IsUIRunningParallel)
                     {
                         _navigationManager.NavigateTo("/");
-                        ResetParallelRunningState();
+                        ResetUIParallelRunningState();
                     }
                 }
 
@@ -229,11 +229,12 @@ namespace Blazor_app.Services
             _pramMachine.Restart();
             _globalService.SetLastState(TextUIService.Reset, GlobalService.LastStateUniform.Ok);
             _codeEditorService.UpdateExecutingLine(-1);
-            ResetParallelRunningState();
+            ResetUIParallelRunningState();
             _navigationManager.NavigateTo("/");
             _historyMemoryService.Reset();
             HistoryOffset = null;
             ShownErrorMessage = false;
+            _lastBatchIndex = -1;
 
             StepsIncludingParallel = 0;
             StepsTotal = 0;
@@ -255,7 +256,7 @@ namespace Blazor_app.Services
 
             _pramMachine.Compile(_codeEditorService.Code);
             CRCWChanged();
-            ResetParallelRunningState();
+            ResetUIParallelRunningState();
             _historyMemoryService.Reset();
             HistoryOffset = null;
             ShownErrorMessage = false;
@@ -292,7 +293,7 @@ namespace Blazor_app.Services
         {
             _pramMachine.Clear();
             _globalService.SetLastState("Cleared all", GlobalService.LastStateUniform.Ok);
-            ResetParallelRunningState();
+            ResetUIParallelRunningState();
             RefreshMemory();
             _codeEditorService.UpdateExecutingLine(-1);
             _historyMemoryService.Reset();
@@ -583,29 +584,21 @@ namespace Blazor_app.Services
 
             if (batchIndex == -1)
             {
-                if (_lastBatchIndex != batchIndex)
+                if (IsUIRunningParallel)
                 {
                     _navigationManager.NavigateTo("/");
-                    IsRunningParallel = false;
+                    IsUIRunningParallel = false;
                 }
 
-                _lastBatchIndex = batchIndex;
                 return;
             }
 
             string code = _pramMachine.GetParallelMachineCode((int)batchIndex);
 
-
-            if (_lastBatchIndex != batchIndex)
+            if (!IsUIRunningParallel)
             {
                 _navigationManager.NavigateTo("/pramview");
-                IsRunningParallel = true;
-            }
-
-            if (!IsRunningParallel)
-            {
-                _navigationManager.NavigateTo("/pramview");
-                IsRunningParallel = true;
+                IsUIRunningParallel = true;
             }
 
 
@@ -691,12 +684,12 @@ namespace Blazor_app.Services
             if (_pramMachine.IsRunningParallel)
             {
                 _navigationManager.NavigateTo("/pramview");
-                IsRunningParallel = true;
+                IsUIRunningParallel = true;
             }
             else
             {
                 _navigationManager.NavigateTo("/");
-                IsRunningParallel = false;
+                IsUIRunningParallel = false;
             }
         }
 
