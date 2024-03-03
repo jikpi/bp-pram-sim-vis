@@ -213,6 +213,11 @@ namespace PRAM_lib.Code
                         errorMessage = $"Invalid regex pattern for {name}: {ex.Message}, stopping now.";
                         return false;
                     }
+                    catch (Exception ex)
+                    {
+                        errorMessage = $"Invalid regex pattern for {name}: {ex.Message}, stopping now.";
+                        return false;
+                    }
 
                     if (!value.StartsWith("^") || !value.EndsWith("*$"))
                     {
@@ -295,8 +300,17 @@ namespace PRAM_lib.Code
                 {
                     Regex regex = new Regex(pattern);
 
-                    int expectedGroupCount = regex.GetGroupNumbers().Length;
-                    if (regex.GetGroupNumbers().Length != expectedGroupCount)
+                    int newRegexGroupCount = regex.GetGroupNumbers().Length;
+
+                    Regex? DefaultRegex = (Regex?)propertyInfo.GetValue(this);
+                    if (DefaultRegex == null)
+                    {
+                        return false;
+                    }
+
+                    int defaultRegexGroupCount = DefaultRegex.GetGroupNumbers().Length;
+
+                    if (defaultRegexGroupCount != newRegexGroupCount)
                     {
                         return false;
                     }
