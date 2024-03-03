@@ -4,7 +4,6 @@ Author: Jan Kopidol
 A major razor component for displaying parallel machine(s) state and memory, and relevant controls.
 
 -->
-
 @page "/pramview"
 @using Blazor_app.Services
 @using PRAM_lib.Machine
@@ -17,10 +16,10 @@ A major razor component for displaying parallel machine(s) state and memory, and
 
 <style>
     .halted-card-body {
-    background-color: lightgray
+        background-color: lightgray
     }
 
-    .crashed-card-body{
+    .crashed-card-body {
         background-color: lightgoldenrodyellow;
     }
 </style>
@@ -62,31 +61,31 @@ A major razor component for displaying parallel machine(s) state and memory, and
                         <label class="form-check-label" for="showHaltedCheckbox">
                             @TextUIService.PRAMViewShowHalted
                         </label>
-                    </div>   
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-    <!-- Shared Memory -->
-    <div class="row">
-        <div class="col-md-1">
-            <div class="text-center">
-                <h4>@TextUIService.MemorySharedTitle</h4>
-            </div>
-            <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
+<!-- Shared Memory -->
+<div class="row">
+    <div class="col-md-1">
+        <div class="text-center">
+            <h4>@TextUIService.MemorySharedTitle</h4>
         </div>
+        <Blazor_app.Components.Memory.AnyMemory MemoryItems="@execService.GetMemoryContextShared()" />
+    </div>
 
-        <!-- Parallel Machines -->
-        <div class="col-md-11">
-            <div class="row">
-             @{
+    <!-- Parallel Machines -->
+    <div class="col-md-11">
+        <div class="row">
+            @{
                 int displayCount = 0;
-              }
-    @for (int i = 0; i < GetParallelMachineCount(); i++)
-    {
+            }
+            @for (int i = 0; i < GetParallelMachineCount(); i++)
+            {
 
-        if(displayCount > 300)
+                if (displayCount > 300)
                 {
                     continue;
                 }
@@ -97,149 +96,144 @@ A major razor component for displaying parallel machine(s) state and memory, and
                     continue;
                 }
 
-        if(pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
-        {
-            continue;
-        }
-
-        var machineMemory = GetMemoryOfMachine(i);
-        <div class="col-md-3 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    @TextUIService.PRAMViewMachineTitle(i)
-                                    @{
-                    bool foundMachine = false;
-
-                    if(pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
-                    {
-                        foreach (var item in pramMachine.IllegalMemoryAccesses)
-                        {
-                            if (item.ParallelMachineIndex == i)
-                            {
-                                <span class="badge bg-info">@TextUIService.PRAMViewCardIllegalMemoryAccess</span>
-                                foundMachine = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!foundMachine)
-                    {
-                        if(GetParallelMachineIsHalted(i))
-                        {
-                            <span class="badge bg-warning">@TextUIService.PRAMViewCardHalted</span>
-                        }
-                        else if (execService.IsHistoryInLatestParallelBatch() && pramMachine.GetParallelMachineIsCrashed(i))
-                        {
-                            <span class="badge bg-danger">@TextUIService.PRAMViewCardCrashed</span>
-                        }
-                    }
+                if (pramCodeViewService.SelectedViewParallelMachines.Count > 0 && !pramCodeViewService.SelectedViewParallelMachines.Contains(i))
+                {
+                    continue;
                 }
 
-                        </div>
-                <div class="card-body @GetCardClass(i)">
-                    <h5 class="card-title">@TextUIService.PRAmViewCodeTitle</h5>
-                    
-                    <div class="code-compiled-code-container">
-                @{
-                    bool imaMachine = false;
-                    int? lineIndex = -1;
-                    if(!execService.IsInHistory && pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
-                    {
-                        lineIndex = pramMachine.IllegalMemoryAccesses.Where(x => x.ParallelMachineIndex == i).FirstOrDefault()?.CodeLineIndex;
-                        imaMachine = lineIndex != null;
-                    }
+                var machineMemory = GetMemoryOfMachine(i);
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            @TextUIService.PRAMViewMachineTitle(i)
+                            @{
+                                bool foundMachine = false;
 
-                    bool primaryLineIndicator = false;
-                    int lineCountDown = globalService.FixedCodeLength;
-                    bool startedCountDown = false;
-                    const string fillerLine = " ";
-                    foreach (var line in pramCodeViewService.PramLines)
-                    {
-
-                        if(globalService.FixedCode)
-                        {
-                        if(primaryLineIndicator && !startedCountDown)
-                        {
-                            startedCountDown = true;
-                        }
-
-                        if(startedCountDown)
-                        {
-                            if(lineCountDown > 0)
-                            {
-                                lineCountDown--;
-                            }
-                        }
-
-                        if(lineCountDown == 0)
-                        {
-                            break;
-                        }
-                        }
-
-                        if (imaMachine && (line.Key == lineIndex))
-                        {
-                            <div class="code-ima-line">
-                                @line.Value
-                            </div>
-                            primaryLineIndicator = true;
-                        }
-                        else
-                        {
-                            string lineClass = GetLineClass(line.Key, i, out primaryLineIndicator);
-
-                            if(globalService.FixedCode)
-                            {
-                                if(!primaryLineIndicator && !startedCountDown)
+                                if (pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
                                 {
-                                    continue;
+                                    foreach (var item in pramMachine.IllegalMemoryAccesses)
+                                    {
+                                        if (item.ParallelMachineIndex == i)
+                                        {
+                                            <span class="badge bg-info">@TextUIService.PRAMViewCardIllegalMemoryAccess</span>
+                                            foundMachine = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!foundMachine)
+                                {
+                                    if (GetParallelMachineIsHalted(i))
+                                    {
+                                        <span class="badge bg-warning">@TextUIService.PRAMViewCardHalted</span>
+                                    }
+                                    else if (execService.IsHistoryInLatestParallelBatch() && pramMachine.GetParallelMachineIsCrashed(i))
+                                    {
+                                        <span class="badge bg-danger">@TextUIService.PRAMViewCardCrashed</span>
+                                    }
                                 }
                             }
 
-                            <div class="@lineClass">
-                                    @line.Value
+                        </div>
+                        <div class="card-body @GetCardClass(i)">
+                            <h5 class="card-title">@TextUIService.PRAmViewCodeTitle</h5>
+
+                            <div class="code-compiled-code-container">
+                                @{
+                                    bool imaMachine = false;
+                                    int? lineIndex = -1;
+                                    if (!execService.IsInHistory && pramMachine.IllegalMemoryAccess && execService.IsHistoryInLatestParallelBatch())
+                                    {
+                                        lineIndex = pramMachine.IllegalMemoryAccesses.Where(x => x.ParallelMachineIndex == i).FirstOrDefault()?.CodeLineIndex;
+                                        imaMachine = lineIndex != null;
+                                    }
+
+                                    bool primaryLineIndicator = false;
+                                    int lineCountDown = globalService.FixedCodeLength;
+                                    bool startedCountDown = false;
+                                    const string fillerLine = " ";
+                                    foreach (var line in pramCodeViewService.PramLines)
+                                    {
+
+                                        if (globalService.FixedCode)
+                                        {
+                                            if (primaryLineIndicator && !startedCountDown)
+                                            {
+                                                startedCountDown = true;
+                                            }
+
+                                            if (startedCountDown)
+                                            {
+                                                if (lineCountDown > 0)
+                                                {
+                                                    lineCountDown--;
+                                                }
+                                            }
+
+                                            if (lineCountDown == 0)
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        if (imaMachine && (line.Key == lineIndex))
+                                        {
+                                            <div class="code-ima-line">
+                                                @line.Value
+                                            </div>
+                                            primaryLineIndicator = true;
+                                        }
+                                        else
+                                        {
+                                            string lineClass = GetLineClass(line.Key, i, out primaryLineIndicator);
+
+                                            if (globalService.FixedCode)
+                                            {
+                                                if (!primaryLineIndicator && !startedCountDown)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            <div class="@lineClass">
+                                                @line.Value
+                                            </div>
+                                        }
+                                    }
+
+                                    if (globalService.FixedCode)
+                                    {
+                                        int j = 0;
+                                        for (; j < lineCountDown - 1; j++)
+                                        {
+                                            <div class="code-comment">
+                                                @fillerLine
+                                            </div>
+                                        }
+
+                                    }
+                                }
+
                             </div>
-                        }
-                    }  
 
-                    if(globalService.FixedCode)
-                    {
-                        int j = 0;
-                        for(; j < lineCountDown - 1; j++)
-                        {
-                            <div class="code-comment">
-                                @fillerLine
-                            </div>
-                        }
-
-                    }
-                    }
-
+                            <h5 class="card-title">@TextUIService.PRAMViewMemoryTitle</h5>
+                            @if (machineMemory != null)
+                            {
+                                <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
+                            }
+                            else
+                            {
+                                <p>No memory data</p>
+                            }
+                        </div>
                     </div>
-
-                    <h5 class="card-title">@TextUIService.PRAMViewMemoryTitle</h5>
-                    @if (machineMemory != null)
-                    {
-                        <Blazor_app.Components.Memory.AnyMemory MemoryItems="@machineMemory" />
-                    }
-                    else
-                    {
-                        <p>No memory data</p>
-                    }
                 </div>
-            </div>
-        </div>
-        displayCount++;
-        if (displayCount % 4 == 0 && i != GetParallelMachineCount() - 1)
-        {
-            @:</div><div class="row mt-2">
-        }
-    }
-            </div>
-
+                displayCount++;
+            }
         </div>
     </div>
+</div>
 
 
 @code {
@@ -280,13 +274,13 @@ A major razor component for displaying parallel machine(s) state and memory, and
 
         //Current line coloring
 
-        if (execService.GetParallelMachineCodeIndex(machineIndex) == lineIndex)   
+        if (execService.GetParallelMachineCodeIndex(machineIndex) == lineIndex)
         {
             primaryLineIndicator = true;
             return "code-current-line";
         }
 
-        if (execService.GetParallelMachineErrorLineIndex(machineIndex) == lineIndex)   
+        if (execService.GetParallelMachineErrorLineIndex(machineIndex) == lineIndex)
         {
             primaryLineIndicator = true;
             return "code-error-line";
@@ -312,7 +306,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
             return "code-label-jump";
         }
 
-        if(pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
+        if (pramMachine.InstructionRegex.JumpToLabel.IsMatch(pramCodeViewService.PramLines[lineIndex]))
         {
             primaryLineIndicator = false;
             return "code-jump";
@@ -344,7 +338,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
     {
         selectViewParallelMachinesText = "";
 
-        if(pramCodeViewService.SelectedViewParallelMachines.Count == 0)
+        if (pramCodeViewService.SelectedViewParallelMachines.Count == 0)
         {
             selectViewPlaceHolder = TextUIService.PRAMViewMachineFilterDisplayingAll;
             StateHasChanged();
@@ -353,7 +347,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
         {
             selectViewPlaceHolder = TextUIService.PRAMViewMachineFilterDisplayingMessage(string.Join(", ", pramCodeViewService.SelectedViewParallelMachines));
 
-            if(selectViewPlaceHolder.Length > 200)
+            if (selectViewPlaceHolder.Length > 200)
             {
                 selectViewPlaceHolder = selectViewPlaceHolder.Substring(0, 200) + "...";
             }
