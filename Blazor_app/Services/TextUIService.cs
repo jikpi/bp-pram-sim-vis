@@ -80,6 +80,7 @@
         public static string StateIndicatorMaxHistoryReached(int historyOffset) => $"Max history reached: {historyOffset}";
         public static string StateIndicatorHistoryGoingBack(int historyOffset) => $"History going back: {historyOffset}";
         public static string StateIndicatorHistorySetToPresent { get; private set; } = "History set to present.";
+        public static string StateIndicatorMachineSavedForReimport { get; private set; } = "Machine saved for re-import";
 
         //Settings
         public static string SettingsTitleRunConfiguration { get; private set; } = "🟢 Run configuration";

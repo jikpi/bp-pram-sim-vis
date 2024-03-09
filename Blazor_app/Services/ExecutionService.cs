@@ -57,6 +57,8 @@ namespace Blazor_app.Services
             _timer = new Timer(TimerCallback, null, Timeout.Infinite, _autoRunInterval);
 
             _globalService.SetDefaultRegex(_pramMachine.InstructionRegex.SaveToText());
+
+            SameRegisterCRCW = _pramMachine.SameRegisterCRCW;
         }
 
 
@@ -773,7 +775,7 @@ namespace Blazor_app.Services
         {
             foreach (var cell in _pramMachine.GetInputMemory())
             {
-                if(cell.Value == 0)
+                if (cell.Value == 0)
                 {
                     cell.HasBeenWrittenTo = false;
                 }
@@ -793,6 +795,17 @@ namespace Blazor_app.Services
                 {
                     cell.HasBeenWrittenTo = false;
                 }
+            }
+        }
+
+        private bool _sameRegisterCRCW;
+        public bool SameRegisterCRCW
+        {
+            get => _sameRegisterCRCW;
+            set
+            {
+                _sameRegisterCRCW = value;
+                _pramMachine.SameRegisterCRCW = value;
             }
         }
     }

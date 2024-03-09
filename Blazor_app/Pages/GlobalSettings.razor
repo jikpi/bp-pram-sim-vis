@@ -68,6 +68,11 @@ A major razor component for settings.
                     </select>
                 </div>
 
+                <div class="form-group mb-1">
+                    <input type="checkbox" @bind="execService.SameRegisterCRCW" id="allowsinglestepcrcw" aria-label="In CRCW, allow concurrent read and write in the same memory cell in single step">
+                    <label for="allowsinglestepcrcw" class="ms-2">Allow CRCW single step single register read and write (⚠)</label>
+                </div>
+
                 @if (execService.IsInHistory)
                 {
                     <div class="form-group mt-3">
@@ -81,20 +86,34 @@ A major razor component for settings.
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
                 <h3 class="card-title">@TextUIService.SettingsTitleMachineImportExport</h3>
-                <input type="file" id="fileInput" style="display:none" />
-                <button type="button" class="btn btn-primary" @onclick="ImportMachine">
-                    Import
-                </button>
+                <div class="form-group mb-3">
+                    <h5>To file</h5>
+                    <input type="file" id="fileInput" style="display:none" />
+                    <button type="button" class="btn btn-primary" @onclick="ImportMachine">
+                        Import
+                    </button>
 
-                <button type="button" class="btn btn-secondary"
-                        @onclick="ExportMachine">
-                    Export
-                </button>
+                    <button type="button" class="btn btn-secondary"
+                            @onclick="(() => ExportMachine())">
+                        Export
+                    </button>
+                </div>
 
-                <button type="button" class="btn btn-warning"
-                        @onclick="ReimportMachine">
-                    Re-Import
-                </button>
+                <div class="form-group mb-3">
+                    <h5>In memory</h5>
+
+                    <button type="button" class="btn btn-warning"
+                            @onclick="ReimportMachine">
+                        Re-Import
+                    </button>
+
+                    <button type="button" class="btn btn-info"
+                            @onclick="SaveToReimportMachine">
+                        Save to Re-Import
+                    </button>
+                </div>
+
+
             </div>
         </div>
 
@@ -193,7 +212,7 @@ A major razor component for settings.
         execService.ResetZeroValuedMemoryCellsFlags();
     }
 
-    public void ExportMachine()
+    public string ExportMachine(bool dontSaveFile = false)
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("MACHINECODE");
@@ -224,6 +243,13 @@ A major razor component for settings.
             }
         }
 
+        string fileContent = sb.ToString();
+
+        if (dontSaveFile)
+        {
+            return fileContent;
+        }
+
         string fileName = codeEditorService.Code.Split('\n')[0];
         //check if firstCodeLine is a valid file name and if it is a comment, if not, use default name
         if (!(fileName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) == -1 && pramMachine.InstructionRegex.Comment.IsMatch(fileName)))
@@ -233,12 +259,14 @@ A major razor component for settings.
 
         try
         {
-            JSRuntime.InvokeVoidAsync("downloadFileFromBlazor", $"{fileName}", "text/plain", sb.ToString());
+            JSRuntime.InvokeVoidAsync("downloadFileFromBlazor", $"{fileName}", "text/plain", fileContent);
         }
         catch (Exception)
         {
             globalService.SetLastState(TextUIService.StateIndicatorFailedToExportMachine, GlobalService.LastStateUniform.Error);
         }
+
+        return fileContent;
     }
 
     private void ImportMachine()
@@ -255,6 +283,12 @@ A major razor component for settings.
             execService.CompileCode();
             pramMachine.GetInteractiveOutputMemory.Clear();
         }
+    }
+
+    private void SaveToReimportMachine()
+    {
+        globalService.LastImportedMachine = ExportMachine(true);
+        globalService.SetLastState(TextUIService.StateIndicatorMachineSavedForReimport, GlobalService.LastStateUniform.Note);
     }
 
     [JSInvokable]

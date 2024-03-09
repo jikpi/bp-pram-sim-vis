@@ -53,6 +53,7 @@ namespace PRAM_lib.Machine
         public bool IllegalMemoryAccess => IllegalMemoryAccesses.Count > 0;
         public ParallelAccessError? IllegalMemoryAccessType { get; private set; }
         public int PreviousCodeLineIndex => MPIP.Value > 0 ? MasterCodeMemory!.Instructions[MPIP.Value - 1].CodeInstructionLineIndex : -1;
+        public bool SameRegisterCRCW { get; set; }
 
         public enum CRCW_AccessType
         {
@@ -91,6 +92,7 @@ namespace PRAM_lib.Machine
             IllegalMemoryAccessType = null;
 
             CRCW_Access = CRCW_AccessType.Priority;
+            SameRegisterCRCW = false;
         }
 
         /// <summary>
@@ -379,6 +381,21 @@ namespace PRAM_lib.Machine
                             relParallelMachine = null;
                             return;
                         }
+                    }
+                }
+            }
+
+            //Check that in CRCW there wasn't a read and write access at the same time in single memory cell
+            if(((CRXW && XRCW)) && !SameRegisterCRCW)
+            {
+                foreach (var access in MasterGateway.ParallelAccessCycle)
+                {
+                    if (access.Value.Count(x => x.Type == ParallelAccessType.Read) > 0 && access.Value.Count(x => x.Type == ParallelAccessType.Write) > 0)
+                    {
+                        IllegalMemoryAccesses.AddRange(access.Value);
+                        IllegalMemoryAccessType = ParallelAccessError.Write;
+                        relParallelMachine = null;
+                        return;
                     }
                 }
             }

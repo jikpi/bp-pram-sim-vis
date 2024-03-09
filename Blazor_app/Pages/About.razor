@@ -112,6 +112,7 @@ A major razor component for about page.
             </li>
             <li>Should any parallel machine/machines crash, the relevant code line will be highlighted in pink.</li>
             <li>Should any parallel machines access memory illegally, the relevant code line will be highlighted in orange</li>
+            <li>The number of shown boxes is limited to 100.</li>
         </ul>
 
         <h4>Breakpoints</h4>
@@ -144,6 +145,7 @@ A major razor component for about page.
                     <li>Enable/Disable history</li>
                     <li>Fix parallel machine code in place to save display space, and set the number of displayed lines</li>
                     <li>Set the CRCW access type</li>
+                    <li>Allow single memory cell read and write at the same time in CRCW shared memory access mode. Warning: Concurrent memory access behaviour not defined with instructions that read and write in shared memory in a single step, e.g. <code>S0 := S1 + S2</code></li>
                 </ul>
             </li>
             <li>Import / export a machine</li>
@@ -152,7 +154,8 @@ A major razor component for about page.
                     <li>Import a machine from a file</li>
                     <li>Export a machine to a file</li>
                     <li>Re-Import a machine, importing the last imported machine. Can be used to also re-import the last loaded example machine.</li>
-                    <li>Code, input memory and shared memory are imported/exported</li>
+                    <li>Save to Re-Import, which saves the current machine into memory, allowing it to be re-imported with the re-import button.</li>
+                    <li>Code, input memory and shared memory are imported/exported. Exports only changed memory cells, including ones containing a zero value.</li>
                     <li>When Re-Importing, output memory is cleared and the machine is automatically compiled. If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed</li>
                 </ul>
             </li>
@@ -179,7 +182,7 @@ A major razor component for about page.
 
         <h4>Parallel shared memory access / PRAM variant</h4>
         <p>The variant of the PRAM determines the behaviour during parallel memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the "master" RAM is idle.
-            Whether the memory access was legal is checked after every step, after every parallel machine has executed its instruction.
+            Whether the memory access was legal is checked after every step, after every parallel machine has executed its instruction. In CRCW, whether reading and writing in a single step into the same memory cell at the same time is allowed can be changed in settings.
         </p>
         <ul>
             <li>EREW: Exclusive Read Exclusive Write</li>
@@ -211,8 +214,7 @@ A major razor component for about page.
                     <li>
                         <ul>
                             <li>In a single step, any number of parallel machines can write into the same memory cell, but only the value of a parallel machine with the smallest index is written.</li>
-                            <li>The cell may be read from at the same time as it is being written to. The value read is determined by the priority.</li>
-                            <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step "10" is written in the shared memory cell, and "20" is read by PM1. Depending on the order, the original value of the cell before any write might be read.</li>
+                            <li>If enabled, the cell may be read from at the same time as it is being written to. The value read is determined by the priority. Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step "10" is written in the shared memory cell, and "20" is read by PM1. Depending on the order, the original value of the cell before any write might be read.</li>
                         </ul>
                     </li>
 
@@ -220,8 +222,7 @@ A major razor component for about page.
                     <li>
                         <ul>
                             <li>In a single step, any number of parallel machines can write into the same memory cell, but only the value of a randomly chosen parallel machine is written.</li>
-                            <li>The cell may be read from at the same time as it is being written to. The value read is determined arbitrarily.</li>
-                            <li>Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step, one of the values that was being written is in the shared memory cell, and a random value that was being written is read by PM1, including the value that was in the cell originally</li>
+                            <li>If enabled, the cell may be read from at the same time as it is being written to. The value read is determined arbitrarily. Should there for example be 3 parallel machines: PM0: Writing "10", PM1: Reading, PM2: Writing "20", at the end of the step, one of the values that was being written is in the shared memory cell, and a random value that was being written is read by PM1, including the value that was in the cell originally.</li>
                         </ul>
                     </li>
                 </ul>
