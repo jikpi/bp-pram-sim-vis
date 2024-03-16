@@ -22,7 +22,7 @@ A major razor component for about page.
         <p>By Jan Kopidol</p>
         <p>
             This application is a capable PRAM abstract machine simulator, supporting the variants EREW, CREW, CRCW (Priority, Arbitrary, Common). Code is executed synchronously.
-            This model starts as a RAM machine that can launch parallel machines, thus optionally allowing elegant managment of resources and parallel machines, simplyfying the code of parallel machines
+            This model starts as a RAM machine that can launch parallel machines, thus optionally allowing elegant managment of resources and parallel machines, simplyfying the code of parallel machines. The RAM that is launched at the beginning is referred to as "master RAM".
         </p>
         <h4 class="text-center">Getting started</h4>
         <p>
@@ -128,7 +128,7 @@ A major razor component for about page.
         <ul>
             <li>The size of history is limited, and if the max size is reached, the oldest entries are dropped</li>
             <li>It can be disabled in settings to improve performance</li>
-            <li>Breakpoints don't affect history in any way. If the user is viewing a record from history and "Run until breakpoint" is clicked, the machine continues where it left off</li>
+            <li>Breakpoints don't affect history in any way. If the user is viewing a record from history and "Run until breakpoint" is clicked, the machine continues where it left off.</li>
             <li>Auto step continues in history forward</li>
             <li>History is saved in any execution mode</li>
             <li>The user can jump to present machine state with the appropriate button in settings</li>
@@ -145,7 +145,8 @@ A major razor component for about page.
                     <li>Enable/Disable history</li>
                     <li>Fix parallel machine code in place to save display space, and set the number of displayed lines</li>
                     <li>Set the CRCW access type</li>
-                    <li>Allow single memory cell read and write at the same time in CRCW shared memory access mode. Warning: Concurrent memory access behaviour not defined with instructions that read and write in shared memory in a single step, e.g. <code>S0 := S1 + S2</code></li>
+                    <li>Allow single memory cell read and write at the same time in CRCW shared memory access mode. Warning: Concurrent memory access behaviour not defined with instructions that read and write in shared memory in a single step, e.g. <code>S0 := S1 + S2</code>.</li>
+                    <li>If history is being currently displayed, a button is present that steps to the present state of the machine.</li>
                 </ul>
             </li>
             <li>Import / export a machine</li>
@@ -156,7 +157,7 @@ A major razor component for about page.
                     <li>Re-Import a machine, importing the last imported machine. Can be used to also re-import the last loaded example machine.</li>
                     <li>Save to Re-Import, which saves the current machine into memory, allowing it to be re-imported with the re-import button.</li>
                     <li>Code, input memory and shared memory are imported/exported. Exports only changed memory cells, including ones containing a zero value.</li>
-                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled. If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed</li>
+                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled. If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed.</li>
                 </ul>
             </li>
 
@@ -181,20 +182,21 @@ A major razor component for about page.
         </ul>
 
         <h4>Parallel shared memory access / PRAM variant</h4>
-        <p>The variant of the PRAM determines the behaviour during parallel memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the "master" RAM is idle.
-            Whether the memory access was legal is checked after every step, after every parallel machine has executed its instruction. In CRCW, whether reading and writing in a single step into the same memory cell at the same time is allowed can be changed in settings.
+        <p>
+            The variant of the PRAM determines the behaviour during parallel memory access. The descriptions are in the context of "Synchronous parallel execution step", meaning that in a single step, any number of parallel machines execute a single instruction at the same time. During parallel execution, the master RAM is idle.
+            Whether the memory access was legal is checked after every step, after every parallel machine has executed its instruction. In CRCW, whether reading and writing in a single step into the same memory cell at the same time is allowed can be changed in settings. ⚠ The behaviour of this functionality is not fully described here, and only experimental.
         </p>
         <ul>
             <li>EREW: Exclusive Read Exclusive Write</li>
             <li>
                 <ul>
-                    <li>In a single step, a shared memory cell might be only either read from or written to by a single parallel machine</li>
+                    <li>In a single step, a shared memory cell might be only either read from or written to by a single parallel machine.</li>
                 </ul>
             </li>
             <li>CREW: Concurrent Read Exclusive Write</li>
             <li>
                 <ul>
-                    <li>In a single step, a shared memory cell might be read from by any number of parallel machines, but only written to by a single parallel machine</li>
+                    <li>In a single step, a shared memory cell might be read from by any number of parallel machines, but only written to by a single parallel machine.</li>
                     <li>If in a single step the cell is being written to, it cannot be read from.</li>
                 </ul>
             </li>
@@ -205,7 +207,7 @@ A major razor component for about page.
                     <li>Common</li>
                     <li>
                         <ul>
-                            <li>In a single step, any number of parallel machines can write into the same memory cell, if they are writing the same value</li>
+                            <li>In a single step, any number of parallel machines can write into the same memory cell, if they are writing the same value.</li>
                             <li>If in a single step the cell is being written to, it cannot be read from.</li>
                         </ul>
                     </li>
@@ -232,22 +234,24 @@ A major razor component for about page.
         <h4>Code syntax</h4>
         <p>The default code syntax of instructions is as follows. 'S' is a shared memory cell, 'L' is local memory cell (of a paralell machine). Result sets are explained below.</p>
         <ul>
-            <li>Instructions that can be executed by both "master" RAM and parallel machines</li>
+            <li>Instructions that can be executed by both master RAM and parallel machines</li>
             <li>
                 <ul>
                     <li><code>#comment</code> a comment line</li>
-                    <li><code>S0 := /RESULT_SET/</code> // <code>L0 := /RESULT_SET/</code> sets memory cell to the value of result set</li>
-                    <li><code>[S0] := /RESULT_SET/</code> // <code>[L0] := /RESULT_SET/</code> sets memory cell at the index of the value in the cell in brackets to the value of result set</li>
-                    <li><code>goto :label</code> jumps to the specified label</li>
-                    <li><code>:label</code> a label which can be jumped to.</li>
-                    <li><code>if (S0 == S1) goto :label</code> jumps to the specified label if the condition is true</li>
-                    <li><ul>
+                    <li><code>S0 := /RESULT_SET/</code> // <code>L0 := /RESULT_SET/</code> sets memory cell to the value of result set.</li>
+                    <li><code>[S0] := /RESULT_SET/</code> // <code>[L0] := /RESULT_SET/</code> sets memory cell at the index of the value in the cell in brackets to the value of result set.</li>
+                    <li><code>goto :label</code> jumps to the specified label.</li>
+                    <li><code>:label</code> a label which can be jumped to. The label itself is never executed - does not count as a step.</li>
+                    <li><code>if (S0 == S1) goto :label</code> jumps to the specified label if the condition is true.</li>
+                    <li>
+                        <ul>
                             <li>the condition operators are <pre>==, !=, >=, &lt;=, >, &lt;</pre></li>
-                            <li>Only either shared memory or local memory can be compared in a single if statement</li>
-                            <li>Comparing shared memory counts as a read for both cells</li>
-                    </ul></li>
-                    <li><code>nop</code> no operation, does nothing when executed</li>
-                    <li><code>S{/RESULT_SET/} := /RESULT_SET/</code> // <code>L{/RESULT_SET/} := /RESULT_SET/</code> sets shared / local memory at the address of the left result set to the value of the right result set</li>
+                            <li>Only either shared memory or local memory can be compared in a single if statement.</li>
+                            <li>Comparing shared memory counts as a read for both cells.</li>
+                        </ul>
+                    </li>
+                    <li><code>nop</code> no operation, does nothing when executed.</li>
+                    <li><code>S{/RESULT_SET/} := /RESULT_SET/</code> // <code>L{/RESULT_SET/} := /RESULT_SET/</code> sets shared / local memory at the address of the left result set to the value of the right result set.</li>
                     <li><code>halt</code> explicitly halts the machine in which this instruction was executed.</li>
                 </ul>
             </li>
@@ -255,26 +259,27 @@ A major razor component for about page.
             <li>Instructions that cannot be executed by parallel machines</li>
             <li>
                 <ul>
-                    <li><code>S0 := READ() </code> // <code>S0 := READ(0)</code> read from input memory into shared memory at the designated index / indexes. If no index is specified in input memory, it increases from 0 at every read. Specifying the index does not affect this counter</li>
-                    <li><code>WRITE(/RESULT_SET/)</code> writes the result set into the next cell of output memory. If the machine is reset, the output memory counter is also reset</li>
+                    <li><code>S0 := READ() </code> // <code>S0 := READ(0)</code> read from input memory into shared memory at the designated index / indexes. If no index is specified in input memory, it increases from 0 at every read. Specifying the index does not affect this counter.</li>
+                    <li><code>WRITE(/RESULT_SET/)</code> writes the result set into the next cell of output memory. If the machine is reset, the output memory counter is also reset.</li>
                     <li><code>pardo /RESULT_SET/</code> annotates the start of parallel machine instruction block. Any number of paralell machines is launched, unless negative, then the PRAM crashes.</li>
-                    <li><code>parend</code> annotates the end of parallel machine instruction block. Always in a pair with <code>pardo</code>. This instructions syntax is fixed.</li>
+                    <li><code>parend</code> annotates the end of parallel machine instruction block. Always in a pair with <code>pardo</code>. The instruction syntax of this one is fixed.</li>
                 </ul>
             </li>
 
             <li>Result sets are dynamically evaluated expressions at runtime.</li>
             <li>
                 <ul>
-                    <li><code>S0</code> // <code>L0</code> a value of a cell</li>
+                    <li><code>S0</code> // <code>L0</code> a value of a cell.</li>
                     <li><code>0</code> a constant</li>
                     <li><code>S0 + S1</code> // <code>L0 + L1</code> // <code>S0 + L0</code> operation between cells, supported operators are +,-,*,/ (integer division),% (modulo), even between memories.</li>
                     <li><code>S0 + 10</code> // <code>L0 + 10</code> similar as above but between a cell and a constant. The positions can be switched.</li>
                     <li><code>[S0]</code> // <code>[L0]</code> takes the value of a cell with the address that is the value of the cell in brackets. Addresses in either shared or local memory.</li>
                     <li><code>S{/RESULT_SET/}</code> // <code>L{/RESULT_SET/}</code> takes the value of a cell with the address that is the value of the result set. Allows addressing between shared and local memory.</li>
-                    <li><code>{i}</code> the index of the parallel machine, with <code>n</code> launched parallel machines from 0 to <code>n</code> - 1. In RAM, returns 0.</li>
+                    <li><code>{i}</code> a constant holding the index of the parallel machine in which it was read, with <code>n</code> launched parallel machines from 0 to <code>n - 1</code>. Return value undefined in master RAM.</li>
                 </ul>
             </li>
         </ul>
+        <p>It should be noted that the precise definition of capital letters used to access the memory is as follows: All letters in master RAM access only shared memory, and all letters except 'S' in parallel RAM access local memory. For clarity, it is recommended to only use 'S' and 'L'.</p>
     </div>
 </div>
 
