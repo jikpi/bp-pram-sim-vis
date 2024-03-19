@@ -2,6 +2,8 @@
  * Author: Jan Kopidol
  */
 
+using Blazor_app.Assets;
+
 namespace Blazor_app.Services
 {
     /// <summary>
@@ -20,12 +22,11 @@ namespace Blazor_app.Services
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             //Limit the string size
-            int maxSize = 50;
             foreach (var kvp in PramLines)
             {
-                if (kvp.Value.Length > maxSize)
+                if (kvp.Value.Length > ProjectConfig.MaxPramViewCodeEditorLineSize)
                 {
-                    PramLines[kvp.Key] = kvp.Value.Substring(0, maxSize) + "..";
+                    PramLines[kvp.Key] = kvp.Value.Substring(0, ProjectConfig.MaxPramViewCodeEditorLineSize) + "..";
                 }
             }
         }

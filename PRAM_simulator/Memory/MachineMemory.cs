@@ -12,7 +12,7 @@ namespace PRAM_lib.Memory
     internal class MachineMemory : IMemory
     {
         public ObservableCollection<MemoryCell> Cells { get; set; }
-        public static int MaxCellSize { get; set; } = 1_000_000;
+        public static int MaxCellAddress { get; set; } = 1_000_000;
 
         public MachineMemory()
         {
@@ -23,8 +23,8 @@ namespace PRAM_lib.Memory
         {
             if (memoryAddress < 0)
                 throw new LocalException(ExceptionMessages.AddressIsNegative(memoryAddress));
-            if (memoryAddress >= MaxCellSize)
-                throw new LocalException(ExceptionMessages.AddressIsTooBig(memoryAddress, MaxCellSize));
+            if (memoryAddress >= MaxCellAddress)
+                throw new LocalException(ExceptionMessages.AddressIsTooBig(memoryAddress, MaxCellAddress));
         }
 
         public MemoryCell Read(int address)

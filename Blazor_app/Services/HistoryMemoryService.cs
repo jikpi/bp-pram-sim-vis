@@ -2,6 +2,7 @@
  * Author: Jan Kopidol
  */
 
+using Blazor_app.Assets;
 using PRAM_lib.Memory;
 using System.Collections.ObjectModel;
 
@@ -14,7 +15,7 @@ namespace Blazor_app.Services
     public class HistoryMemoryService
     {
         public int HistoryIndex { get; private set; } = 0;
-        public int MaxHistoryIndex { get; private set; } = 500;
+        public int MaxHistoryIndex { get; private set; } = ProjectConfig.MaxHistorySize;
 
         private List<ObservableCollection<MemoryCell>> InputHistory { get; set; } = [];
         private List<ObservableCollection<MemoryCell>> OutputHistory { get; set; } = [];

@@ -2,6 +2,8 @@
  * Author: Jan Kopidol
  */
 
+using Blazor_app.Assets;
+
 namespace Blazor_app.Services
 {
     /// <summary>
@@ -45,9 +47,9 @@ namespace Blazor_app.Services
             //Limit the string size to 50
             foreach (var kvp in CompiledLines)
             {
-                if (kvp.Value.Length > 50)
+                if (kvp.Value.Length > ProjectConfig.MaxHomePageCodeEditorLineSize)
                 {
-                    CompiledLines[kvp.Key] = kvp.Value.Substring(0, 50) + "..";
+                    CompiledLines[kvp.Key] = kvp.Value.Substring(0, ProjectConfig.MaxHomePageCodeEditorLineSize) + "..";
                 }
             }
 

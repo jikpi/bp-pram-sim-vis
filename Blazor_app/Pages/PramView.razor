@@ -5,6 +5,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
 
 -->
 @page "/pramview"
+@using Blazor_app.Assets
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using System.Collections.ObjectModel
@@ -85,7 +86,7 @@ A major razor component for displaying parallel machine(s) state and memory, and
             @for (int i = 0; i < GetParallelMachineCount(); i++)
             {
 
-                if (displayCount > 300)
+                if (displayCount > ProjectConfig.MaxPramMachineCount)
                 {
                     continue;
                 }

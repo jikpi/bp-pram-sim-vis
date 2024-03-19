@@ -90,8 +90,8 @@
         public static string SettingsSaveHistory { get; private set; } = "Save history";
         public static string SettingsFixParallelCodeInPlace { get; private set; } = "Fix parallel code in place";
         public static string SettingsCRCWAccessType { get; private set; } = "CRCW Access type";
-        public static string SettingsTitleMachineImportExport { get; private set; } = "💾 Machine import/export";
-        public static string SettingsTitleRegexImportExport { get; private set; } = "🔠 Regex import/export";
+        public static string SettingsTitleMachineImportExport { get; private set; } = "💾 Machine management";
+        public static string SettingsTitleRegexImportExport { get; private set; } = "🔠 Regex management";
         public static string SettingsTitleEditingInstructionRegex { get; private set; } = "Edit instruction regex";
         public static string SettingsEditingInstructionRegexWarning { get; private set; } = "Editing the instruction regex of the machine is not officially supported and may expose critical aspects of its internal functionality. Please proceed with caution.";
         public static string SettingsEditingInstructionRegexContinue { get; private set; } = "I understand, continue";

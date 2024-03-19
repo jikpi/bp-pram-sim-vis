@@ -5,6 +5,7 @@ A razor component handling the code editor.
 
 -->
 
+@using Blazor_app.Assets
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @inject CodeEditorService codeEditor
@@ -30,7 +31,7 @@ A razor component handling the code editor.
 else
 {
     <div class="code-compiled-code-container">
-        @foreach (var line in codeEditor.CompiledLines.Take(2000))
+        @foreach (var line in codeEditor.CompiledLines.Take(ProjectConfig.MaxCodeEditorRenderedLines))
         {
             var lineClass = GetLineClass(line.Key);
             <div class="@lineClass code-line">

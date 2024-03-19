@@ -5,6 +5,7 @@ A razor component for displaying the contents of any memory (shared / local of a
 
 -->
 @using System.Collections.ObjectModel
+@using Blazor_app.Assets
 @using Blazor_app.Services
 @using PRAM_lib.Machine
 @using PRAM_lib.Memory
@@ -89,7 +90,7 @@ A razor component for displaying the contents of any memory (shared / local of a
                         }
                     }
 
-                    if (i > 500)
+                    if (i > ProjectConfig.MaxMemoryCellsCount)
                     {
                         <tr>
                             <td>MAX</td>

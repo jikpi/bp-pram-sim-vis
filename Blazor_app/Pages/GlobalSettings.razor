@@ -87,7 +87,7 @@ A major razor component for settings.
             <div class="card-body">
                 <h3 class="card-title">@TextUIService.SettingsTitleMachineImportExport</h3>
                 <div class="form-group mb-3">
-                    <h5>To file</h5>
+                    <h5>Import or export to file</h5>
                     <input type="file" id="fileInput" style="display:none" />
                     <button type="button" class="btn btn-primary" @onclick="ImportMachine">
                         Import
@@ -97,20 +97,24 @@ A major razor component for settings.
                             @onclick="(() => ExportMachine())">
                         Export
                     </button>
+
+                    <p class="mt-1">Imported machines are also saved to memory, ready to be loaded again with a single click below.</p>
                 </div>
 
                 <div class="form-group mb-3">
-                    <h5>In memory</h5>
+                    <h5>Load or save to memory</h5>
 
                     <button type="button" class="btn btn-warning"
                             @onclick="ReimportMachine">
-                        Re-Import
+                        Load
                     </button>
 
                     <button type="button" class="btn btn-info"
                             @onclick="SaveToReimportMachine">
-                        Save to Re-Import
+                        Save
                     </button>
+
+                    <p></p>
                 </div>
 
 
@@ -120,7 +124,7 @@ A major razor component for settings.
         <div class="card mb-3" style="width: 50%;">
             <div class="card-body">
                 <h3 class="card-title">@TextUIService.SettingsTitleInformation</h3>
-
+                <p>Loaded examples are also saved to memory, ready to be loaded again with a single click above.</p>
                 <div class="input-group mb-3">
                     <select id="machineSelection" class="form-control" @onchange="MachineSelected">
                         <option selected disabled>@TextUIService.Select</option>

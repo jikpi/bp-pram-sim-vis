@@ -39,7 +39,7 @@ A major razor component for about page.
                     <li>Step Forward: Go forwards in the machine execution progress</li>
                     <li>Run until breakpoint: Run the machine until a breakpoint is hit or halts</li>
                     <li>Toggle auto run: Run the machine automatically</li>
-                    <li>Reset the machine: Reset the machine, without clearing memory. (Local memory in parallel machines is cleared)</li>
+                    <li>Reset the machine: Reset the machine, without clearing memory. (Local memory in parallel machines is cleared). If the user wishes to reset the entire machine (get its original state), the "save to memory" functionality in settings can be used.</li>
                     <li>Current run statistics, such as the number of currently running parallel machines, and the total number of steps taken</li>
                 </ul>
             </li>
@@ -81,7 +81,7 @@ A major razor component for about page.
             </li>
             <li>Should the machine crash, the problematic line will be highlighted, and the error message will be shown in the status text.</li>
             <li>
-                The machine may launch parallel machines after executing an instruction to do so, after which the page is switched to "PRAM View"
+                The machine may launch parallel machines after executing an instruction to do so, after which the page is switched to "PRAM View", or back to "Main Page" after they have all halted.
             </li>
         </ul>
 
@@ -105,12 +105,12 @@ A major razor component for about page.
             <li>
                 <ul>
                     <li>The index of the machine</li>
-                    <li>The state of the machine, should it be halted, crashed, or attempted to access the shared memory illegally</li>
+                    <li>The state of the machine, should it be halted, crashed, or have attempted to access the shared memory illegally (IMA - Illegal Memory Access)</li>
                     <li>The code view of each machine, with the next line to be executed highlighted</li>
                     <li>The local memory of each machine</li>
                 </ul>
             </li>
-            <li>Should any parallel machine/machines crash, the relevant code line will be highlighted in pink.</li>
+            <li>Should any parallel machine/machines crash, the relevant code line will be highlighted in burgundy.</li>
             <li>Should any parallel machines access memory illegally, the relevant code line will be highlighted in orange</li>
             <li>The number of shown boxes is limited to 100.</li>
         </ul>
@@ -149,22 +149,23 @@ A major razor component for about page.
                     <li>If history is being currently displayed, a button is present that steps to the present state of the machine.</li>
                 </ul>
             </li>
-            <li>Import / export a machine</li>
+            <li>Manage machines</li>
             <li>
                 <ul>
-                    <li>Import a machine from a file</li>
-                    <li>Export a machine to a file</li>
-                    <li>Re-Import a machine, importing the last imported machine. Can be used to also re-import the last loaded example machine.</li>
-                    <li>Save to Re-Import, which saves the current machine into memory, allowing it to be re-imported with the re-import button.</li>
-                    <li>Code, input memory and shared memory are imported/exported. Exports only changed memory cells, including ones containing a zero value.</li>
-                    <li>When Re-Importing, output memory is cleared and the machine is automatically compiled. If a machine is imported and the PRAM syntax regex is non-default, a warning is displayed.</li>
+                    <li>Import a machine from a file. This automatically saves the machine to memory in its current state.</li>
+                    <li>Export the current machine to a file</li>
+                    <li>Load a machine from memory, importing the last machine saved in memory. Can be used to also re-import the last loaded example machine.</li>
+                    <li>Save the current machine to memory, allowing for it to be loaded with the load button.</li>
+                    <li>Code, input memory and shared memory are taken into account. Exports only changed memory cells, including ones containing a zero value.</li>
+                    <li>When loading a machine from memory, the output memory is cleared and the machine is automatically compiled. If a machine is loaded and the PRAM syntax regex is non-default, a warning is displayed.</li>
+                    <li>Note that "Save / load" in memory does not mean the currently displayed machine the user is interacting with, but a separate location in memory for machine management purposes.</li>
                 </ul>
             </li>
 
             <li>Information and examples</li>
             <li>
                 <ul>
-                    <li>Load example machines</li>
+                    <li>Load example machines. Loaded example machines are saved to memory, and can be loaded with a single click in their original state.</li>
                     <li>View this page containing information and user manual</li>
                 </ul>
             </li>
