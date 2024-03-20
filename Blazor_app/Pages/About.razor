@@ -152,13 +152,13 @@ A major razor component for about page.
             <li>Manage machines</li>
             <li>
                 <ul>
-                    <li>Import a machine from a file. This automatically saves the machine to memory in its current state.</li>
+                    <li>Import a machine from a file. This automatically stashes the machine to memory in its current state.</li>
                     <li>Export the current machine to a file</li>
-                    <li>Load a machine from memory, importing the last machine saved in memory. Can be used to also re-import the last loaded example machine.</li>
-                    <li>Save the current machine to memory, allowing for it to be loaded with the load button.</li>
+                    <li>Load a stashed machine from memory, importing the last machine stashed in memory. Can be used to also re-import the last loaded example machine.</li>
+                    <li>Stash the current machine to memory.</li>
                     <li>Code, input memory and shared memory are taken into account. Exports only changed memory cells, including ones containing a zero value.</li>
-                    <li>When loading a machine from memory, the output memory is cleared and the machine is automatically compiled. If a machine is loaded and the PRAM syntax regex is non-default, a warning is displayed.</li>
-                    <li>Note that "Save / load" in memory does not mean the currently displayed machine the user is interacting with, but a separate location in memory for machine management purposes.</li>
+                    <li>When loading a stashed machine from memory, the output memory is cleared and the machine is automatically compiled. If a machine is loaded and the PRAM syntax regex is non-default, a warning is displayed.</li>
+                    <li>Note that "Stash / Load" in memory does not mean the currently displayed machine the user is interacting with, but a separate location in memory for machine management purposes.</li>
                 </ul>
             </li>
 
