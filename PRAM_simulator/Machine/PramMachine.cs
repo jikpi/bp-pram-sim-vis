@@ -259,9 +259,13 @@ namespace PRAM_lib.Machine
             if (CRXW && XRCW)
             {
                 //Order the parallel machines based on the CRCW_Access
-                if (CRCW_Access == CRCW_AccessType.Priority || CRCW_Access == CRCW_AccessType.Common)
+                if (CRCW_Access == CRCW_AccessType.Priority)
                 {
                     orderedParallelMachines = LaunchedParallelMachines.OrderByDescending(x => x.ProcessorIndex).ToList();
+                }
+                else if (CRCW_Access == CRCW_AccessType.Common)
+                {
+                    orderedParallelMachines = LaunchedParallelMachines;
                 }
                 else if (CRCW_Access == CRCW_AccessType.Arbitrary)
                 {
@@ -386,7 +390,7 @@ namespace PRAM_lib.Machine
             }
 
             //Check that in CRCW there wasn't a read and write access at the same time in single memory cell
-            if(((CRXW && XRCW)) && !SameRegisterCRCW)
+            if (((CRXW && XRCW)) && !SameRegisterCRCW)
             {
                 foreach (var access in MasterGateway.ParallelAccessCycle)
                 {

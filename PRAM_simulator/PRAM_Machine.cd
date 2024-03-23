@@ -1,0 +1,354 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access" MembersFormat="FullSignature">
+  <Class Name="PRAM_lib.Code.CodeMemory.CodeMemory">
+    <Position X="6.5" Y="7.25" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>Code\CodeMemory\CodeMemory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.Compiler.CodeCompiler">
+    <Position X="4" Y="2.75" Width="16" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Code\Compiler\CodeCompiler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.CustomExceptions.Other.ExceptionMessages">
+    <Position X="21" Y="2.75" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>gQTBQgAAAAgAAAAkAYAQAAAAAAAAAAIAAIAAADBQQAA=</HashCode>
+      <FileName>Code\CustomExceptions\Other\ExceptionMessages.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.CustomExceptions.LocalException">
+    <Position X="11" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Code\CustomExceptions\LocalException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.Gateway.GatewayIndexSet">
+    <Position X="25.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAACgAAAAIAAAgAAAIAIgAAAAAAAABEAAAAEEAAA=</HashCode>
+      <FileName>Code\Gateway\GatewayIndexSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.Gateway.MasterGateway" BaseTypeListCollapsed="true">
+    <Position X="6.5" Y="9.25" Width="11" />
+    <TypeIdentifier>
+      <HashCode>ARCABACiBADIIABgoAAAEAIpAIEgAAAAAIABAAEAAAA=</HashCode>
+      <FileName>Code\Gateway\MasterGateway.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Code.Gateway.ParallelGateway" BaseTypeListCollapsed="true">
+    <Position X="29.5" Y="8.5" Width="8" />
+    <TypeIdentifier>
+      <HashCode>AQAABACgAAAIIAAAgAAAAAIhAAAAAAAAIgAAAAEAAAA=</HashCode>
+      <FileName>Code\Gateway\ParallelGateway.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Code.Jumps.JumpMemory">
+    <Position X="6.5" Y="4.75" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAgAAIAAAAEAAgAAAAAAABAAAA=</HashCode>
+      <FileName>Code\Jumps\JumpMemory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Code.InstructionRegex">
+    <Position X="0.75" Y="20.25" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>BYgQIACMAIgEICDIEDhEEQMAAABQBGAEGImAQADACRA=</HashCode>
+      <FileName>Code\InstructionRegex.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Independent_Instructions.Halt" BaseTypeListCollapsed="true">
+    <Position X="31.25" Y="15.75" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAAAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\Halt.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Independent_Instructions.NoOperation" BaseTypeListCollapsed="true">
+    <Position X="23" Y="26.75" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAAAAAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\NoOperation.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.IfJumpTo" BaseTypeListCollapsed="true">
+    <Position X="23" Y="29.25" Width="9.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAAAAAAAAIAAGAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\IfJumpTo.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.JumpTo" BaseTypeListCollapsed="true">
+    <Position X="28" Y="26.75" Width="7.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAAAAAAAAIAACAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\JumpTo.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.SetMemoryToResult" BaseTypeListCollapsed="true">
+    <Position X="19.25" Y="20.5" Width="5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAQAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\SetMemoryToResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.SetPointerToResult" BaseTypeListCollapsed="true">
+    <Position X="26" Y="21.75" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAAAAAAAAIAAAAAIAAAEAAA=</HashCode>
+      <FileName>Instruction\Independent Instructions\SetPointerToResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.ParallelDo" BaseTypeListCollapsed="true">
+    <Position X="25.5" Y="18.25" Width="8.75" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAABAAQggAAAAAAAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Master Instructions\ParallelDo.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.ReadInput" BaseTypeListCollapsed="true">
+    <Position X="15.5" Y="26.5" Width="6.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQgAQAAAAAAAAAAAIAAAAAAAAAEACA=</HashCode>
+      <FileName>Instruction\Master Instructions\ReadInput.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Master_Instructions.WriteOutput" BaseTypeListCollapsed="true">
+    <Position X="31" Y="21.5" Width="7" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQgAAAAAAQAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Master Instructions\WriteOutput.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ComparisonSet" BaseTypeListCollapsed="true">
+    <Position X="27.75" Y="5.25" Width="11" />
+    <TypeIdentifier>
+      <HashCode>AgQAAACAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAEBAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ComparisonSet.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ResultSet_Cell" BaseTypeListCollapsed="true">
+    <Position X="34.5" Y="19.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_Cell.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ResultSet_CellOpCell" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="26.75" Width="6.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAgAAAAAAAAAAAAAAAAAAAAEEAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_CellOpCell.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ResultSet_CellOpConstant" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="24" Width="7.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAEAAAAAFACA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_CellOpConstant.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ResultSet_Constant" BaseTypeListCollapsed="true">
+    <Position X="31" Y="24.25" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAEACA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_Constant.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.InstructionResult.ResultSet_Pointer" BaseTypeListCollapsed="true">
+    <Position X="20.75" Y="24.25" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_Pointer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.ResultSet.ResultSet_IndirectPointer" BaseTypeListCollapsed="true">
+    <Position X="25.25" Y="24.25" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAACAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_IndirectPointer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Other.ResultSet.ResultSet_ParallelIndex" BaseTypeListCollapsed="true">
+    <Position X="15" Y="24.25" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\ResultSet_ParallelIndex.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Instruction.Parallel_Instructions.IndirectMultiMemoryToResult" BaseTypeListCollapsed="true">
+    <Position X="8" Y="20.5" Width="9.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAIAACAAAAAIAAAAAAAAAkAAA=</HashCode>
+      <FileName>Instruction\Parallel Instructions\IndirectMultiMemoryToResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Machine.Container.ParallelAccessInfo">
+    <Position X="6.5" Y="16.5" Width="7.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAEAAQAAAQAAAIA=</HashCode>
+      <FileName>Machine\Container\ParallelAccessInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Machine.Container.ParallelMachineContainer">
+    <Position X="20.75" Y="14" Width="6.25" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAIAAAAAAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>Machine\Container\ParallelMachineContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Machine.InstructionPointer.InstrPointer">
+    <Position X="18" Y="9.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAEAAAAEAAAAgAAAAAAA=</HashCode>
+      <FileName>Machine\InstructionPointer\InstrPointer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PRAM_lib.Processor.InParallelMachine" BaseTypeListCollapsed="true">
+    <Position X="21.25" Y="8.5" Width="8" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAQgAAAAAAAAAAAAIAEAIQApAAACAQIQgAgAAQg=</HashCode>
+      <FileName>Machine\InParallelMachine.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Machine.PramMachine" BaseTypeListCollapsed="true">
+    <Position X="0.75" Y="4.75" Width="5.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="PRAM_lib.Machine.PramMachine.CRCW_AccessType">
+        <TypeIdentifier>
+          <NewMemberFileName>Machine\PramMachine.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>MAKBACRsBScEAAKUItAAEAFACZAgAEBATkJQIhpiAUw=</HashCode>
+      <FileName>Machine\PramMachine.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Memory.IOMemory" BaseTypeListCollapsed="true">
+    <Position X="17" Y="5.75" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAIAAAAgAAAAAAABAAAAAAFAAAA=</HashCode>
+      <FileName>Memory\IO\IOMemory.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Memory.MachineMemory" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="6.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAgAAAIAAAAgAAAAAAAAAAAAAAFAAAA=</HashCode>
+      <FileName>Memory\MachineMemory.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PRAM_lib.Memory.MemoryCell" BaseTypeListCollapsed="true">
+    <Position X="13" Y="4.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAIAAAAAAAgAAAAAAAAAAgAAQAAAA=</HashCode>
+      <FileName>Memory\MemoryCell.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Interface Name="PRAM_lib.Code.Gateway.Interface.IGateway">
+    <Position X="0.75" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AQAAAACgAAAAIAAAgAAAAAIhAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Code\Gateway\Interface\IGateway.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PRAM_lib.Instruction.Other.Interface.IInstruction">
+    <Position X="15.25" Y="16.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAQAAAAAAAAAAAAAAIAAAAAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\Interface\IInstruction.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PRAM_lib.Instruction.Other.InstructionResult.Interface.IResultSet">
+    <Position X="17.75" Y="16.25" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\Interface\IResultSet.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PRAM_lib.Instruction.Other.InstructionResult.Interface.IComparisonSet">
+    <Position X="17" Y="17.75" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Instruction\Other\ResultSet\Interface\IResultSet.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PRAM_lib.Processor.Interface.IProcessor" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Machine\Interface\IProcessor.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PRAM_lib.Memory.Interface.IMemory">
+    <Position X="7" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAAFAAAA=</HashCode>
+      <FileName>Memory\Interface\IMemory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="PRAM_lib.Instruction.Other.InstructionResult.Interface.ComparisonMethod">
+    <Position X="20.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAEAAQQAAAAQAAAE=</HashCode>
+      <FileName>Instruction\Other\ResultSet\Interface\IResultSet.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="PRAM_lib.Instruction.Other.InstructionResult.Interface.Operation">
+    <Position X="22.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAMAAAAAAAAAAAAgAAAAAAAAAAQAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>Instruction\Other\ResultSet\Interface\IResultSet.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="PRAM_lib.Machine.Container.ParallelAccessType">
+    <Position X="26.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Machine\Container\ParallelAccessInfo.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="PRAM_lib.Machine.Container.ParallelAccessError">
+    <Position X="24" Y="0.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAgAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Machine\Container\ParallelAccessInfo.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

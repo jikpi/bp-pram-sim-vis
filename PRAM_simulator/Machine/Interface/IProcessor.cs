@@ -9,5 +9,8 @@ namespace PRAM_lib.Processor.Interface
     /// </summary>
     internal interface IProcessor
     {
+        bool ExecuteNextInstruction();
+        void Restart();
+        int GetCurrentCodeLineIndex();
     }
 }
