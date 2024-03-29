@@ -41,10 +41,10 @@ A razor component for common controls of the PRAM machine.
         {
             <button class="btn btn-primary me-2 mb-2" @onclick="StepBackward">@TextUIService.ExecutionStepBack</button>
         }
-        <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
-        <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
+        <button class="btn @GetNextButtonClass() me-2 mb-2" title="@TextUIService.ExecutionStepForwardTooltip" @onclick="StepForward">@TextUIService.ExecutionStepForward</button>
+        <button class="btn @GetNextButtonClass() me-2 mb-2" title="@TextUIService.ExecutionStepUntilBreakpointTooltip" @onclick="RunUntilBreakpoint">@TextUIService.ExecutionStepUntilBreakpoint</button>
         <button class="btn @GetNextButtonClass() me-2 mb-2" @onclick="ToggleAutoRun">@TextUIService.ExecutionAutoRun</button>
-        <button class="btn btn-primary me-2 mb-2" @onclick="Reset">@TextUIService.ExecutionReset</button>
+        <button class="btn btn-primary me-2 mb-2" title="@TextUIService.ExecutionResetTooltip" @onclick="Reset">@TextUIService.ExecutionReset</button>
 
         <div class="text-center mb-2 larger-text">@TextUIService.CurrentExecutionInfo(execService.StepsTotal, execService.StepsIncludingParallel, execService.GetRunningParallelMachineCount())</div>
     </div>

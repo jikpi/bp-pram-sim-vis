@@ -14,9 +14,12 @@
         public static string ExecutionStepBack { get; private set; } = "🔺 Step back";
         public static string ExecutionToPresent { get; private set; } = "🔁 Step to present";
         public static string ExecutionStepForward { get; private set; } = "🟢 Step forward";
+        public static string ExecutionStepForwardTooltip { get; private set; } = "Go forwards in the machine execution progress";
         public static string ExecutionStepUntilBreakpoint { get; private set; } = "🔴 Run Until Breakpoint";
+        public static string ExecutionStepUntilBreakpointTooltip { get; private set; } = "Run the machine until a breakpoint is hit or halts.";
         public static string ExecutionAutoRun { get; private set; } = "⏯ Auto Run";
         public static string ExecutionReset { get; private set; } = "🧹 Reset";
+        public static string ExecutionResetTooltip { get; private set; } = "Reset the machine, without clearing memory.";
         public static string CurrentExecutionInfo(int stepsCount, int parallelStepsCount, int runningParallelMachines) => $"Running paralell machines: {(runningParallelMachines > 0 ? $"[{runningParallelMachines}] 🟥" : "[0]")} || Steps: [{stepsCount}] || Including parallel: [{parallelStepsCount}]";
         public static string CodeCannotBeEmpty { get; private set; } = "Code cannot be empty";
 
@@ -86,9 +89,12 @@
         public static string SettingsTitleRunConfiguration { get; private set; } = "🟢 Run configuration";
         public static string SettingsAutoStepSpeed { get; private set; } = "Auto Step Speed";
         public static string SettingsHideUnsetMemoryCells { get; private set; } = "Hide unset memory cells";
+        public static string SettingsHideUnsetMemoryCellsTooltip { get; private set; } = "Hide unset memory cells to save display space";
         public static string SettingsHideUnsetMemoryCellsReHide { get; private set; } = "Re-hide";
+        public static string SettingsHideUnsetMemoryCellsReHideTooltip { get; private set; } = "Re-hide all cells currently containing a value of 0, should they have been set in the past. Useful when exporting a machine.";
         public static string SettingsSaveHistory { get; private set; } = "Save history";
         public static string SettingsFixParallelCodeInPlace { get; private set; } = "Fix parallel code in place";
+        public static string SettingsFixParallelCodeInPlaceTooltip { get; private set; } = "Save display space by rendering only a set amount of lines";
         public static string SettingsCRCWAccessType { get; private set; } = "CRCW Access type";
         public static string SettingsTitleMachineImportExport { get; private set; } = "💾 Machine management";
         public static string SettingsTitleRegexImportExport { get; private set; } = "🔠 Regex management";
@@ -99,9 +105,15 @@
         public static string SettingsAboutButton { get; private set; } = "About and User manual";
         public static string SettingsFirstTimeUserManual { get; private set; } = "First time here? Read the user manual:";
 
+        public static string SameRegisterCRCWOption { get; private set; } = "Allow CRCW single step single register read and write (⚠)";
+        public static string SameRegisterCRCWOptionTooltip { get; private set; } = "In CRCW, allow concurrent read and write in the same memory cell in single step. Only for experiments, more info in settings.";
+        public static string LoadStashedMachine { get; private set; } = "Load";
+        public static string LoadStashedMachineTooltip { get; private set; } = "Load stashed machine";
+        public static string StashMachine { get; private set; } = "Stash";
+        public static string StashMachineTooltip { get; private set; } = "Stash the current machine state to memory. This can be used to perform a true reset of the machine by subsequently loading the stashed state, restoring it to the saved state, including memory.";
         public static Dictionary<string, string> CreateMachineExampleDictionary()
         {
-            Dictionary<string,string> ExampleMachines = new Dictionary<string, string>
+            Dictionary<string, string> ExampleMachines = new Dictionary<string, string>
             {
                 { "Calculate prefix sums of n numbers in O(log n)", "MACHINECODE\r\n# Calculate prefix sums of n numbers\r\n# in O(log n)\r\n# in a balanced binary tree format\r\n# n is a power of 2\r\n\r\n# Input\r\n# First array (A) size at S9, starts S10\r\n# the array must be in the format:\r\n# An array representing a \r\n# balanced binary tree, where the\r\n# input numbers are at the last\r\n# level of it, with space reserved\r\n# for all levels above.\r\n# (starts with ((n+1) / 2) - 1) zeroes)\r\n\r\n#Output\r\n# A second array (B) also in the\r\n# representation of a balanced \r\n# binary tree starting at \r\n# (11 + the size of array A)\r\n# of the first array containing\r\n# in each node the sum of A + B\r\n# on identical indexes, in B on the \r\n# following node index on each level.\r\n# The array A with 2 summed\r\n# numbers from connected\r\n# nodes from of the previous level.\r\n\r\n\r\n# Calculate the square root of n + 1\r\n# to get the number of tree levels\r\nS8 := S9 + 1\r\nS7 := 0\r\n\r\n:sqrt_loop\r\nS8 := S8 / 2\r\nS7 := S7 + 1\r\nif (S8 == 1) goto :sqrt_done\r\ngoto :sqrt_loop\r\n:sqrt_done\r\n\r\n# The total number of levels is now\r\n# saved in S7.\r\n# In S5, save the no/2 of level's nodes\r\n# for the first iteration\r\nS5 := S9 + 1\r\nS5 := S5 / 4\r\n\r\n# Launch no/2 of level's nodes processors\r\n# from the bottom\r\n:summation_cycle\r\npardo S5\r\nL0 := {i}\r\n# Get the origin index for the current\r\n# level and add processors index to it\r\n# dont add offset to allow calculations\r\n#L1 => A[i]\r\nL1 := S5 + L0\r\n\r\n# Get the address of the\r\n# pair of numbers to be added\r\n# and add offset to both\r\n# L2 => A[2 ∗ i] , (A[2 ∗ i + 1])\r\nL2 := L1 * 2\r\nL1 := L1 + 9\r\nL2 := L2 + 9\r\n# Save the values to local memory, sum them\r\n# and save to shared memory\r\n# to the precalculated address\r\n# in the tree\r\nL4 := S{L2}\r\nL5 := S{L2 + 1}\r\nS{L1} := L4 + L5\r\nhalt\r\nparend\r\n\r\n# Refresh the number of nodes\r\n# in S5 to be half of the previous count\r\nS5 := S5 / 2\r\n\r\n# if S5 is 0, first array is summed\r\nif (S5 == 0) goto :next_stage\r\ngoto :summation_cycle\r\n:next_stage\r\n\r\n# Offset for array 2\r\nS4 := S9 + 10\r\n\r\n# First level has 1 node\r\nS5 := 1\r\n\r\n# Launch no/2 of level's nodes processors\r\n# from the top\r\n:calc_cycle\r\npardo S5\r\nL0 := {i}\r\n\r\n# L1 => B[i]\r\nL1 := S5 + L0\r\n\r\n# L2 => B[2 * i], (B[2 * i + 1])\r\nL2 := L1 * 2\r\n# Add offsets to second array\r\nL1 := L1 + S4\r\nL2 := L2 + S4\r\n\r\n# L3 => A[2 * i]\r\nL3 := S5 + L0\r\nL3 := L3 * 2\r\nL3 := L3 + 9\r\n\r\n# B[2 * i] := B[i]\r\nS{L2} := S{L1}\r\n\r\n# B[2 * i + 1] := B[i] + A[2 * i]\r\nL4 := S{L1}\r\nL5 := S{L3}\r\nS{L2 + 1} := L4 + L5\r\nhalt\r\nparend\r\n\r\n# Refresh the number of nodes\r\n# in S5 to be double the previous count\r\nS5 := S5 * 2\r\n# if S5 is >S7, second array B is calculated\r\nif (S5 > S7) goto :end\r\ngoto :calc_cycle\r\n:end\r\nMEMORYINPUT\r\nMEMORYSHARED\r\n9:15\r\n10:0\r\n11:0\r\n12:0\r\n13:0\r\n14:0\r\n15:0\r\n16:0\r\n17:2\r\n18:18\r\n19:5\r\n20:12\r\n21:21\r\n22:8\r\n23:10\r\n24:7\r\n" },
                 { "Calculate conjunction array in O(1)", "MACHINECODE\r\n# Calculate conjunction array\r\n# CRCW any required\r\n# Outputs 1 if all is 1\r\n# Outputs 0 of any is not 1\r\n\r\n# Input\r\n# Size of array (n) at S1\r\n# S2 to Sn are array values\r\n# Value: 1 = true, \r\n# other = false\r\nS0 := 1\r\n\r\npardo S1\r\nL0 := {i}\r\nL0 := L0 + 2\r\nL1 := S{L0}\r\nif (L1 == 1) goto :not\r\nS0 := 0\r\n:not\r\nhalt\r\nparend\r\n\r\nWRITE(S0)\r\nhalt\r\nMEMORYINPUT\r\nMEMORYSHARED\r\n0:1\r\n1:5\r\n2:1\r\n3:1\r\n4:1\r\n5:1\r\n6:1\r\n" },

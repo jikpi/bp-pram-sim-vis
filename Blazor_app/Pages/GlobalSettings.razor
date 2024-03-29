@@ -36,8 +36,8 @@ A major razor component for settings.
 
                 <div class="form-group mb-1">
                     <input type="checkbox" @bind="globalService.HideMemoryCells" id="hideMemoryCellsCheckbox" aria-label="@TextUIService.SettingsHideUnsetMemoryCells">
-                    <label for="hideMemoryCellsCheckbox" class="ms-2">@TextUIService.SettingsHideUnsetMemoryCells</label>
-                    <button type="button" class="btn btn-secondary"
+                    <label for="hideMemoryCellsCheckbox" class="ms-2" title="@TextUIService.SettingsHideUnsetMemoryCellsTooltip">@TextUIService.SettingsHideUnsetMemoryCells</label>
+                    <button type="button" class="btn btn-secondary" title="@TextUIService.SettingsHideUnsetMemoryCellsReHideTooltip"
                             @onclick="ResetZeroCellsFlag">
                         @TextUIService.SettingsHideUnsetMemoryCellsReHide
                     </button>
@@ -50,7 +50,7 @@ A major razor component for settings.
 
                 <div class="form-group mb-1">
                     <input type="checkbox" @bind="globalService.FixedCode" id="fixedcodecheckbox" aria-label="@TextUIService.SettingsFixParallelCodeInPlace">
-                    <label for="fixedcodecheckbox" class="ms-2">@TextUIService.SettingsFixParallelCodeInPlace</label>
+                    <label for="fixedcodecheckbox" class="ms-2" title="@TextUIService.SettingsFixParallelCodeInPlaceTooltip">@TextUIService.SettingsFixParallelCodeInPlace</label>
                     <label for="fixedCodeLinesSlider">:</label>
                     <input type="range" class="form-control-range" id="fixedCodeLinesSlider"
                            min="@globalService.MinFixedCodeLength" max="@globalService.MaxFixedCodeLength" value="@globalService.FixedCodeLength"
@@ -69,8 +69,8 @@ A major razor component for settings.
                 </div>
 
                 <div class="form-group mb-1">
-                    <input type="checkbox" @bind="execService.SameRegisterCRCW" id="allowsinglestepcrcw" aria-label="In CRCW, allow concurrent read and write in the same memory cell in single step">
-                    <label for="allowsinglestepcrcw" class="ms-2">Allow CRCW single step single register read and write (⚠)</label>
+                    <input type="checkbox" @bind="execService.SameRegisterCRCW" id="allowsinglestepcrcw" aria-label="@TextUIService.SameRegisterCRCWOption">
+                    <label for="allowsinglestepcrcw" class="ms-2" title="@TextUIService.SameRegisterCRCWOptionTooltip">@TextUIService.SameRegisterCRCWOption</label>
                 </div>
 
                 @if (execService.IsInHistory)
@@ -104,14 +104,14 @@ A major razor component for settings.
                 <div class="form-group mb-3">
                     <h5>Load or stash to memory</h5>
 
-                    <button type="button" class="btn btn-warning"
+                    <button type="button" class="btn btn-warning" title="@TextUIService.LoadStashedMachineTooltip"
                             @onclick="ReimportMachine">
-                        Load
+                        @TextUIService.LoadStashedMachine
                     </button>
 
-                    <button type="button" class="btn btn-info"
+                    <button type="button" class="btn btn-info" title="@TextUIService.StashMachineTooltip"
                             @onclick="SaveToReimportMachine">
-                        Stash
+                        @TextUIService.StashMachine
                     </button>
 
                     <p></p>
