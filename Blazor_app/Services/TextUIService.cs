@@ -94,7 +94,7 @@
         public static string SettingsHideUnsetMemoryCellsReHideTooltip { get; private set; } = "Re-hide all cells currently containing a value of 0, should they have been set in the past. Useful when exporting a machine.";
         public static string SettingsSaveHistory { get; private set; } = "Save history";
         public static string SettingsFixParallelCodeInPlace { get; private set; } = "Fix parallel code in place";
-        public static string SettingsFixParallelCodeInPlaceTooltip { get; private set; } = "Save display space by rendering only a set amount of lines";
+        public static string SettingsFixParallelCodeInPlaceTooltip { get; private set; } = "Save display space by rendering only a set amount of code lines in PRAM View";
         public static string SettingsCRCWAccessType { get; private set; } = "CRCW Access type";
         public static string SettingsTitleMachineImportExport { get; private set; } = "💾 Machine management";
         public static string SettingsTitleRegexImportExport { get; private set; } = "🔠 Regex management";
@@ -106,7 +106,7 @@
         public static string SettingsFirstTimeUserManual { get; private set; } = "First time here? Read the user manual:";
 
         public static string SameRegisterCRCWOption { get; private set; } = "Allow CRCW single step single register read and write (⚠)";
-        public static string SameRegisterCRCWOptionTooltip { get; private set; } = "In CRCW, allow concurrent read and write in the same memory cell in single step. Only for experiments, more info in settings.";
+        public static string SameRegisterCRCWOptionTooltip { get; private set; } = "In CRCW, allow concurrent read and write in the same memory cell in single step. Only for experiments, more info in user manual.";
         public static string LoadStashedMachine { get; private set; } = "Load";
         public static string LoadStashedMachineTooltip { get; private set; } = "Load stashed machine";
         public static string StashMachine { get; private set; } = "Stash";
