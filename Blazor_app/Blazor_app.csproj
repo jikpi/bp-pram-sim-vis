@@ -15,4 +15,8 @@
     <ProjectReference Include="..\PRAM_simulator\PRAM_lib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\sample-data\" />
+  </ItemGroup>
+
 </Project>

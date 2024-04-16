@@ -154,10 +154,11 @@ A major razor component for about page.
                 <ul>
                     <li>Import a machine from a file. This automatically stashes the machine to memory in its current state.</li>
                     <li>Export the current machine to a file</li>
-                    <li>Load a stashed machine from memory, importing the last machine stashed in memory. Can be used to also re-import the last loaded example machine.</li>
+                    <li>Load a stashed machine from memory, loading the last machine stashed in memory. Can be used to also re-load the last loaded example machine.</li>
                     <li>Stash the current machine to memory.</li>
                     <li>Code, input memory and shared memory are taken into account. Exports only changed memory cells, including ones containing a zero value.</li>
                     <li>When loading a stashed machine from memory, the output memory is cleared and the machine is automatically compiled. If a machine is loaded and the PRAM syntax regex is non-default, a warning is displayed.</li>
+                    <li>Importing a machine, or loading a stashed machine does not change the set variant of the PRAM, and it might be neccessary to set it manually.</li>
                     <li>Note that "Stash / Load" in memory does not mean the currently displayed machine the user is interacting with, but a separate location in memory for machine management purposes.</li>
                 </ul>
             </li>
