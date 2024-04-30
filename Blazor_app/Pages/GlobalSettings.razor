@@ -261,6 +261,10 @@ A major razor component for settings.
         {
             fileName = $"machine {DateTime.Now:yyyyMMddHHmmss}.txt";
         }
+        else
+        {
+            fileName = $"{fileName}.txt";
+        }
 
         try
         {
